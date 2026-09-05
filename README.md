@@ -16,7 +16,13 @@ Losing all three hearts just restarts the round ("Oops, try again!"), there is n
 
 All the art is custom, generated with Higgsfield and cut out into small webp files in `art/`: the ten animals, the owl guide, the bomb, and every interface icon (play arrow, house, speaker, stars, hearts, pointing hand, trophy, chick, flame, lightning). No emoji are used except as a fallback while an image is still loading.
 
-## Play it on your phone right away
+## Play it online
+
+The game is hosted on GitHub Pages: **<https://flahz.github.io/claude-game-vibe/>**
+
+A GitHub Actions workflow (`.github/workflows/pages.yml`) publishes it on every push to `main`. It copies only the files the game needs (`index.html`, `sw.js`, the manifest, the icons and `art/`) and deploys them with the official Pages actions. The first run switches the repository's Pages source to "GitHub Actions" by itself; if it fails with a permissions error, open Settings → Pages once and pick "GitHub Actions" as the source, then re-run the workflow. Open the URL on a phone and use "Add to Home Screen" to install it.
+
+## Play it on your phone right away with ngrok
 
 ```bash
 git clone https://github.com/Flahz/claude-game-vibe.git
@@ -52,6 +58,7 @@ ngrok http 8080                  # terminal 2, copy the https URL
 | `art/*.webp` | The custom art, 208px each: 10 animals, the owl guide, the bomb, and 11 interface icons. Emoji are only used as a fallback while they load. |
 | `sw.js` | Service worker so the game works offline after the first load. |
 | `manifest.webmanifest`, `icon-192.png`, `icon-512.png` | Add‑to‑home‑screen support. |
+| `.github/workflows/pages.yml` | GitHub Actions workflow that deploys the game to GitHub Pages on every push to `main`. |
 | `serve.sh` | One‑command local server + ngrok tunnel + QR code. |
 | `test/smoke.js` | Playwright playthrough test (easy mode) used during development. |
 | `test/hard.js` | Playwright test for hard and expert mode: hearts, bombs, restart, stars, ordered goals, timer, colour shifts. |
