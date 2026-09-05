@@ -48,10 +48,18 @@ ngrok http 8080                  # terminal 2, copy the https URL
 
 | Rounds | Ask | Example |
 | --- | --- | --- |
-| 1 to 3 | One color | "Pop the RED bubbles!" |
-| 4 to 6 | One animal | "Pop 3 lions!" |
-| 7 to 10 | Color and animal | "Pop the BLUE elephant!" |
+| 1 to 7 | One color or one animal | "Pop three RED bubbles!", "Pop three lions!" |
+| 8 to 10 | Color and animal together | "Pop four BLUE elephants!" |
 
-Bubbles get a little more numerous and a little faster each round. Wrong taps only wiggle and giggle.
+Bubbles get a little more numerous and a little faster each round. Wrong taps only wiggle and giggle. After the tenth sticker the Play button turns into free play.
 
-Parents: long‑press the top‑left corner of the home screen for two seconds to reset the sticker book.
+Nothing needs to be read: the owl shows a pointing hand and the bubble to pop, says it out loud, and the star bar shows how many are left. An accidental tap on the Home button keeps the round's progress.
+
+## Development
+
+```bash
+python3 -m http.server 8080
+NODE_PATH=/path/to/node_modules node test/smoke.js http://127.0.0.1:8080 /tmp/out "Pixel 5"
+```
+
+`test/smoke.js` needs Playwright. It plays two rounds, checks wrong taps are harmless, reloads to check the stickers and mute setting persisted, and fails on any page error or external request.
