@@ -20,7 +20,7 @@ All the art is custom, generated with Higgsfield and cut out into small webp fil
 
 The game is hosted on GitHub Pages: **<https://flahz.github.io/claude-game-vibe/>**
 
-A GitHub Actions workflow (`.github/workflows/pages.yml`) publishes it on every push to `main`. It copies only the files the game needs (`index.html`, `sw.js`, the manifest, the icons and `art/`) and pushes them to the `gh-pages` branch, which GitHub Pages serves. If the site ever shows a 404, open Settings → Pages once and make sure the source is the `gh-pages` branch (root). Open the URL on a phone and use "Add to Home Screen" to install it.
+GitHub Pages serves the `main` branch directly (Settings → Pages → Source: Deploy from a branch, `main`, `/ (root)`), so every push to `main` republishes the game within a minute; GitHub's own "pages build and deployment" workflow does the work. The `.nojekyll` file tells it to copy the files as they are. Open the URL on a phone and use "Add to Home Screen" to install it.
 
 ## Play it on your phone right away with ngrok
 
@@ -58,7 +58,7 @@ ngrok http 8080                  # terminal 2, copy the https URL
 | `art/*.webp` | The custom art, 208px each: 10 animals, the owl guide, the bomb, and 11 interface icons. Emoji are only used as a fallback while they load. |
 | `sw.js` | Service worker so the game works offline after the first load. |
 | `manifest.webmanifest`, `icon-192.png`, `icon-512.png` | Add‑to‑home‑screen support. |
-| `.github/workflows/pages.yml` | GitHub Actions workflow that deploys the game to GitHub Pages on every push to `main`. |
+| `.nojekyll` | Tells GitHub Pages to publish the files as they are. |
 | `serve.sh` | One‑command local server + ngrok tunnel + QR code. |
 | `test/smoke.js` | Playwright playthrough test (easy mode) used during development. |
 | `test/hard.js` | Playwright test for hard and expert mode: hearts, bombs, restart, stars, ordered goals, timer, colour shifts. |
