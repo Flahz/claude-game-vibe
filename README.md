@@ -1,6 +1,6 @@
 # Bubble Pop Safari 🦁🫧
 
-A mobile web game for kids aged 4 to 8. Colorful animal bubbles float up the screen; the friendly owl asks for "the RED bubbles" or "3 lions"; tap the right ones to fill the bar, get a confetti party, and earn a sticker. No ads, no network, nothing to read.
+A mobile web game for kids aged 4 to 8. Colorful animal bubbles float up the screen; the friendly owl's bubble says "Pop 3 RED bubbles!" or "Pop 3 LIONS!" in big simple words, with the color word shown in its color and a picture of the bubble to pop; tap the right ones to fill the bar, get a confetti party, and earn a sticker. No voice, no ads, no network. A cheerful looping tune plays along, generated in the browser.
 
 Ten rounds, ten stickers, progress saved on the phone. Works offline and can be added to the home screen on iOS and Android.
 
@@ -67,7 +67,9 @@ ngrok http 8080                  # terminal 2, copy the https URL
 
 Bubbles get a little more numerous and a little faster each round. In hard and expert, later rounds ask for an ordered sequence instead, and the goal pill shows the steps with the current one highlighted. After the tenth sticker of a difficulty the Play button turns into free play for it.
 
-Nothing needs to be read: the owl shows a pointing hand and the bubble to pop, says it out loud, and the star bar shows how many are left. An accidental tap on the Home button keeps the round's progress.
+Everything is on screen in short words a young reader can manage: the owl's bubble shows the instruction and the bubble to pop, big words like "Round 3", "Oops!", "Faster!" and "Try again!" pop up in the middle, the count floats up from each popped bubble, and the star bar shows how many are left. There is no voice. An accidental tap on the Home button keeps the round's progress.
+
+The music is generated with Web Audio (a pentatonic tune over C, G, Am, F with bass, kick and hi-hat during play, a softer version on the home screen, a little faster in hard and expert), so there are no audio files to download. The sound button mutes music and effects together.
 
 ## Development
 

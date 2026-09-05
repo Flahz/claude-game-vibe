@@ -78,7 +78,7 @@ h1{ font-size: clamp(26px, 7.6vw, 38px); margin:0 0 0 10px; font-weight:900; col
 #guide-face{ font-size:66px; line-height:1; display:flex; transform-origin:50% 100%; filter: drop-shadow(0 6px 6px rgba(0,0,0,.2)); animation: bob 2.6s ease-in-out infinite; }
 #guide-face.talk{ animation: talk .45s ease-in-out 3; }
 #guide-face.oops{ animation: wiggle .5s ease-in-out; }
-#speech{ flex:1; background:#fff; border-radius:28px; min-height:80px; padding:8px 14px; display:flex; align-items:center; justify-content:center; gap:12px;
+#speech{ flex:1; background:#fff; border-radius:28px; min-height:80px; padding:8px 12px 6px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
   box-shadow: 0 6px 0 rgba(0,0,0,.12); position:relative; }
 #speech::before{ content:''; position:absolute; left:-16px; top:50%; margin-top:-11px; border:11px solid transparent; border-right-color:#fff; }
 #speech .hand{ font-size:46px; line-height:1; display:flex; animation: point 1.1s ease-in-out infinite; }
@@ -89,6 +89,18 @@ h1{ font-size: clamp(26px, 7.6vw, 38px); margin:0 0 0 10px; font-weight:900; col
 .gb::after{ content:''; position:absolute; left:12px; top:9px; width:14px; height:9px; border-radius:50%; background:rgba(255,255,255,.85); transform:rotate(-30deg); }
 .gb.rainbow{ background: conic-gradient(#ff3b5c,#ffcc1a,#2fd15f,#2f7cff,#9b4dff,#ff3b5c); }
 #speech.pop{ animation: popIn .5s cubic-bezier(.34,1.56,.64,1); }
+#speech .say{ font-size: clamp(18px, 5.6vw, 24px); font-weight:900; text-align:center; line-height:1.15; letter-spacing:.2px; color:var(--ink); }
+#speech .say .cw{ text-shadow: 0 1px 0 rgba(255,255,255,.6); }
+#speech .icons{ display:flex; align-items:center; justify-content:center; gap:12px; }
+#toast{ position:absolute; left:0; right:0; top:46%; text-align:center; pointer-events:none; z-index:6; font-size: clamp(34px, 10vw, 52px); font-weight:900; color:#fff;
+  text-shadow: 0 3px 0 #1f78c8, 0 0 12px rgba(0,0,0,.25), -2px -2px 0 #1f78c8, 2px -2px 0 #1f78c8, -2px 2px 0 #1f78c8, 2px 2px 0 #1f78c8; opacity:0; transform:scale(.6); }
+#toast.on{ animation: toastIn .55s cubic-bezier(.34,1.56,.64,1) forwards; }
+#toast.out{ animation: toastOut .3s ease-in forwards; }
+.dopt{ display:flex; flex-direction:column; align-items:center; gap:6px; }
+.dl{ font-size:15px; font-weight:800; color:#fff; text-shadow: 0 2px 0 #1f78c8, 0 3px 8px rgba(0,0,0,.25); letter-spacing:.3px; }
+#ctext{ font-size: clamp(22px, 6.5vw, 30px); font-weight:900; color:var(--ink); text-align:center; line-height:1.1; }
+@keyframes toastIn{ 0%{ opacity:0; transform:scale(.6) } 100%{ opacity:1; transform:scale(1) } }
+@keyframes toastOut{ 0%{ opacity:1; transform:scale(1) } 100%{ opacity:0; transform:scale(1.15) translateY(-20px) } }
 
 /* ---------- CELEBRATE ---------- */
 #celebrate{ justify-content:center; pointer-events:none; z-index:8; }
@@ -117,6 +129,7 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
 
 /* ---------- DIFFICULTY ---------- */
 #diffs{ display:flex; gap:12px; align-items:center; justify-content:center; margin-bottom:4px; }
+#diffs{ align-items:flex-start; }
 #diffs .btn{ min-width:60px; min-height:60px; width:60px; height:60px; font-size:30px; opacity:.72; transform:scale(.9); transition: transform .2s cubic-bezier(.34,1.56,.64,1), opacity .2s, box-shadow .2s; }
 #diffs .btn.on{ opacity:1; transform:scale(1.18); box-shadow: 0 0 0 5px #fff, 0 5px 0 5px rgba(0,0,0,.12), 0 8px 16px rgba(0,0,0,.18); }
 #diffs .btn[data-diff="hard"].on{ background:#ffb020; }
@@ -166,6 +179,7 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
   #diffs{ flex-direction:column; gap:14px; margin:0; }
   #row2{ margin-top:4px; }
   #guide{ margin-top:6px; } #speech{ min-height:64px; } #guide-face{ font-size:50px; }
+  .dl{ display:none; }
 }
 </style>
 </head>
@@ -178,9 +192,9 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
     <div id="book" aria-label="Sticker book"></div>
     <button id="play" class="btn" data-testid="play" aria-label="Play"><img class="art" src="art/next.webp" alt="" data-fb="▶"></button>
     <div id="diffs" aria-label="Difficulty">
-      <button class="btn small" data-diff="easy" data-testid="diff-easy" aria-label="Easy"><img class="art" src="art/chick.webp" alt="" data-fb="🐣"></button>
-      <button class="btn small" data-diff="hard" data-testid="diff-hard" aria-label="Hard"><img class="art" src="art/flame.webp" alt="" data-fb="🔥"></button>
-      <button class="btn small" data-diff="expert" data-testid="diff-expert" aria-label="Expert"><img class="art" src="art/bolt.webp" alt="" data-fb="⚡"></button>
+      <div class="dopt"><button class="btn small" data-diff="easy" data-testid="diff-easy" aria-label="Easy"><img class="art" src="art/chick.webp" alt="" data-fb="🐣"></button><span class="dl">Easy</span></div>
+      <div class="dopt"><button class="btn small" data-diff="hard" data-testid="diff-hard" aria-label="Hard"><img class="art" src="art/flame.webp" alt="" data-fb="🔥"></button><span class="dl">Hard</span></div>
+      <div class="dopt"><button class="btn small" data-diff="expert" data-testid="diff-expert" aria-label="Expert"><img class="art" src="art/bolt.webp" alt="" data-fb="⚡"></button><span class="dl">Expert</span></div>
     </div>
   </section>
 
@@ -197,11 +211,13 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
     <div class="card">
       <div id="celebrate-sticker" class="big-sticker"></div>
       <div id="celebrate-book"></div>
+      <div id="ctext">You did it!</div>
       <div class="stars" id="cstars"><span><img class="art" src="art/star.webp" alt="" data-fb="⭐"></span><span><img class="art" src="art/star.webp" alt="" data-fb="⭐"></span><span><img class="art" src="art/star.webp" alt="" data-fb="⭐"></span></div>
       <button id="next" class="btn" data-testid="next" aria-label="Next"><img class="art" src="art/next.webp" alt="" data-fb="➡️"></button>
     </div>
   </section>
 
+  <div id="toast" aria-live="polite"></div>
   <button id="mute" class="btn small" data-testid="mute" aria-label="Sound on" aria-pressed="false"><img class="art" src="art/sound.webp" alt="" data-fb="🔊"></button>
 </div>
 
@@ -210,7 +226,6 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
 'use strict';
 const $ = s => document.querySelector(s);
 const KEY = 'bps.v2', OLD_KEY = 'bps.v1';
-const NUM = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve'];
 const COLORS = {
   red:    ['#ff3b5c','#ffc0cb','#b8143a'],
   blue:   ['#2f7cff','#bcd6ff','#1b4fc2'],
@@ -245,8 +260,8 @@ const ROUNDS = [
 const FREE = { free:true, count:10, max:10, speed:1.3, colors:Object.keys(COLORS).filter(c=>c!=='bomb'), animals:STICKERS };
 /* difficulty: easy is the original game. hard/expert add hearts, bombs, ordered goals, speed, and (expert) a timer + colour-changing bubbles */
 const DIFFS = {
-  easy:   { speed:1.00, size:1.00, extra:0, bombs:0,    hearts:0, seqFrom:99, seq3From:99, timer:0,  shift:0,    ratio:0.45, minT:2, phrase:'Easy peasy!' },
-  hard:   { speed:1.45, size:0.86, extra:3, bombs:0.18, hearts:3, seqFrom:5,  seq3From:99, timer:0,  shift:0,    ratio:0.35, minT:2, phrase:'Hard mode! Watch out for bombs!' },
+  easy:   { speed:1.00, size:1.00, extra:0, bombs:0,    hearts:0, seqFrom:99, seq3From:99, timer:0,  shift:0,    ratio:0.45, minT:2, phrase:'Easy!' },
+  hard:   { speed:1.45, size:0.86, extra:3, bombs:0.18, hearts:3, seqFrom:5,  seq3From:99, timer:0,  shift:0,    ratio:0.35, minT:2, phrase:'Hard! Watch out!' },
   expert: { speed:1.85, size:0.76, extra:5, bombs:0.26, hearts:3, seqFrom:3,  seq3From:7,  timer:22, shift:0.30, ratio:0.28, minT:1, phrase:'Expert! Be quick!' }
 };
 const pick = a => a[(Math.random()*a.length)|0];
@@ -322,22 +337,50 @@ const sfx = {
   party(){ sfx.fanfare(); [1568,1760,2093].forEach((f,i)=>tone({freq:f, type:'triangle', dur:0.4, vol:0.1, delay:1.3+i*0.12})); }
 };
 
-/* ---------- speech ---------- */
-let speechTries=0;
-function say(text, soft){
-  if(muted){ guideTalk(); return; }
-  try{
-    const s=window.speechSynthesis; if(!s){ guideTalk(); return; }
-    if(soft && (s.speaking||s.pending)) return;   // do not interrupt the instruction
-    guideTalk();
-    s.cancel();
-    const u=new SpeechSynthesisUtterance(text); u.rate=0.95; u.pitch=1.2; u.lang='en-US';
-    setTimeout(()=>{ try{ s.speak(u); }catch(e){} }, 40);
-  }catch(e){}
-}
-function unlockMedia(){
-  audio();
-  if(speechTries<3){ speechTries++; try{ const s=window.speechSynthesis; if(s){ s.speak(new SpeechSynthesisUtterance('')); } }catch(e){} }
+/* ---------- music (generated with Web Audio: a looping tune, bass and drums; softer on the home screen) ---------- */
+const music = (()=>{
+  const LEAD=[76,79,81,79,76,74,72,74, 74,76,74,0,79,81,79,76, 81,84,81,79,76,79,81,0, 81,79,76,74,72,74,76,0];   // C major pentatonic, 4 bars
+  const ROOTS=[48,43,45,41], CHORDS=[[60,64,67],[59,62,67],[57,60,64],[57,60,65]];   // C  G  Am  F
+  let mode='off', step=0, nextT=0, timer=0, bus=null, noise=null;
+  const hz=m=>440*Math.pow(2,(m-69)/12);
+  function ensure(){ const a=audio(); if(!a) return null;
+    if(!bus){ bus=a.createGain(); bus.gain.value=0; const lp=a.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=2800; bus.connect(lp); lp.connect(master); }
+    return a; }
+  function note(a,t,midi,type,dur,vol){ const o=a.createOscillator(), g=a.createGain(); o.type=type; o.frequency.value=hz(midi);
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(g); g.connect(bus); o.start(t); o.stop(t+dur+0.05); }
+  function kick(a,t){ const o=a.createOscillator(), g=a.createGain(); o.frequency.setValueAtTime(150,t); o.frequency.exponentialRampToValueAtTime(45,t+0.12);
+    g.gain.setValueAtTime(0.45,t); g.gain.exponentialRampToValueAtTime(0.0001,t+0.16); o.connect(g); g.connect(bus); o.start(t); o.stop(t+0.2); }
+  function hat(a,t,vol){ if(!noise){ noise=a.createBuffer(1,Math.round(a.sampleRate*0.06),a.sampleRate); const d=noise.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1; }
+    const src=a.createBufferSource(); src.buffer=noise; const hp=a.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=7000; const g=a.createGain();
+    g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(0.0001,t+0.05); src.connect(hp); hp.connect(g); g.connect(bus); src.start(t); }
+  function bpm(){ return mode==='home' ? 92 : 112*(diff==='expert'?1.16:diff==='hard'?1.08:1); }
+  function schedule(){
+    const a=ensure(); if(!a || mode==='off') return;
+    const sd=60/bpm()/2;   // one eighth note
+    while(nextT < a.currentTime+0.18){
+      const s=step%32, bar=(step>>3)&3, beat=s&7, t=nextT, home=mode==='home';
+      const m=LEAD[s]; if(m){ note(a,t,m,'triangle',home?sd*1.8:sd*0.9,home?0.16:0.2); if(!home) note(a,t,m+12,'sine',sd*0.5,0.05); }
+      if(beat===0||beat===4) CHORDS[bar].forEach(c=>note(a,t,c,'triangle',sd*3.6,home?0.07:0.045));
+      if(!home){ if(beat%2===0) note(a,t,ROOTS[bar]+(beat%4===2?7:0),'square',sd*0.8,0.09); if(beat===0||beat===4) kick(a,t); if(beat%2===1) hat(a,t,0.12); }
+      step++; nextT+=sd;
+    }
+  }
+  function set(m){ if(m===mode) return; mode=m; const a=ensure(); if(!a) return;
+    if(m==='off'){ bus.gain.setTargetAtTime(0,a.currentTime,0.15); clearInterval(timer); timer=0; return; }
+    bus.gain.setTargetAtTime(muted?0:0.5,a.currentTime,0.25);
+    if(!timer){ nextT=a.currentTime+0.05; step=0; timer=setInterval(schedule,60); schedule(); } }
+  function volume(){ const a=ensure(); if(a&&bus) bus.gain.setTargetAtTime(muted||mode==='off'?0:0.5,a.currentTime,0.1); }
+  return { set, volume, mode:()=>mode };
+})();
+function musicFor(){ return screen==='play' ? 'play' : screen==='home' ? 'home' : 'off'; }
+function unlockMedia(){ if(audio()) music.set(musicFor()); }
+
+/* ---------- on-screen words (no voice: the owl's bubble shows the instruction, big words pop up for feedback) ---------- */
+let toastT=0;
+function toast(text, ms){
+  const el=els.toast; clearTimeout(toastT); el.textContent=text; el.classList.remove('on','out'); void el.offsetWidth; el.classList.add('on');
+  toastT=setTimeout(()=>{ el.classList.remove('on'); el.classList.add('out'); }, ms||900);
 }
 // pointerdown for Chrome/Android; touchend + click as fallbacks for WebKit user-activation rules
 document.addEventListener('pointerdown', unlockMedia, {passive:true});
@@ -488,7 +531,7 @@ function confettiBurst(big){
 
 /* ---------- UI ---------- */
 const els={ home:$('#home'), hud:$('#hud'), celebrate:$('#celebrate'), speech:$('#speech'), face:$('#guide-face'), fill:$('#bar-fill'), stars:$('#bar-stars'),
-  book:$('#book'), play:$('#play'), mute:$('#mute'), csticker:$('#celebrate-sticker'), cbook:$('#celebrate-book'), cstars:$('#cstars'),
+  book:$('#book'), play:$('#play'), mute:$('#mute'), csticker:$('#celebrate-sticker'), cbook:$('#celebrate-book'), cstars:$('#cstars'), ctext:$('#ctext'), toast:$('#toast'),
   hearts:$('#hearts'), tfill:$('#tbar-fill'), diffs:$('#diffs') };
 function showScreens(list){ ['home','hud','celebrate'].forEach(k=>els[k].classList.toggle('on', list.includes(k))); els.hud.classList.toggle('celebrating', list.includes('celebrate')); }
 let talkT=0;
@@ -505,7 +548,7 @@ function renderGoal(){
   if(cur.free){ html=hand+'<span class="gb big rainbow">'+artTag('star')+'</span>'; }
   else if(seq){ const k=progress%seq.length; html=hand+'<span class="seq">'+seq.map((g,i)=>goalBubble(g,i===k)).join(artTag('next','arrow'))+'</span>'; }
   else html=hand+goalBubble(cur,true);
-  els.speech.innerHTML=html; els.speech.classList.remove('pop'); void els.speech.offsetWidth; els.speech.classList.add('pop');
+  els.speech.innerHTML='<div class="say">'+goalText()+'</div><div class="icons">'+html+'</div>'; els.speech.classList.remove('pop'); void els.speech.offsetWidth; els.speech.classList.add('pop');
 }
 function updateBar(){
   els.fill.style.width=(goal?Math.min(1,progress/goal)*100:0)+'%';
@@ -530,26 +573,24 @@ function renderBook(){
     els.book.appendChild(d);
   }
   els.play.classList.toggle('free', nextUnfinished()===0);
-  [...els.diffs.children].forEach(b=>b.classList.toggle('on', b.dataset.diff===diff));
+  els.diffs.querySelectorAll('.btn').forEach(b=>b.classList.toggle('on', b.dataset.diff===diff));
 }
 function renderMute(){ els.mute.innerHTML=artTag(muted?'mute':'sound'); els.mute.setAttribute('aria-label', muted?'Sound off':'Sound on'); els.mute.setAttribute('aria-pressed', String(muted)); }
-function toggleMute(){ muted=!muted; save(); renderMute(); if(muted){ try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){} } else { sfx.tick(); } }
+function toggleMute(){ muted=!muted; save(); renderMute(); music.volume(); if(!muted) sfx.tick(); }
 function setDifficulty(d, quiet){
   if(!DIFFS[d]) return; const changed=d!==diff; diff=d; D=DIFFS[d]; save();
   if(screen==='home'){ round=nextUnfinished()||1; cur=ROUNDS[round-1]; goal=cur.count; progress=0; }
   renderBook();
-  if(changed && !quiet){ sfx.tick(); say(D.phrase); }
+  if(changed && !quiet){ sfx.tick(); toast(D.phrase, 1100); }
 }
 
 /* ---------- flow ---------- */
-function desc(g){ if(g.color&&g.animal) return g.color+' '+g.animal; if(g.color) return g.color+' bubble'; return g.animal; }
-function goalPhrase(){
-  if(cur.free) return 'Free play! Pop them all!';
-  if(seq) return 'Pop a '+seq.map(desc).join(', then a ')+'!';
-  const n=NUM[goal]||String(goal);
-  if(cur.color&&cur.animal) return 'Pop '+n+' '+cur.color+' '+cur.animal+'s!';
-  if(cur.color) return 'Pop '+n+' '+cur.color+' bubbles!';
-  return 'Pop '+n+' '+cur.animal+'s!';
+function cw(c){ return '<span class="cw" style="color:'+COLORS[c][2]+'">'+c.toUpperCase()+'</span>'; }
+function goalText(){
+  if(cur.free) return 'Pop them all!';
+  if(seq) return 'Pop '+seq.map(g=>g.animal ? g.animal.toUpperCase() : cw(g.color)).join(', then ')+'!';
+  const thing = cur.animal ? cur.animal.toUpperCase()+(goal>1?'S':'') : (goal>1?'bubbles':'bubble');
+  return 'Pop '+goal+' '+(cur.color?cw(cur.color)+' ':'')+thing+'!';
 }
 function beginPlay(r0){
   nextIn=0; doneIn=0; resume=null; shake=0;
@@ -558,7 +599,7 @@ function beginPlay(r0){
   bubbles=[]; fx=[]; spawnT=0.3; bombT=0; screen='play';
   showScreens(['hud']); renderGoal(); updateBar(); renderHearts(); renderTimer(); measureHud();
   seedBubbles();
-  say(goalPhrase());
+  guideTalk(); music.set('play'); toast(cur.free ? 'Free play!' : 'Round '+round, 1000);
 }
 function startPlay(n,r0){ round=n; cur=ROUNDS[n-1]; beginPlay(r0); }
 function startFree(){ round=11; cur=FREE; beginPlay(); }
@@ -570,7 +611,8 @@ function goHome(party){
   if(screen==='play' && !cur.free && progress>0 && progress<goal) resume={round, progress, hearts, mistakes, diff};
   nextIn=0; doneIn=0; shake=0;
   screen='home'; bubbles=[]; fx=[]; spawnT=0; showScreens(['home']); renderBook();
-  if(party){ confettiBurst(true); sfx.party(); say('You collected every sticker! You are a safari star!'); }
+  music.set('home');
+  if(party){ confettiBurst(true); sfx.party(); toast('Safari star!', 2500); }
 }
 function starsFor(){ if(diff==='easy') return 3; return mistakes===0?3:(mistakes<=2?2:1); }
 function unlockNow(){ if(!cur.free){ const s=starsFor(); if((best[diff][round]||0)<s){ best[diff][round]=s; save(); } } }
@@ -586,24 +628,25 @@ function completeRound(){
   [...els.cstars.children].forEach((s,i)=>s.classList.toggle('dim', i>=stars));
   showScreens(['hud','celebrate']);
   confettiBurst(true); if(final) sfx.party(); else sfx.fanfare();
-  say(final ? 'You got all the stickers! Hooray!' : (stars===3 && diff!=='easy' ? 'Perfect! Three stars!' : pick(['Hooray! You did it!','Amazing!','Super pop!','Yay! A new sticker!'])));
+  els.ctext.textContent = final ? 'All the stickers!' : (stars===3 && diff!=='easy' ? 'Perfect!' : pick(['You did it!','Amazing!','Super pop!','New sticker!']));
+  music.set('off');
   nextIn = final?7:5.5;   // counted down in update(), so a hidden tab pauses it
 }
 function nextRound(){ nextIn=0; if(screen!=='celebrate') return; if(round>=10) goHome(true); else startPlay(round+1); }
-function freeFill(){ confettiBurst(false); sfx.fanfare(); say(pick(['Wow!','Super!','Pop pop pop!'])); progress=0; updateBar(); }
+function freeFill(){ confettiBurst(false); sfx.fanfare(); toast(pick(['Wow!','Super!','Pop pop pop!']), 1200); progress=0; updateBar(); }
 /* a mistake in hard/expert costs a heart; with no hearts left the round simply starts over (never a game over) */
 function penalty(why){
   mistakes++;
   if(D.hearts<=0 || cur.free) return;
   hearts--; renderHearts(true);
   if(hearts<=0) loseRound();
-  else if(why==='time') say('Faster!', true);
+  else toast(why==='time' ? 'Faster!' : 'Oops!', 800);
 }
 function loseRound(){
   for(const b of bubbles) if(!b.bomb) addPop(b);
   bubbles=[]; progress=0; hearts=D.hearts; timeLeft=D.timer; spawnT=0.5;
   renderGoal(); updateBar(); renderHearts(); renderTimer(); guideOops(); sfx.lose();
-  say('Oops! Try again!');
+  toast('Try again!', 1400);
   seedBubbles();
 }
 
@@ -621,11 +664,11 @@ function onTap(x,y){
     if(progress<goal){
       progress++; updateBar(); sfx.pop(progress/goal); if(D.timer>0) timeLeft=Math.min(D.timer, timeLeft+4);
       if(progress>=goal){ if(cur.free) freeFill(); else { unlockNow(); doneIn=0.65; } }   // sticker is safe the moment the bar fills
-      else if(seq){ renderGoal(); say(desc(tgt()), true); }
-      else say(NUM[progress]||String(progress), true);
+      fx.push({type:'text', x:best.x, y:best.y-best.r, text:String(progress), life:0.9, max:0.9});   // the count floats up from the bubble
+      if(seq) renderGoal();
     } else sfx.pop(1);
   } else {
-    best.wig=0.7; sfx.wrong(); guideOops(); penalty('wrong');
+    best.wig=0.7; sfx.wrong(); guideOops(); if(D.hearts<=0||cur.free) toast('Oops!', 600); penalty('wrong');
   }
 }
 canvas.addEventListener('pointerdown', e=>{ e.preventDefault(); onTap(e.clientX, e.clientY); });
@@ -637,7 +680,7 @@ els.play.addEventListener('pointerdown', e=>{ e.preventDefault(); sfx.tick(); st
 $('#home-btn').addEventListener('pointerdown', e=>{ e.preventDefault(); sfx.tick(); goHome(false); });
 $('#next').addEventListener('pointerdown', e=>{ e.preventDefault(); if(t-celebrateAt<0.7) return; sfx.tick(); nextRound(); });   // a mashing kid cannot skip the sticker moment
 els.mute.addEventListener('pointerdown', e=>{ e.preventDefault(); toggleMute(); });
-[...els.diffs.children].forEach(b=>b.addEventListener('pointerdown', e=>{ e.preventDefault(); setDifficulty(b.dataset.diff); }));
+els.diffs.querySelectorAll('.btn').forEach(b=>b.addEventListener('pointerdown', e=>{ e.preventDefault(); setDifficulty(b.dataset.diff); }));
 
 /* ---------- loop ---------- */
 let tickT=0;
@@ -694,6 +737,9 @@ function drawFx(f){
   else if(f.type==='flash'){ ctx.globalAlpha=(1-p)*0.9; ctx.fillStyle=f.color||'#fff7b0'; starPath(f.x,f.y,f.r*(0.9+p*1.6),f.r*(0.4+p*0.6),f.rot+p*1.2); ctx.fill(); ctx.globalAlpha=1; }
   else if(f.type==='stars'){ ctx.globalAlpha=Math.min(1,f.life/0.3); for(const q of f.parts){ ctx.fillStyle=q.color; starPath(q.x,q.y,q.size,q.size*0.45,q.rot); ctx.fill(); } ctx.globalAlpha=1; }
   else if(f.type==='drops'){ ctx.globalAlpha=1-p; ctx.fillStyle=f.color; for(const q of f.parts){ ctx.beginPath(); ctx.arc(q.x,q.y,q.size*(1-p*0.5),0,6.2832); ctx.fill(); } ctx.globalAlpha=1; }
+  else if(f.type==='text'){ const a=p<0.6?1:1-(p-0.6)/0.4, sc=1+0.5*Math.sin(Math.min(1,p*2)*Math.PI/2);
+    ctx.save(); ctx.translate(f.x,f.y-p*70); ctx.scale(sc,sc); ctx.globalAlpha=a; ctx.font='900 40px system-ui,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.lineWidth=7; ctx.lineJoin='round'; ctx.strokeStyle='#1f78c8'; ctx.strokeText(f.text,0,0); ctx.fillStyle='#fff'; ctx.fillText(f.text,0,0); ctx.restore(); }
   else if(f.type==='animal'){ const yOff=-Math.sin(Math.min(1,p*1.2)*Math.PI)*80-p*40; const sc=1+0.7*Math.sin(Math.min(1,p*1.6)*Math.PI/2); const a=p<0.65?1:1-(p-0.65)/0.35;
     if(f.gen!==gen){ f.gen=gen; f.spr=sprite(f.name,Math.round(f.size)); }
     ctx.save(); ctx.translate(f.x,f.y+yOff); ctx.rotate(Math.sin(p*12)*0.15*(1-p)); drawSprite(f.spr,0,0,sc,a); ctx.restore(); }
@@ -725,8 +771,9 @@ function frame(now){
 document.addEventListener('visibilitychange', ()=>{
   last=performance.now();
   if(document.hidden){   // phone in a pocket: go quiet, timers are dt-based so they wait too
-    try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){}
     try{ if(ac && ac.state==='running') ac.suspend().catch(()=>{}); }catch(e){}
+  } else {
+    try{ if(ac && ac.state==='suspended') ac.resume().catch(()=>{}); }catch(e){}
   }
 });
 window.addEventListener('pageshow', ()=>{ last=performance.now(); });
@@ -743,7 +790,7 @@ try{ if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){ wi
 /* ---------- tiny test hook ---------- */
 window.__bps = {
   state(){ const g=tgt(); return {
-    screen, round, progress, goal, difficulty:diff, hearts, mistakes, timeLeft:Math.round(timeLeft*10)/10,
+    screen, round, progress, goal, difficulty:diff, hearts, mistakes, timeLeft:Math.round(timeLeft*10)/10, music:music.mode(),
     target: Object.assign({}, g.color?{color:g.color}:{}, g.animal?{animal:g.animal}:{}, {count:goal}),
     sequence: seq ? seq.slice() : null,
     unlocked: unlockedList(), best: JSON.parse(JSON.stringify(best)), muted,
