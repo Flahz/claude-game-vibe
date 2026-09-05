@@ -1,6 +1,8 @@
 /* Bubble Pop Safari - cache-first service worker */
-const CACHE = 'bps-cache-v2';
-const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
+const CACHE = 'bps-cache-v3';
+const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png',
+  './art/lion.webp', './art/monkey.webp', './art/elephant.webp', './art/panda.webp', './art/tiger.webp', './art/frog.webp',
+  './art/koala.webp', './art/zebra.webp', './art/giraffe.webp', './art/hippo.webp', './art/owl.webp', './art/bomb.webp'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));

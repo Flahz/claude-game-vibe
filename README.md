@@ -1,8 +1,20 @@
 # Bubble Pop Safari 🦁🫧
 
-A mobile web game for kids aged 4 to 8. Colorful animal bubbles float up the screen; the friendly guide asks for "the RED bubbles" or "3 lions"; tap the right ones to fill the bar, get a confetti party, and earn a sticker. No lives, no timers, no game over, no ads, no network, nothing to read.
+A mobile web game for kids aged 4 to 8. Colorful animal bubbles float up the screen; the friendly owl asks for "the RED bubbles" or "3 lions"; tap the right ones to fill the bar, get a confetti party, and earn a sticker. No ads, no network, nothing to read.
 
 Ten rounds, ten stickers, progress saved on the phone. Works offline and can be added to the home screen on iOS and Android.
+
+Three difficulties, picked with the three buttons under Play:
+
+| | Mode | What changes |
+| --- | --- | --- |
+| 🐣 | Easy | The gentle original: no lives, no timers, wrong taps only wiggle. |
+| 🔥 | Hard | Faster, smaller and more bubbles. Three hearts: a wrong tap or a bomb costs one. Bomb bubbles to avoid. From round 5 the owl asks for two things in turn (a green bubble, then a pink one). |
+| ⚡ | Expert | Faster still. A timer bar that refills a little with every good pop; when it runs out you lose a heart. Some bubbles change colour every second, so they become the target only for a moment. Ordered goals from round 3, three-step goals from round 7. |
+
+Losing all three hearts just restarts the round ("Oops, try again!"), there is never a game over. Every round in hard and expert earns one to three stars (no mistakes = three), shown on the sticker book, and each difficulty keeps its own progress while the stickers are shared.
+
+All the animals, the owl and the bomb are custom art generated with Higgsfield and cut out into small webp files in `art/`.
 
 ## Play it on your phone right away
 
@@ -37,11 +49,13 @@ ngrok http 8080                  # terminal 2, copy the https URL
 | File | What it is |
 | --- | --- |
 | `index.html` | The whole game. All HTML, CSS and JavaScript inline. No build step, no dependencies. |
+| `art/*.webp` | The custom character art (10 animals, the owl guide, the bomb), 208px each. Emoji are only used as a fallback while they load. |
 | `sw.js` | Service worker so the game works offline after the first load. |
 | `manifest.webmanifest`, `icon-192.png`, `icon-512.png` | Add‑to‑home‑screen support. |
 | `serve.sh` | One‑command local server + ngrok tunnel + QR code. |
-| `test/smoke.js` | Playwright playthrough test used during development. |
-| `screenshots/` | Home screen and a round in progress. |
+| `test/smoke.js` | Playwright playthrough test (easy mode) used during development. |
+| `test/hard.js` | Playwright test for hard and expert mode: hearts, bombs, restart, stars, ordered goals, timer, colour shifts. |
+| `screenshots/` | Home screen, rounds in each mode, a celebration. |
 | `PROMPT.md` | The prompt this game was built from. |
 
 ## Rounds
@@ -51,7 +65,7 @@ ngrok http 8080                  # terminal 2, copy the https URL
 | 1 to 7 | One color or one animal | "Pop three RED bubbles!", "Pop three lions!" |
 | 8 to 10 | Color and animal together | "Pop four BLUE elephants!" |
 
-Bubbles get a little more numerous and a little faster each round. Wrong taps only wiggle and giggle. After the tenth sticker the Play button turns into free play.
+Bubbles get a little more numerous and a little faster each round. In hard and expert, later rounds ask for an ordered sequence instead, and the goal pill shows the steps with the current one highlighted. After the tenth sticker of a difficulty the Play button turns into free play for it.
 
 Nothing needs to be read: the owl shows a pointing hand and the bubble to pop, says it out loud, and the star bar shows how many are left. An accidental tap on the Home button keeps the round's progress.
 
@@ -62,4 +76,6 @@ python3 -m http.server 8080
 NODE_PATH=/path/to/node_modules node test/smoke.js http://127.0.0.1:8080 /tmp/out "Pixel 5"
 ```
 
-`test/smoke.js` needs Playwright. It plays two rounds, checks wrong taps are harmless, reloads to check the stickers and mute setting persisted, and fails on any page error or external request.
+`test/smoke.js` needs Playwright. It plays two rounds, checks wrong taps are harmless, reloads to check the stickers and mute setting persisted, and fails on any page error or external request. `test/hard.js` (same arguments minus the device) switches to hard, loses hearts to a wrong tap and a bomb, checks the round restarts, finishes round 1 with one star, plays an ordered round, then plays expert round 7 with the timer and colour-shifting bubbles, and measures the frame rate on expert round 10.
+
+The test hook `window.__bps` exposes `state()`, `startGame()`, `startRound(n)`, `setDifficulty('easy'|'hard'|'expert')` and `resetProgress()`.
