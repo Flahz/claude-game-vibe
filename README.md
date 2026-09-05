@@ -20,7 +20,7 @@ All the art is custom, generated with Higgsfield and cut out into small webp fil
 
 The game is hosted on GitHub Pages: **<https://flahz.github.io/claude-game-vibe/>**
 
-A GitHub Actions workflow (`.github/workflows/pages.yml`) publishes it on every push to `main`. It copies only the files the game needs (`index.html`, `sw.js`, the manifest, the icons and `art/`) and deploys them with the official Pages actions. The first run switches the repository's Pages source to "GitHub Actions" by itself; if it fails with a permissions error, open Settings → Pages once and pick "GitHub Actions" as the source, then re-run the workflow. Open the URL on a phone and use "Add to Home Screen" to install it.
+A GitHub Actions workflow (`.github/workflows/pages.yml`) publishes it on every push to `main`. It copies only the files the game needs (`index.html`, `sw.js`, the manifest, the icons and `art/`) and pushes them to the `gh-pages` branch, which GitHub Pages serves. If the site ever shows a 404, open Settings → Pages once and make sure the source is the `gh-pages` branch (root). Open the URL on a phone and use "Add to Home Screen" to install it.
 
 ## Play it on your phone right away with ngrok
 
