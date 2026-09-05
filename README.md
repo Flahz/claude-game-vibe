@@ -14,7 +14,7 @@ Three difficulties, picked with the three buttons under Play:
 
 Losing all three hearts just restarts the round ("Oops, try again!"), there is never a game over. Every round in hard and expert earns one to three stars (no mistakes = three), shown on the sticker book, and each difficulty keeps its own progress while the stickers are shared.
 
-All the animals, the owl and the bomb are custom art generated with Higgsfield and cut out into small webp files in `art/`.
+All the art is custom, generated with Higgsfield and cut out into small webp files in `art/`: the ten animals, the owl guide, the bomb, and every interface icon (play arrow, house, speaker, stars, hearts, pointing hand, trophy, chick, flame, lightning). No emoji are used except as a fallback while an image is still loading.
 
 ## Play it on your phone right away
 
@@ -49,7 +49,7 @@ ngrok http 8080                  # terminal 2, copy the https URL
 | File | What it is |
 | --- | --- |
 | `index.html` | The whole game. All HTML, CSS and JavaScript inline. No build step, no dependencies. |
-| `art/*.webp` | The custom character art (10 animals, the owl guide, the bomb), 208px each. Emoji are only used as a fallback while they load. |
+| `art/*.webp` | The custom art, 208px each: 10 animals, the owl guide, the bomb, and 11 interface icons. Emoji are only used as a fallback while they load. |
 | `sw.js` | Service worker so the game works offline after the first load. |
 | `manifest.webmanifest`, `icon-192.png`, `icon-512.png` | Add‑to‑home‑screen support. |
 | `serve.sh` | One‑command local server + ngrok tunnel + QR code. |

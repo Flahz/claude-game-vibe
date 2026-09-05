@@ -55,7 +55,7 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
     const dim=await page.evaluate(()=>document.querySelectorAll('#cstars span.dim').length); assert(dim===2,'2 dim stars, got '+dim);
     await sleep(900); await page.screenshot({path:path.join(outDir,'hard-celebrate.png')});
     await tapEl('[data-testid="home"]'); await sleep(200); s=await state(); assert(s.screen==='home','home');
-    assert(await page.evaluate(()=>document.querySelector('#book .slot[data-round="1"] .st')?.textContent==='⭐'),'book shows 1 star');
+    assert(await page.evaluate(()=>document.querySelectorAll('#book .slot[data-round="1"] .st img').length===1),'book shows 1 star');
 
     step='6-sequence'; await page.evaluate(()=>window.__bps.startRound(5)); await sleep(250); s=await state();
     assert(s.sequence&&s.sequence.length===2,'seq len 2: '+JSON.stringify(s.sequence)); assert(s.goal===6,'goal 6, got '+s.goal);
