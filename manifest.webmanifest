@@ -1,0 +1,16 @@
+{
+  "id": "./",
+  "name": "Bubble Pop Safari",
+  "short_name": "Bubble Pop",
+  "description": "Pop colorful animal bubbles and collect safari stickers.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#6fd6ff",
+  "theme_color": "#ff7a1f",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
