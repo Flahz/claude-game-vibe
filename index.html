@@ -53,8 +53,10 @@ h1{ font-size: clamp(26px, 7.6vw, 38px); margin:0 0 0 10px; font-weight:900; col
   font-size: clamp(34px, 10vw, 52px); line-height:1; box-shadow: 0 5px 0 rgba(0,0,0,.1); cursor:pointer; touch-action:manipulation; position:relative; }
 .slot.locked{ background:rgba(255,255,255,.35); box-shadow:none; }
 .slot.locked span{ filter: grayscale(1) brightness(1.3); opacity:.28; }
-.slot.unlocked{ background:linear-gradient(#fff, #ffe9a8); animation: popIn .55s cubic-bezier(.34,1.56,.64,1); }
-.slot .badge{ position:absolute; right:-5px; top:-7px; width:22px; height:22px; display:flex; }
+.slot.unlocked{ background:linear-gradient(#fff, #ffe9a8); }
+.slot.pop{ animation: popIn .55s cubic-bezier(.34,1.56,.64,1); }   /* only the sticker just earned pops in */
+.slot .badge{ position:absolute; right:-4px; top:-6px; width:22px; height:22px; display:none; transform:translateZ(0); }
+.slot.unlocked .badge{ display:flex; }
 .slot .badge img.art{ width:100%; height:100%; }
 .slot.wiggle{ animation: wiggle .5s ease-in-out; }
 .slot:active{ transform:scale(.93); }
@@ -124,7 +126,7 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
 .gb img.art{ width:78%; height:78%; filter: drop-shadow(0 2px 2px rgba(0,0,0,.25)); }
 .big-sticker img.art{ width:1em; height:1em; }
 #celebrate-book img.art{ width:1em; height:1em; }
-.slot .st{ position:absolute; left:0; right:0; bottom:3px; display:flex; justify-content:center; gap:1px; font-size:12px; line-height:1; pointer-events:none; }
+.slot .st{ position:absolute; left:0; right:0; bottom:3px; display:flex; justify-content:center; gap:1px; font-size:12px; line-height:1; pointer-events:none; transform:translateZ(0); }
 .slot .st img.art{ display:block; }
 
 /* ---------- MODE (animals / math) ---------- */
@@ -641,16 +643,24 @@ function renderHearts(hit){
   [...els.hearts.children].forEach((h,i)=>{ h.classList.toggle('lost', i>=hearts); if(hit && i===hearts){ h.classList.remove('hit'); void h.offsetWidth; h.classList.add('hit'); } });
 }
 function renderTimer(){ if(D.timer>0){ const p=clamp(timeLeft/D.timer,0,1); els.tfill.style.width=(p*100)+'%'; els.tfill.classList.toggle('low', p<0.3); } }
+let justEarned=0;   // round whose sticker was just won: it pops in once, nothing else moves
 function renderBook(){
-  els.book.innerHTML='';
-  for(let i=1;i<=10;i++){
-    const d=document.createElement('div'); const un=isUnlocked(i), st=best[diff][i]||0;
-    d.className='slot '+(un?'unlocked':'locked'); d.dataset.round=i; d.dataset.testid='sticker-'+i; d.setAttribute('role','button');
-    d.setAttribute('aria-label', un ? 'Replay round '+i : 'Locked sticker '+i);
-    d.innerHTML=artTag(STICKERS[i-1])+(un?'<span class="badge">'+artTag('star')+'</span>':'')+(diff!=='easy'&&st?'<div class="st">'+artTag('star').repeat(st)+'</div>':'');
-    d.addEventListener('pointerdown', e=>{ e.preventDefault(); if(un){ sfx.tick(); startPlay(i); } else { d.classList.remove('wiggle'); void d.offsetWidth; d.classList.add('wiggle'); sfx.wrong(); } });
-    els.book.appendChild(d);
+  if(els.book.children.length!==10){   // build the ten slots once; later renders only update them in place
+    for(let i=1;i<=10;i++){
+      const d=document.createElement('div'); d.className='slot locked'; d.dataset.round=i; d.dataset.testid='sticker-'+i; d.setAttribute('role','button');
+      d.innerHTML=artTag(STICKERS[i-1])+'<span class="badge">'+artTag('star')+'</span><div class="st"></div>';
+      d.addEventListener('pointerdown', e=>{ e.preventDefault(); if(d.classList.contains('unlocked')){ sfx.tick(); startPlay(i); } else { d.classList.remove('wiggle'); void d.offsetWidth; d.classList.add('wiggle'); sfx.wrong(); } });
+      els.book.appendChild(d);
+    }
   }
+  for(let i=1;i<=10;i++){
+    const d=els.book.children[i-1], un=isUnlocked(i), st=diff!=='easy'?(best[diff][i]||0):0;
+    d.classList.toggle('unlocked',un); d.classList.toggle('locked',!un);
+    d.setAttribute('aria-label', un ? 'Replay round '+i : 'Locked sticker '+i);
+    const row=d.querySelector('.st'), want=artTag('star').repeat(st); if(row.innerHTML!==want) row.innerHTML=want;
+    if(justEarned===i){ d.classList.remove('pop'); void d.offsetWidth; d.classList.add('pop'); }
+  }
+  justEarned=0;
   els.play.classList.toggle('free', nextUnfinished()===0);
   els.diffs.querySelectorAll('.btn').forEach(b=>b.classList.toggle('on', b.dataset.diff===diff));
   els.modes.querySelectorAll('.btn').forEach(b=>b.classList.toggle('on', b.dataset.mode===mode));
@@ -703,7 +713,7 @@ function goHome(party){
   if(party){ confettiBurst(true); sfx.party(); toast(mode==='math' ? 'Math star!' : 'Safari star!', 2500); }
 }
 function starsFor(){ if(diff==='easy') return 3; return mistakes===0?3:(mistakes<=2?2:1); }
-function unlockNow(){ if(!cur.free){ const s=starsFor(); if((best[diff][round]||0)<s){ best[diff][round]=s; save(); } } }
+function unlockNow(){ if(!cur.free){ const s=starsFor(); if(!isUnlocked(round)) justEarned=round; if((best[diff][round]||0)<s){ best[diff][round]=s; save(); } } }
 function completeRound(){
   if(screen!=='play') return;
   screen='celebrate'; celebrateAt=t;

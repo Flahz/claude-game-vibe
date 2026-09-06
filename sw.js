@@ -1,5 +1,5 @@
 /* Bubble Pop Safari - cache-first service worker */
-const CACHE = 'bps-cache-v6';
+const CACHE = 'bps-cache-v7';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png',
   './art/lion.webp', './art/monkey.webp', './art/elephant.webp', './art/panda.webp', './art/tiger.webp', './art/frog.webp',
   './art/koala.webp', './art/zebra.webp', './art/giraffe.webp', './art/hippo.webp', './art/owl.webp', './art/bomb.webp',
