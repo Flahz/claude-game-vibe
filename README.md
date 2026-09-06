@@ -4,6 +4,15 @@ A mobile web game for kids aged 4 to 8. Colorful animal bubbles float up the scr
 
 Ten rounds, ten stickers, progress saved on the phone. Works offline and can be added to the home screen on iOS and Android.
 
+Two games, picked with the two buttons under the title:
+
+| | Mode | What it is |
+| --- | --- | --- |
+| 🦁 | Animals | Pop the bubbles the owl asks for: a color, an animal, or both. |
+| 🔢 | Math | Every bubble carries a number. The owl shows a question ("3 + 2 = ?", "Find 4" with dots to count, "5 + ? = 9", "3 × 4 = ?") and the child pops the bubble with the right answer. Five right answers earn the sticker. Rounds go from finding numbers, to adding, subtracting, missing numbers, times tables, and a mix. Numbers go up to 20 in easy, 50 in hard, 100 in expert. |
+
+Each mode keeps its own sticker book and stars.
+
 Three difficulties, picked with the three buttons under Play:
 
 | | Mode | What changes |
@@ -55,13 +64,14 @@ ngrok http 8080                  # terminal 2, copy the https URL
 | File | What it is |
 | --- | --- |
 | `index.html` | The whole game. All HTML, CSS and JavaScript inline. No build step, no dependencies. |
-| `art/*.webp` | The custom art, 208px each: 10 animals, the owl guide, the bomb, and 11 interface icons. Emoji are only used as a fallback while they load. |
+| `art/*.webp` | The custom art, 208px each: 10 animals, the owl guide, the bomb, and 12 interface icons. Emoji are only used as a fallback while they load. |
 | `sw.js` | Service worker so the game works offline after the first load. |
 | `manifest.webmanifest`, `icon-192.png`, `icon-512.png` | Add‑to‑home‑screen support. |
 | `.nojekyll` | Tells GitHub Pages to publish the files as they are. |
 | `serve.sh` | One‑command local server + ngrok tunnel + QR code. |
 | `test/smoke.js` | Playwright playthrough test (easy mode) used during development. |
 | `test/hard.js` | Playwright test for hard and expert mode: hearts, bombs, restart, stars, ordered goals, timer, colour shifts. |
+| `test/math.js` | Playwright test for math mode: every round kind, answers checked, wrong taps, separate progress, hard mode with hearts and bombs. |
 | `screenshots/` | Home screen, rounds in each mode, a celebration. |
 | `PROMPT.md` | The prompt this game was built from. |
 
@@ -87,4 +97,4 @@ NODE_PATH=/path/to/node_modules node test/smoke.js http://127.0.0.1:8080 /tmp/ou
 
 `test/smoke.js` needs Playwright. It plays two rounds, checks wrong taps are harmless, reloads to check the stickers and mute setting persisted, and fails on any page error or external request. `test/hard.js` (same arguments minus the device) switches to hard, loses hearts to a wrong tap and a bomb, checks the round restarts, finishes round 1 with one star, plays an ordered round, then plays expert round 7 with the timer and colour-shifting bubbles, and measures the frame rate on expert round 10.
 
-The test hook `window.__bps` exposes `state()`, `startGame()`, `startRound(n)`, `setDifficulty('easy'|'hard'|'expert')` and `resetProgress()`.
+The test hook `window.__bps` exposes `state()`, `startGame()`, `startRound(n)`, `setDifficulty('easy'|'hard'|'expert')`, `setMode('safari'|'math')` and `resetProgress()`.

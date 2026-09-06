@@ -47,7 +47,7 @@ body{ font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue
 #home-mascot{ font-size:64px; line-height:1; display:flex; animation: bob 2.2s ease-in-out infinite; filter: drop-shadow(0 6px 6px rgba(0,0,0,.18)); }
 h1{ font-size: clamp(26px, 7.6vw, 38px); margin:0 0 0 10px; font-weight:900; color:#fff; letter-spacing:.5px; line-height:1.05;
   text-shadow: 0 3px 0 #1f78c8, 0 6px 14px rgba(0,0,0,.25); }
-#book{ display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; width:100%; max-width:420px;
+#book{ display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; width:100%; max-width:380px;
   background:rgba(255,255,255,.55); border-radius:30px; padding:10px; box-shadow: 0 6px 0 rgba(0,0,0,.08), inset 0 0 0 4px rgba(255,255,255,.7); margin:8px 0; }
 .slot{ aspect-ratio:1/1; min-height:64px; border-radius:24px; background:#fff; display:flex; align-items:center; justify-content:center;
   font-size: clamp(34px, 10vw, 52px); line-height:1; box-shadow: 0 5px 0 rgba(0,0,0,.1); cursor:pointer; touch-action:manipulation; position:relative; }
@@ -58,7 +58,7 @@ h1{ font-size: clamp(26px, 7.6vw, 38px); margin:0 0 0 10px; font-weight:900; col
 .slot .badge img.art{ width:100%; height:100%; }
 .slot.wiggle{ animation: wiggle .5s ease-in-out; }
 .slot:active{ transform:scale(.93); }
-#play{ width:146px; height:146px; font-size:72px; background:var(--green); margin:4px 0 8px; position:relative; }
+#play{ width:132px; height:132px; font-size:72px; background:var(--green); margin:2px 0 6px; position:relative; }
 #play img.art{ width:62%; height:62%; margin-left:6%; }
 #play::after{ content:''; position:absolute; inset:-6px; border-radius:50%; border:6px solid rgba(255,255,255,.75); animation: halo 1.6s ease-out infinite; pointer-events:none; }
 #play.free{ background:var(--pink); }
@@ -127,6 +127,16 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
 .slot .st{ position:absolute; left:0; right:0; bottom:3px; display:flex; justify-content:center; gap:1px; font-size:12px; line-height:1; pointer-events:none; }
 .slot .st img.art{ display:block; }
 
+/* ---------- MODE (animals / math) ---------- */
+#modes{ display:flex; gap:10px; align-items:center; justify-content:center; }
+.btn.mode{ min-width:0; min-height:54px; height:54px; border-radius:27px; padding:0 18px 0 10px; font-size:19px; font-weight:900; gap:8px; letter-spacing:.2px;
+  background:rgba(255,255,255,.5); color:var(--ink); box-shadow:none; opacity:.8; transition: transform .2s cubic-bezier(.34,1.56,.64,1), opacity .2s, box-shadow .2s, background .2s; }
+.btn.mode.on{ background:#fff; opacity:1; transform:scale(1.06); box-shadow: 0 5px 0 rgba(0,0,0,.14), 0 8px 16px rgba(0,0,0,.14); }
+.btn.mode img.art{ width:38px; height:38px; }
+.dots{ display:flex; flex-wrap:wrap; justify-content:center; gap:4px; max-width:112px; }
+.dots i{ width:16px; height:16px; border-radius:50%; background:#2f7cff; box-shadow: inset -3px -3px 5px rgba(0,0,0,.2), inset 3px 3px 5px rgba(255,255,255,.5); }
+.gb .q{ font-size:34px; font-weight:900; color:#fff; text-shadow: 0 2px 0 rgba(0,0,0,.25); }
+#speech .say.math{ font-size: clamp(24px, 7.6vw, 32px); letter-spacing:1px; }
 /* ---------- DIFFICULTY ---------- */
 #diffs{ display:flex; gap:12px; align-items:center; justify-content:center; margin-bottom:4px; }
 #diffs{ align-items:flex-start; }
@@ -168,6 +178,17 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
   .screen{ padding-left: calc(var(--sal) + 6px); padding-right: calc(var(--sar) + 6px); }
   #book{ padding:4px; gap:4px; border-radius:22px; }
   .slot{ border-radius:18px; }
+  #modes{ width:100%; padding-right:84px; gap:6px; }   /* keep clear of the sound button */
+  .btn.mode{ height:44px; font-size:15px; padding:0 10px 0 6px; gap:5px; }
+  .btn.mode img.art{ width:30px; height:30px; }
+}
+/* short phones (iPhone SE and similar): shrink the home screen so nothing needs scrolling */
+@media (max-height:620px){
+  #home-top{ min-height:56px; margin-top:-8px; } #home-mascot{ font-size:48px; } h1{ font-size:24px; }
+  #book{ gap:5px; padding:6px; margin:2px 0; max-width:330px; } .slot{ min-height:52px; border-radius:16px; }
+  #play{ width:104px; height:104px; margin:0; }
+  .btn.mode{ height:44px; font-size:16px; padding:0 14px 0 8px; } .btn.mode img.art{ width:30px; height:30px; }
+  #diffs .btn{ min-width:48px; min-height:48px; width:48px; height:48px; } .dl{ font-size:13px; }
 }
 /* landscape: book and play side by side so nothing needs scrolling */
 @media (max-height:460px){
@@ -177,6 +198,8 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
   .slot{ width:58px; min-height:58px; font-size:34px; border-radius:16px; }
   #play{ width:112px; height:112px; font-size:56px; margin:0; }
   #diffs{ flex-direction:column; gap:14px; margin:0; }
+  #modes{ flex-direction:column; gap:8px; }
+  .btn.mode{ height:46px; font-size:16px; }
   #row2{ margin-top:4px; }
   #guide{ margin-top:6px; } #speech{ min-height:64px; } #guide-face{ font-size:50px; }
   .dl{ display:none; }
@@ -189,6 +212,10 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
 
   <section id="home" class="screen on" aria-label="Home">
     <div id="home-top"><div id="home-mascot"><img class="art" src="art/owl.webp" alt="" data-fb="🦉"></div><h1>Bubble Pop Safari</h1></div>
+    <div id="modes" aria-label="Game">
+      <button class="btn mode on" data-mode="safari" data-testid="mode-safari" aria-label="Animals"><img class="art" src="art/lion.webp" alt="" data-fb="🦁"><span>Animals</span></button>
+      <button class="btn mode" data-mode="math" data-testid="mode-math" aria-label="Math"><img class="art" src="art/math.webp" alt="" data-fb="➕"><span>Math</span></button>
+    </div>
     <div id="book" aria-label="Sticker book"></div>
     <button id="play" class="btn" data-testid="play" aria-label="Play"><img class="art" src="art/next.webp" alt="" data-fb="▶"></button>
     <div id="diffs" aria-label="Difficulty">
@@ -225,7 +252,7 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
 (function(){
 'use strict';
 const $ = s => document.querySelector(s);
-const KEY = 'bps.v2', OLD_KEY = 'bps.v1';
+const KEY = 'bps.v3', OLD_KEYS = ['bps.v2','bps.v1'];
 const COLORS = {
   red:    ['#ff3b5c','#ffc0cb','#b8143a'],
   blue:   ['#2f7cff','#bcd6ff','#1b4fc2'],
@@ -238,13 +265,13 @@ const COLORS = {
 };
 /* emoji fallbacks, only used while the art is still loading (or if a file is missing) */
 const ANIMALS = { lion:'🦁', monkey:'🐵', elephant:'🐘', panda:'🐼', tiger:'🐯', frog:'🐸', koala:'🐨', zebra:'🦓', giraffe:'🦒', hippo:'🦛', owl:'🦉', bomb:'💣',
-  star:'⭐', heart:'❤️', play:'▶', home:'🏠', sound:'🔊', mute:'🔇', next:'➡️', hand:'👆', trophy:'🏆', chick:'🐣', flame:'🔥', bolt:'⚡' };
+  star:'⭐', heart:'❤️', play:'▶', home:'🏠', sound:'🔊', mute:'🔇', next:'➡️', hand:'👆', trophy:'🏆', chick:'🐣', flame:'🔥', bolt:'⚡', math:'➕' };
 const STICKERS = ['lion','monkey','elephant','panda','tiger','frog','koala','zebra','giraffe','hippo'];
 /* custom art: characters and UI icons (generated with Higgsfield, cut out and shrunk to 208px webp) */
 const ART_SRC = { lion:'art/lion.webp', monkey:'art/monkey.webp', elephant:'art/elephant.webp', panda:'art/panda.webp', tiger:'art/tiger.webp', frog:'art/frog.webp',
   koala:'art/koala.webp', zebra:'art/zebra.webp', giraffe:'art/giraffe.webp', hippo:'art/hippo.webp', owl:'art/owl.webp', bomb:'art/bomb.webp',
   star:'art/star.webp', heart:'art/heart.webp', play:'art/next.webp', home:'art/home.webp', sound:'art/sound.webp', mute:'art/mute.webp',
-  next:'art/next.webp', hand:'art/hand.webp', trophy:'art/trophy.webp', chick:'art/chick.webp', flame:'art/flame.webp', bolt:'art/bolt.webp' };
+  next:'art/next.webp', hand:'art/hand.webp', trophy:'art/trophy.webp', chick:'art/chick.webp', flame:'art/flame.webp', bolt:'art/bolt.webp', math:'art/math.webp' };
 const ROUNDS = [
   { color:'red',    count:3, max:5,  speed:1.00, colors:['red','blue','yellow'],            animals:['lion','monkey','frog'] },
   { animal:'lion',  count:3, max:6,  speed:1.05, colors:['red','blue','green','yellow'],    animals:['lion','monkey','elephant'] },
@@ -258,6 +285,22 @@ const ROUNDS = [
   { color:'purple', animal:'panda',  count:6, max:13, speed:1.60, colors:['purple','pink','blue','green'], animals:['panda','koala','zebra','elephant'] }
 ];
 const FREE = { free:true, count:10, max:10, speed:1.3, colors:Object.keys(COLORS).filter(c=>c!=='bomb'), animals:STICKERS };
+/* math mode: bubbles carry numbers, pop the right answer. hi = biggest number per difficulty (easy, hard, expert) */
+const MATH = [
+  { kind:'find', hi:[5,10,20] },
+  { kind:'find', hi:[10,20,50] },
+  { kind:'add',  hi:[5,10,20] },
+  { kind:'add',  hi:[10,20,50] },
+  { kind:'sub',  hi:[10,20,50] },
+  { kind:'add',  hi:[20,50,100] },
+  { kind:'sub',  hi:[20,50,100] },
+  { kind:'miss', hi:[10,20,50] },
+  { kind:'mul',  hi:[5,10,12] },
+  { kind:'mix',  hi:[20,50,100] }
+];
+function mathRound(n){ const m=MATH[n-1]; return { math:true, kind:m.kind, hi:m.hi, count:5, max:6+n, speed:1+(n-1)*0.06, colors:FREE.colors, animals:STICKERS }; }
+const MATH_FREE = { free:true, math:true, kind:'mix', hi:[20,50,100], count:10, max:10, speed:1.3, colors:FREE.colors, animals:STICKERS };
+const MODES = ['safari','math'];
 /* difficulty: easy is the original game. hard/expert add hearts, bombs, ordered goals, speed, and (expert) a timer + colour-changing bubbles */
 const DIFFS = {
   easy:   { speed:1.00, size:1.00, extra:0, bombs:0,    hearts:0, seqFrom:99, seq3From:99, timer:0,  shift:0,    ratio:0.45, minT:2, phrase:'Easy!' },
@@ -269,18 +312,23 @@ const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
 const easeOutBack = x => { const c1=1.70158, c3=c1+1; return 1 + c3*Math.pow(x-1,3) + c1*Math.pow(x-1,2); };
 
 /* ---------- persistence ---------- */
-let best = { easy:{}, hard:{}, expert:{} }, muted = false, diff = 'easy', D = DIFFS.easy;
+let mode='safari', bestAll = { safari:{ easy:{}, hard:{}, expert:{} }, math:{ easy:{}, hard:{}, expert:{} } }, best = bestAll.safari, muted = false, diff = 'easy', D = DIFFS.easy;
+function cleanTable(b){ b=b||{}; return { easy:cleanBest(b.easy), hard:cleanBest(b.hard), expert:cleanBest(b.expert) }; }
 function cleanBest(o){ const r={}; if(o&&typeof o==='object') for(const k in o){ const n=+k, s=o[k]|0; if(Number.isInteger(n)&&n>=1&&n<=10&&s>=1&&s<=3) r[n]=s; } return r; }
 function load(){
   try{
     let d=JSON.parse(localStorage.getItem(KEY)||'null');
-    if(!d){ const o=JSON.parse(localStorage.getItem(OLD_KEY)||'{}'); d={ muted:o.muted, best:{ easy:{} } }; if(Array.isArray(o.unlocked)) o.unlocked.forEach(n=>{ d.best.easy[n]=3; }); }
-    muted=!!d.muted; if(DIFFS[d.diff]) diff=d.diff;
-    const b=d.best||{}; best={ easy:cleanBest(b.easy), hard:cleanBest(b.hard), expert:cleanBest(b.expert) };
+    if(!d){   // older saves: v2 kept one table (now the animals mode), v1 a list of unlocked rounds
+      const o2=JSON.parse(localStorage.getItem(OLD_KEYS[0])||'null'), o1=JSON.parse(localStorage.getItem(OLD_KEYS[1])||'{}');
+      if(o2) d={ muted:o2.muted, diff:o2.diff, bestAll:{ safari:o2.best } };
+      else { d={ muted:o1.muted, bestAll:{ safari:{ easy:{} } } }; if(Array.isArray(o1.unlocked)) o1.unlocked.forEach(n=>{ d.bestAll.safari.easy[n]=3; }); }
+    }
+    muted=!!d.muted; if(DIFFS[d.diff]) diff=d.diff; if(MODES.includes(d.mode)) mode=d.mode;
+    const ba=d.bestAll||{}; bestAll={ safari:cleanTable(ba.safari), math:cleanTable(ba.math) }; best=bestAll[mode];
   }catch(e){}
   D=DIFFS[diff];
 }
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify({best, muted, diff})); }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify({bestAll, muted, diff, mode})); }catch(e){} }
 function unlockedList(){ const s=new Set(); for(const k in DIFFS) Object.keys(best[k]).forEach(n=>s.add(+n)); return [...s].sort((a,b)=>a-b); }
 function isUnlocked(n){ return !!(best.easy[n]||best.hard[n]||best.expert[n]); }
 load();
@@ -435,13 +483,13 @@ function starPath(x,y,R,r,rot){
 }
 
 /* ---------- game state ---------- */
-let screen='home', round=1, progress=0, goal=3, cur=ROUNDS[0], seq=null;
+let screen='home', round=1, progress=0, goal=3, cur=ROUNDS[0], seq=null, prob=null;
 let hearts=0, mistakes=0, timeLeft=0, shake=0, bombT=0;
 let bubbles=[], fx=[], confetti=[], uid=0, spawnT=0, t=0, nextIn=0, doneIn=0, celebrateAt=0, resume=null;
 function nextUnfinished(){ for(let i=1;i<=10;i++) if(!best[diff][i]) return i; return 0; }
 /* ordered goals: in hard/expert the later rounds alternate between two (or three) targets */
 function buildSeq(){
-  if(cur.free || round<D.seqFrom) return null;
+  if(cur.free || cur.math || round<D.seqFrom) return null;
   const s=[];
   if(cur.color&&cur.animal){ s.push({color:cur.color}); s.push({animal:cur.animal}); }
   else if(cur.color){ s.push({color:cur.color}); s.push({color:cur.colors.find(c=>c!==cur.color)}); }
@@ -450,6 +498,28 @@ function buildSeq(){
   return s;
 }
 function tgt(){ return seq ? seq[progress % seq.length] : cur; }
+/* ---------- math problems ---------- */
+const ri=(a,b)=>a+((Math.random()*(b-a+1))|0);
+function newProblem(){
+  const hi=cur.hi[diff==='easy'?0:diff==='hard'?1:2];
+  let kind=cur.kind; if(kind==='mix') kind=pick(['add','sub','miss','mul']);
+  let a,b,ans,text;
+  if(kind==='find'){ ans=ri(1,hi); text='Find '+ans; }
+  else if(kind==='add'){ a=ri(1,hi-1); b=ri(1,hi-a); ans=a+b; text=a+' + '+b+' = ?'; }
+  else if(kind==='sub'){ a=ri(2,hi); b=ri(1,a-1); ans=a-b; text=a+' − '+b+' = ?'; }
+  else if(kind==='miss'){ ans=ri(1,hi-1); a=ri(1,hi-ans); text=a+' + ? = '+(a+ans); }
+  else { const m=cur.kind==='mul'?hi:5; a=ri(1,m); b=ri(1,m); ans=a*b; text=a+' × '+b+' = ?'; }
+  prob={ kind, ans, text, lim: kind==='mul' ? ans+12 : Math.max(hi, ans+3) };
+}
+function wrongNum(){
+  for(let k=0;k<12;k++){
+    const n = Math.random()<0.6 ? prob.ans+pick([-3,-2,-1,1,2,3]) : ri(0,prob.lim);
+    if(n<0 || n===prob.ans) continue;
+    if(k<8 && bubbles.some(b=>b.num===n)) continue;   // prefer numbers not already on screen
+    return n;
+  }
+  return prob.ans+1;
+}
 function matches(color,animal){ const g=tgt(); return (!g.color||g.color===color) && (!g.animal||g.animal===animal); }
 function bubbleRadius(){ return Math.round((clamp(W*0.125,42,54) - (cur.free?4:(round-1)*0.8))*D.size); }
 function speedMul(){ return cur.speed*D.speed; }
@@ -457,9 +527,17 @@ function maxBubbles(){ return cur.max+(cur.free?Math.round(D.extra/2):D.extra); 
 
 function spawnBubble(forceTarget, y0){
   const r=bubbleRadius();
-  let color, animal, isTarget, bomb=false, shift=null;
+  let color, animal=null, num=null, isTarget, bomb=false, shift=null;
   const bombs=bubbles.filter(b=>b.bomb).length;
-  if(cur.free){ color=pick(cur.colors); animal=pick(cur.animals); isTarget=true;
+  if(cur.math){
+    color=pick(cur.colors);
+    const nonT=bubbles.filter(b=>!b.isTarget).length;
+    const wantT=forceTarget || (nonT>=2 && Math.random()<(cur.free?0.5:D.ratio));
+    if(wantT) num=prob.ans;
+    else { num=wrongNum(); if(D.bombs>0 && bombs<2 && (Math.random()<D.bombs || bombT>6)) bomb=true; }
+    isTarget=!bomb && num===prob.ans;
+  }
+  else if(cur.free){ color=pick(cur.colors); animal=pick(cur.animals); isTarget=true;
     if(!forceTarget && D.bombs>0 && bombs<2 && Math.random()<D.bombs*0.6) bomb=true; }
   else{
     const nonT=bubbles.filter(b=>!b.isTarget).length;
@@ -473,7 +551,7 @@ function spawnBubble(forceTarget, y0){
     }
     isTarget=!bomb && matches(color,animal);
   }
-  if(bomb){ color='bomb'; animal='bomb'; isTarget=false; bombT=0; }
+  if(bomb){ color='bomb'; animal='bomb'; num=null; isTarget=false; bombT=0; }
   const y = (y0!=null) ? y0 : H+r+8;
   const amp=10+Math.random()*18; let x0=W/2;
   for(let k=0;k<8;k++){
@@ -481,7 +559,7 @@ function spawnBubble(forceTarget, y0){
     if(!bubbles.some(b=>Math.abs(b.y-y)<b.r+r && Math.abs(b.x0-x0)<b.r+r-8)) break;
   }
   bubbles.push({ id:++uid, x0, x:x0, y, r, vy:-(38+Math.random()*30)*speedMul(), amp, freq:0.8+Math.random()*1.2, phase:Math.random()*6.283,
-    color, animal, isTarget, bomb, shift, age:0, wig:0, alpha:1 });
+    color, animal, num, isTarget, bomb, shift, age:0, wig:0, alpha:1 });
 }
 function spawnAmbient(){
   const r=44; const amp=12+Math.random()*16, m=r+amp+6, x0=m+Math.random()*Math.max(1,W-2*m);
@@ -500,7 +578,7 @@ function addPop(b){
   fx.push({type:'stars', parts, life:0.9, max:0.9});
   const drops=[]; for(let i=0;i<8;i++){ const a=Math.random()*6.283, sp=120+Math.random()*160; drops.push({x:b.x,y:b.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-40,size:4+Math.random()*6}); }
   fx.push({type:'drops', parts:drops, color:main, life:0.6, max:0.6});
-  fx.push({type:'animal', x:b.x, y:b.y, name:b.animal, size:b.r*1.3, life:1.05, max:1.05});
+  if(b.animal) fx.push({type:'animal', x:b.x, y:b.y, name:b.animal, size:b.r*1.3, life:1.05, max:1.05});
 }
 function addBoom(b){
   fx.push({type:'ring', x:b.x, y:b.y, r:b.r*1.3, life:0.6, max:0.6, color:'#2b2040'});
@@ -531,7 +609,7 @@ function confettiBurst(big){
 
 /* ---------- UI ---------- */
 const els={ home:$('#home'), hud:$('#hud'), celebrate:$('#celebrate'), speech:$('#speech'), face:$('#guide-face'), fill:$('#bar-fill'), stars:$('#bar-stars'),
-  book:$('#book'), play:$('#play'), mute:$('#mute'), csticker:$('#celebrate-sticker'), cbook:$('#celebrate-book'), cstars:$('#cstars'), ctext:$('#ctext'), toast:$('#toast'),
+  book:$('#book'), play:$('#play'), mute:$('#mute'), modes:$('#modes'), csticker:$('#celebrate-sticker'), cbook:$('#celebrate-book'), cstars:$('#cstars'), ctext:$('#ctext'), toast:$('#toast'),
   hearts:$('#hearts'), tfill:$('#tbar-fill'), diffs:$('#diffs') };
 function showScreens(list){ ['home','hud','celebrate'].forEach(k=>els[k].classList.toggle('on', list.includes(k))); els.hud.classList.toggle('celebrating', list.includes('celebrate')); }
 let talkT=0;
@@ -545,10 +623,11 @@ function renderGoal(){
   let html='';
   // icons only: pointing hand + the bubble to pop; the star bar shows how many
   const hand='<span class="hand">'+artTag('hand')+'</span>';
-  if(cur.free){ html=hand+'<span class="gb big rainbow">'+artTag('star')+'</span>'; }
+  if(cur.math){ html=hand+(prob.kind==='find'&&prob.ans<=10 ? '<span class="dots">'+'<i></i>'.repeat(prob.ans)+'</span>' : '<span class="gb big rainbow"><span class="q">?</span></span>'); }
+  else if(cur.free){ html=hand+'<span class="gb big rainbow">'+artTag('star')+'</span>'; }
   else if(seq){ const k=progress%seq.length; html=hand+'<span class="seq">'+seq.map((g,i)=>goalBubble(g,i===k)).join(artTag('next','arrow'))+'</span>'; }
   else html=hand+goalBubble(cur,true);
-  els.speech.innerHTML='<div class="say">'+goalText()+'</div><div class="icons">'+html+'</div>'; els.speech.classList.remove('pop'); void els.speech.offsetWidth; els.speech.classList.add('pop');
+  els.speech.innerHTML='<div class="say'+(cur.math?' math':'')+'">'+goalText()+'</div><div class="icons">'+html+'</div>'; els.speech.classList.remove('pop'); void els.speech.offsetWidth; els.speech.classList.add('pop');
 }
 function updateBar(){
   els.fill.style.width=(goal?Math.min(1,progress/goal)*100:0)+'%';
@@ -574,12 +653,20 @@ function renderBook(){
   }
   els.play.classList.toggle('free', nextUnfinished()===0);
   els.diffs.querySelectorAll('.btn').forEach(b=>b.classList.toggle('on', b.dataset.diff===diff));
+  els.modes.querySelectorAll('.btn').forEach(b=>b.classList.toggle('on', b.dataset.mode===mode));
+}
+function roundFor(n){ return mode==='math' ? mathRound(n) : ROUNDS[n-1]; }
+function setMode(m, quiet){
+  if(!MODES.includes(m)) return; const changed=m!==mode; mode=m; best=bestAll[m]; save();
+  if(screen==='home'){ round=nextUnfinished()||1; cur=roundFor(round); goal=cur.count; progress=0; }
+  renderBook();
+  if(changed && !quiet){ sfx.tick(); toast(m==='math' ? 'Math!' : 'Animals!', 1000); }
 }
 function renderMute(){ els.mute.innerHTML=artTag(muted?'mute':'sound'); els.mute.setAttribute('aria-label', muted?'Sound off':'Sound on'); els.mute.setAttribute('aria-pressed', String(muted)); }
 function toggleMute(){ muted=!muted; save(); renderMute(); music.volume(); if(!muted) sfx.tick(); }
 function setDifficulty(d, quiet){
   if(!DIFFS[d]) return; const changed=d!==diff; diff=d; D=DIFFS[d]; save();
-  if(screen==='home'){ round=nextUnfinished()||1; cur=ROUNDS[round-1]; goal=cur.count; progress=0; }
+  if(screen==='home'){ round=nextUnfinished()||1; cur=roundFor(round); goal=cur.count; progress=0; }
   renderBook();
   if(changed && !quiet){ sfx.tick(); toast(D.phrase, 1100); }
 }
@@ -587,6 +674,7 @@ function setDifficulty(d, quiet){
 /* ---------- flow ---------- */
 function cw(c){ return '<span class="cw" style="color:'+COLORS[c][2]+'">'+c.toUpperCase()+'</span>'; }
 function goalText(){
+  if(cur.math) return prob.text;
   if(cur.free) return 'Pop them all!';
   if(seq) return 'Pop '+seq.map(g=>g.animal ? g.animal.toUpperCase() : cw(g.color)).join(', then ')+'!';
   const thing = cur.animal ? cur.animal.toUpperCase()+(goal>1?'S':'') : (goal>1?'bubbles':'bubble');
@@ -596,23 +684,23 @@ function beginPlay(r0){
   nextIn=0; doneIn=0; resume=null; shake=0;
   seq=buildSeq(); goal=cur.free?cur.count:cur.count+(seq?seq.length-1:0);
   progress=r0?r0.progress:0; hearts=r0?r0.hearts:D.hearts; mistakes=r0?r0.mistakes:0; timeLeft=D.timer;
-  bubbles=[]; fx=[]; spawnT=0.3; bombT=0; screen='play';
+  bubbles=[]; fx=[]; spawnT=0.3; bombT=0; screen='play'; prob=null; if(cur.math) newProblem();
   showScreens(['hud']); renderGoal(); updateBar(); renderHearts(); renderTimer(); measureHud();
   seedBubbles();
   guideTalk(); music.set('play'); toast(cur.free ? 'Free play!' : 'Round '+round, 1000);
 }
-function startPlay(n,r0){ round=n; cur=ROUNDS[n-1]; beginPlay(r0); }
-function startFree(){ round=11; cur=FREE; beginPlay(); }
+function startPlay(n,r0){ round=n; cur=roundFor(n); beginPlay(r0); }
+function startFree(){ round=11; cur=mode==='math'?MATH_FREE:FREE; beginPlay(); }
 function startGame(){
-  if(resume && resume.diff===diff && !best[diff][resume.round]){ startPlay(resume.round, resume); return; }  // accidental Home tap costs nothing
+  if(resume && resume.diff===diff && resume.mode===mode && !best[diff][resume.round]){ startPlay(resume.round, resume); return; }  // accidental Home tap costs nothing
   const n=nextUnfinished(); if(n) startPlay(n); else startFree();
 }
 function goHome(party){
-  if(screen==='play' && !cur.free && progress>0 && progress<goal) resume={round, progress, hearts, mistakes, diff};
+  if(screen==='play' && !cur.free && progress>0 && progress<goal) resume={round, progress, hearts, mistakes, diff, mode};
   nextIn=0; doneIn=0; shake=0;
   screen='home'; bubbles=[]; fx=[]; spawnT=0; showScreens(['home']); renderBook();
   music.set('home');
-  if(party){ confettiBurst(true); sfx.party(); toast('Safari star!', 2500); }
+  if(party){ confettiBurst(true); sfx.party(); toast(mode==='math' ? 'Math star!' : 'Safari star!', 2500); }
 }
 function starsFor(){ if(diff==='easy') return 3; return mistakes===0?3:(mistakes<=2?2:1); }
 function unlockNow(){ if(!cur.free){ const s=starsFor(); if((best[diff][round]||0)<s){ best[diff][round]=s; save(); } } }
@@ -644,7 +732,7 @@ function penalty(why){
 }
 function loseRound(){
   for(const b of bubbles) if(!b.bomb) addPop(b);
-  bubbles=[]; progress=0; hearts=D.hearts; timeLeft=D.timer; spawnT=0.5;
+  bubbles=[]; progress=0; hearts=D.hearts; timeLeft=D.timer; spawnT=0.5; if(cur.math) newProblem();
   renderGoal(); updateBar(); renderHearts(); renderTimer(); guideOops(); sfx.lose();
   toast('Try again!', 1400);
   seedBubbles();
@@ -664,8 +752,9 @@ function onTap(x,y){
     if(progress<goal){
       progress++; updateBar(); sfx.pop(progress/goal); if(D.timer>0) timeLeft=Math.min(D.timer, timeLeft+4);
       if(progress>=goal){ if(cur.free) freeFill(); else { unlockNow(); doneIn=0.65; } }   // sticker is safe the moment the bar fills
-      fx.push({type:'text', x:best.x, y:best.y-best.r, text:String(progress), life:0.9, max:0.9});   // the count floats up from the bubble
-      if(seq) renderGoal();
+      fx.push({type:'text', x:best.x, y:best.y-best.r, text:String(cur.math?best.num:progress), life:0.9, max:0.9});   // the count (or the answer) floats up from the bubble
+      if(cur.math){ newProblem(); renderGoal(); }
+      else if(seq) renderGoal();
     } else sfx.pop(1);
   } else {
     best.wig=0.7; sfx.wrong(); guideOops(); if(D.hearts<=0||cur.free) toast('Oops!', 600); penalty('wrong');
@@ -681,6 +770,7 @@ $('#home-btn').addEventListener('pointerdown', e=>{ e.preventDefault(); sfx.tick
 $('#next').addEventListener('pointerdown', e=>{ e.preventDefault(); if(t-celebrateAt<0.7) return; sfx.tick(); nextRound(); });   // a mashing kid cannot skip the sticker moment
 els.mute.addEventListener('pointerdown', e=>{ e.preventDefault(); toggleMute(); });
 els.diffs.querySelectorAll('.btn').forEach(b=>b.addEventListener('pointerdown', e=>{ e.preventDefault(); setDifficulty(b.dataset.diff); }));
+els.modes.querySelectorAll('.btn').forEach(b=>b.addEventListener('pointerdown', e=>{ e.preventDefault(); setMode(b.dataset.mode); }));
 
 /* ---------- loop ---------- */
 let tickT=0;
@@ -693,7 +783,7 @@ function update(dt){
   if(playing) bombT+=dt;
   for(let i=bubbles.length-1;i>=0;i--){ const b=bubbles[i]; b.age+=dt; b.y+=b.vy*dt; b.x=b.x0+Math.sin(t*b.freq+b.phase)*b.amp; if(b.wig>0) b.wig-=dt;
     if(b.shift && playing){ b.shift.t-=dt; if(b.shift.t<=0){ b.shift.t=1.1; const l=b.shift.list; b.color=l[(l.indexOf(b.color)+1)%l.length]; b.gen=-1; } }
-    if(playing && !cur.free && b.alpha===1) b.isTarget=!b.bomb && matches(b.color,b.animal);   // ordered goals and colour shifts change who is a target
+    if(playing && b.alpha===1 && (cur.math || !cur.free)) b.isTarget=!b.bomb && (cur.math ? b.num===prob.ans : matches(b.color,b.animal));   // ordered goals and colour shifts change who is a target
     if(b.y < (playing ? hudB-b.r : -b.r*1.6)) bubbles.splice(i,1); }   // gone once fully under the guide pill
   spawnT-=dt;
   if(playing && progress<goal){
@@ -714,7 +804,7 @@ function update(dt){
     c.vy+=260*dt; c.vy*=0.985; c.vx*=0.985; c.wob+=dt*4; c.x+=(c.vx+Math.sin(c.wob)*40)*dt; c.y+=c.vy*dt; c.rot+=c.vr*dt; }
 }
 function drawBubble(b){
-  if(b.gen!==gen){ b.gen=gen; b.spr=sprite(b.animal,Math.round(b.r*(b.bomb?1.4:1.15))); b.grad=bubbleGrad(b.color,b.r); }
+  if(b.gen!==gen){ b.gen=gen; b.spr=b.animal?sprite(b.animal,Math.round(b.r*(b.bomb?1.4:1.15))):null; b.grad=bubbleGrad(b.color,b.r); }
   let a=b.alpha; if(screen==='play' && hudB>0 && b.y<hudB+b.r) a*=clamp((b.y-(hudB-b.r))/(2*b.r),0,1);   // fade under the HUD
   let s=b.age<0.4?easeOutBack(b.age/0.4):1;
   const sq=Math.sin(t*2.6+b.phase)*0.045;
@@ -726,8 +816,14 @@ function drawBubble(b){
   if(b.bomb){ ctx.lineWidth=4; ctx.strokeStyle='rgba(255,70,70,'+(0.45+0.45*Math.sin(t*9+b.phase))+')'; ctx.stroke(); }
   else if(b.shift){ ctx.lineWidth=4; ctx.strokeStyle='hsl('+((t*260+b.phase*60)%360)+',95%,62%)'; ctx.stroke(); }
   else { ctx.lineWidth=3; ctx.strokeStyle='rgba(255,255,255,.8)'; ctx.stroke(); }
-  ctx.save(); ctx.beginPath(); ctx.arc(0,0,b.r*0.97,0,6.2832); ctx.clip();   // the animal sits inside the bubble
-  drawSprite(b.spr,0,b.r*0.08,1,a); ctx.restore();
+  if(b.num!=null){   // math bubble: a big number
+    const txt=String(b.num), fs=Math.round(b.r*(txt.length<2?1.15:txt.length<3?0.95:0.72));
+    ctx.font='900 '+fs+'px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.lineWidth=Math.max(3,fs*0.16); ctx.lineJoin='round'; ctx.strokeStyle='rgba(43,43,69,.85)'; ctx.strokeText(txt,0,fs*0.06); ctx.fillStyle='#fff'; ctx.fillText(txt,0,fs*0.06);
+  } else {
+    ctx.save(); ctx.beginPath(); ctx.arc(0,0,b.r*0.97,0,6.2832); ctx.clip();   // the animal sits inside the bubble
+    drawSprite(b.spr,0,b.r*0.08,1,a); ctx.restore();
+  }
   ctx.beginPath(); ctx.ellipse(-b.r*0.42,-b.r*0.46,b.r*0.2,b.r*0.11,-0.6,0,6.2832); ctx.fillStyle='rgba(255,255,255,.9)'; ctx.fill();
   ctx.restore();
 }
@@ -781,7 +877,7 @@ requestAnimationFrame(frame);
 
 /* ---------- init ---------- */
 resize();
-round=nextUnfinished()||1; cur=ROUNDS[round-1]; goal=cur.count;
+round=nextUnfinished()||1; cur=roundFor(round); goal=cur.count;
 renderBook(); renderMute(); showScreens(['home']);
 
 /* ---------- PWA ---------- */
@@ -790,16 +886,18 @@ try{ if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){ wi
 /* ---------- tiny test hook ---------- */
 window.__bps = {
   state(){ const g=tgt(); return {
-    screen, round, progress, goal, difficulty:diff, hearts, mistakes, timeLeft:Math.round(timeLeft*10)/10, music:music.mode(),
+    screen, round, progress, goal, difficulty:diff, mode, hearts, mistakes, timeLeft:Math.round(timeLeft*10)/10, music:music.mode(),
+    problem: prob ? { kind:prob.kind, text:prob.text, answer:prob.ans } : null,
     target: Object.assign({}, g.color?{color:g.color}:{}, g.animal?{animal:g.animal}:{}, {count:goal}),
     sequence: seq ? seq.slice() : null,
     unlocked: unlockedList(), best: JSON.parse(JSON.stringify(best)), muted,
-    bubbles: screen==='play' ? bubbles.filter(b=>b.y>hudB&&b.y<=H&&b.x>=0&&b.x<=W).map(b=>({id:b.id, x:Math.round(b.x*10)/10, y:Math.round(b.y*10)/10, r:b.r, color:b.color, animal:b.animal, isTarget:b.isTarget, bomb:b.bomb, shift:!!b.shift})) : []
+    bubbles: screen==='play' ? bubbles.filter(b=>b.y>hudB&&b.y<=H&&b.x>=0&&b.x<=W).map(b=>({id:b.id, x:Math.round(b.x*10)/10, y:Math.round(b.y*10)/10, r:b.r, color:b.color, animal:b.animal, num:b.num, isTarget:b.isTarget, bomb:b.bomb, shift:!!b.shift})) : []
   }; },
   startGame(){ if(screen==='home') startGame(); },
   startRound(n){ if(screen==='home' && n>=1 && n<=10) startPlay(n); },
   setDifficulty(d){ setDifficulty(d, true); },
-  resetProgress(){ best={ easy:{}, hard:{}, expert:{} }; resume=null; if(screen==='home'){ round=1; cur=ROUNDS[0]; goal=cur.count; progress=0; } save(); renderBook(); }
+  setMode(m){ setMode(m, true); },
+  resetProgress(){ bestAll={ safari:{ easy:{}, hard:{}, expert:{} }, math:{ easy:{}, hard:{}, expert:{} } }; best=bestAll[mode]; resume=null; if(screen==='home'){ round=1; cur=roundFor(1); goal=cur.count; progress=0; } save(); renderBook(); }
 };
 })();
 </script>
