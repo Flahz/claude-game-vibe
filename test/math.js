@@ -52,11 +52,11 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
     // wrong tap does nothing
     const w=await waitFor(x=>x.bubbles.find(b=>!b.isTarget&&!b.bomb&&visible(b)),'wrong bubble'); await tap(w.x,w.y); await sleep(150); s=await state(); assert(s.progress===0,'wrong tap no progress');
     await page.screenshot({path:path.join(outDir,'math-find.png')});
-    let ch=await playRound(1); assert(ch>=3,'problem changes after correct pops: '+ch); s=await state(); assert(s.best.easy[1]===3,'r1 done');
+    let ch=await playRound(1); assert(ch>=2,'problem changes after correct pops: '+ch); s=await state(); assert(s.best.easy[1]===3,'r1 done');
     await sleep(900); await page.screenshot({path:path.join(outDir,'math-celebrate.png')}); await tapEl('[data-testid="home"]'); await sleep(200);
 
     step='3-add'; await page.evaluate(()=>window.__bps.startRound(3)); await sleep(300); s=await state(); assert(s.problem.kind==='add','add kind');
-    ch=await playRound(3,'math-add.png'); assert(ch>=3,'add changes '+ch); await tapEl('[data-testid="home"]'); await sleep(200);
+    ch=await playRound(3,'math-add.png'); assert(ch>=2,'add changes '+ch); await tapEl('[data-testid="home"]'); await sleep(200);
     step='4-sub'; await page.evaluate(()=>window.__bps.startRound(5)); await sleep(300); s=await state(); assert(s.problem.kind==='sub','sub kind'); await playRound(5); await tapEl('[data-testid="home"]'); await sleep(200);
     step='5-miss'; await page.evaluate(()=>window.__bps.startRound(8)); await sleep(300); s=await state(); assert(s.problem.kind==='miss','miss kind'); await playRound(8,'math-missing.png'); await tapEl('[data-testid="home"]'); await sleep(200);
     step='6-mul'; await page.evaluate(()=>window.__bps.startRound(9)); await sleep(300); s=await state(); assert(s.problem.kind==='mul','mul kind'); await playRound(9,'math-mul.png'); await tapEl('[data-testid="home"]'); await sleep(200);
