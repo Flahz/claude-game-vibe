@@ -1,0 +1,43 @@
+{
+  "skill_name": "improve-game",
+  "evals": [
+    {
+      "id": 0,
+      "name": "open-ended-full-pass",
+      "prompt": "Analyze the whole game and make it better. Pick a handful of improvements or new features, give each one to a subagent to build, and when they're done merge everything into main and push. Don't ask me anything, you take all the decisions.",
+      "expected_output": "main is fast-forwarded to a green commit carrying several independent improvements, each verified by tests, with sw.js cache bumped and README updated; the final report lists what shipped, what was dropped, and leftover findings, and asks no question.",
+      "files": [],
+      "assertions": [
+        "main on origin advanced past the base commit",
+        "all Playwright tests in test/ pass on origin's main",
+        "at least two separate improvement commits touching index.html landed on main (not one lump)",
+        "sw.js CACHE version was bumped so installed phones get the update",
+        "README.md was updated to describe the shipped changes",
+        "test coverage grew: at least one file under test/ was added or changed",
+        "no dependencies or external resources were added (no package.json, no external script/link)",
+        "working clone left clean: no improve/* branches and no extra worktrees",
+        "final report exists and asks the user no question",
+        "final report names dropped items or leftover findings for next time"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "focused-math-mode-casual",
+      "prompt": "the math mode feels kinda thin compared to the animals one. take a look at the game and improve it, 2 or 3 things is enough. use subagents for the work and merge it all to main when it's done, i don't want to be asked stuff",
+      "expected_output": "Two or three improvements that all serve the math mode land on main, tests green, cache bumped, README updated, no question asked.",
+      "files": [],
+      "assertions": [
+        "main on origin advanced past the base commit",
+        "all Playwright tests in test/ pass on origin's main",
+        "at least two separate improvement commits touching index.html landed on main (not one lump)",
+        "sw.js CACHE version was bumped so installed phones get the update",
+        "README.md was updated to describe the shipped changes",
+        "test coverage grew: at least one file under test/ was added or changed",
+        "no dependencies or external resources were added (no package.json, no external script/link)",
+        "working clone left clean: no improve/* branches and no extra worktrees",
+        "final report exists and asks the user no question",
+        "final report names dropped items or leftover findings for next time"
+      ]
+    }
+  ]
+}
