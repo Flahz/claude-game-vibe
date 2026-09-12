@@ -70,9 +70,16 @@ Every item, in order, on `improve/integration`:
 2. `README.md`: the mode and difficulty tables, the Files table, and the Development
    section must describe the game as it now is. Add new tests to the Files table. Keep
    the tone; do not add a changelog section, the git log is the record.
-3. Full test run, twice. Green both times or you are not done. A test that passes once
-   and fails once is a flaky test, and it is this run's problem: fix the test's timing
-   or targeting (never delete or weaken its assertions) before you ship.
+3. Full test run, twice, then every test file this run added or changed at least five
+   more times each (they take a minute or two; a loop in one shell call is enough).
+   Green every time or you are not done. A test that fails one time in four is a flaky
+   test, and it is this run's problem: read the failure, then fix the test's timing or
+   targeting (never delete or weaken its assertions) before you ship. A flaky test on
+   `main` is the worst thing a run can leave behind, because the next run starts red
+   and cannot tell your flake from its own regression. Common cause in this file: a
+   test that reads `state()` a fixed 100 to 200 ms after a tap and expects the next
+   problem or the next spawn to be there already; wait for the change with a polling
+   `waitFor` instead of a fixed sleep.
 4. Screenshots: if the home screen, a round, or the celebration changed visibly, refresh
    the matching PNGs in `screenshots/` with `shots.js` (Pixel 5) so the README pictures
    are honest.
