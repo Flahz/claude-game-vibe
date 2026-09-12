@@ -113,8 +113,14 @@ The prompt has to be self-contained: the subagent has none of your context. Give
 absolute path of its worktree, the goal, the acceptance criteria, the constraints, the
 test command, and the report format. Tell it to decide on its own and never to ask.
 
-While they run, do not idle-poll. Prepare the integration branch and the README changes
-you already know about, and re-read the plan so you can judge the reports quickly.
+While they run, prepare the integration branch and the README changes you already know
+about, and re-read the plan so you can judge the reports quickly. The completion notice
+for each subagent arrives on its own; you do not need to poll for it. One exception: if
+you are yourself running as a subagent (someone delegated this whole skill to you),
+ending your turn ends you, so instead wait with a short shell loop that checks the tip
+of each `improve/*` branch every minute or two and returns when all have moved or a
+generous deadline passes. A subagent that never commits gets its worktree inspected,
+per `references/integration.md`.
 
 ## 4. Integrate
 
