@@ -70,7 +70,9 @@ Every item, in order, on `improve/integration`:
 2. `README.md`: the mode and difficulty tables, the Files table, and the Development
    section must describe the game as it now is. Add new tests to the Files table. Keep
    the tone; do not add a changelog section, the git log is the record.
-3. Full test run. Green or you are not done.
+3. Full test run, twice. Green both times or you are not done. A test that passes once
+   and fails once is a flaky test, and it is this run's problem: fix the test's timing
+   or targeting (never delete or weaken its assertions) before you ship.
 4. Screenshots: if the home screen, a round, or the celebration changed visibly, refresh
    the matching PNGs in `screenshots/` with `shots.js` (Pixel 5) so the README pictures
    are honest.

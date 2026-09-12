@@ -113,6 +113,12 @@ The prompt has to be self-contained: the subagent has none of your context. Give
 absolute path of its worktree, the goal, the acceptance criteria, the constraints, the
 test command, and the report format. Tell it to decide on its own and never to ask.
 
+If no subagent tool is available to you (some harnesses withhold it, and remote-session
+tools that run in other containers cannot see your worktrees), do not stall and do not
+ask: build the items yourself, one worktree at a time, following the same brief you
+would have sent, and say so in the report. The worktree-per-item structure still pays
+off, because each branch is tested on its own before it meets the others.
+
 While they run, prepare the integration branch and the README changes you already know
 about, and re-read the plan so you can judge the reports quickly. The completion notice
 for each subagent arrives on its own; you do not need to poll for it. One exception: if

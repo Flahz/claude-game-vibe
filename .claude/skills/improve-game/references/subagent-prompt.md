@@ -35,7 +35,11 @@ matters. Written so the agent understands the intent, not just the mechanics.>
   same style (plain node script, `window.__bps` hook, PASS/FAIL, exit code). If the
   behaviour needs new state to be observable, add it to `__bps.state()` rather than
   poking the DOM.
-- All existing tests still pass.
+- All existing tests still pass, and your new test passes three times in a row. Bubbles
+  move and spawn on timers, so a test that taps "the target bubble" can hit a neighbour
+  or a bubble that just left the screen; read the bubble list from `state()`, prefer a
+  target with nothing overlapping it and well inside the viewport, and derive expected
+  values from the game's own state rather than from a count you kept yourself.
 
 ## The game, in brief
 
