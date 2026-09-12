@@ -129,12 +129,20 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
 .slot .st{ position:absolute; left:0; right:0; bottom:3px; display:flex; justify-content:center; gap:1px; font-size:12px; line-height:1; pointer-events:none; transform:translateZ(0); }
 .slot .st img.art{ display:block; width:13px; height:13px; }   /* explicit: the slot's animal rule would size these too */
 
-/* ---------- MODE (animals / math) ---------- */
-#modes{ display:flex; gap:10px; align-items:center; justify-content:center; }
-.btn.mode{ min-width:0; min-height:54px; height:54px; border-radius:27px; padding:0 18px 0 10px; font-size:19px; font-weight:900; gap:8px; letter-spacing:.2px;
+/* ---------- MODE (animals / math / words) ---------- */
+#modes{ display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap; }
+.btn.mode{ min-width:0; min-height:50px; height:50px; border-radius:25px; padding:0 14px 0 8px; font-size:17px; font-weight:900; gap:6px; letter-spacing:.2px;
   background:rgba(255,255,255,.5); color:var(--ink); box-shadow:none; opacity:.8; transition: transform .2s cubic-bezier(.34,1.56,.64,1), opacity .2s, box-shadow .2s, background .2s; }
 .btn.mode.on{ background:#fff; opacity:1; transform:scale(1.06); box-shadow: 0 5px 0 rgba(0,0,0,.14), 0 8px 16px rgba(0,0,0,.14); }
-.btn.mode img.art{ width:38px; height:38px; }
+.btn.mode img.art{ width:34px; height:34px; }
+/* words mode: pick the language to learn (only shown when the words game is selected) */
+#langs{ display:none; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap; }
+#home.words #langs{ display:flex; }
+.btn.lang{ min-width:0; min-height:40px; height:40px; border-radius:20px; padding:0 14px; font-size:15px; font-weight:900; letter-spacing:.2px;
+  background:rgba(255,255,255,.5); color:var(--ink); box-shadow:none; opacity:.8; transition: transform .2s cubic-bezier(.34,1.56,.64,1), opacity .2s, box-shadow .2s, background .2s; }
+.btn.lang.on{ background:#fff; opacity:1; transform:scale(1.06); box-shadow: 0 4px 0 rgba(0,0,0,.14), 0 6px 12px rgba(0,0,0,.14); }
+#speech .say.words{ font-size: clamp(22px, 7vw, 30px); letter-spacing:1px; }
+#speech .en{ font-size:16px; font-weight:800; color:var(--ink); opacity:.6; margin-top:-3px; letter-spacing:.3px; }
 .dots{ display:flex; flex-wrap:wrap; justify-content:center; gap:4px; max-width:112px; }
 .dots i{ width:16px; height:16px; border-radius:50%; background:#2f7cff; box-shadow: inset -3px -3px 5px rgba(0,0,0,.2), inset 3px 3px 5px rgba(255,255,255,.5); }
 .gb .q{ font-size:34px; font-weight:900; color:#fff; text-shadow: 0 2px 0 rgba(0,0,0,.25); }
@@ -175,6 +183,11 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
 @keyframes wiggle{ 0%,100%{ transform:rotate(0) } 25%{ transform:rotate(-14deg) } 75%{ transform:rotate(14deg) } }
 @keyframes cardIn{ 0%{ transform:scale(.2); opacity:0 } 100%{ transform:scale(1); opacity:1 } }
 @keyframes point{ 0%,100%{ transform:translate(0,0) } 50%{ transform:translate(6px,-6px) } }
+/* ordinary phones: three game buttons and four languages on one line each */
+@media (max-width:429px){
+  .btn.mode{ height:46px; font-size:15px; padding:0 11px 0 7px; gap:5px; } .btn.mode img.art{ width:30px; height:30px; }
+  .btn.lang{ height:36px; font-size:13px; padding:0 10px; }
+}
 /* narrow phones: keep sticker slots at 80px+ */
 @media (max-width:379px){
   .screen{ padding-left: calc(var(--sal) + 6px); padding-right: calc(var(--sar) + 6px); }
@@ -183,6 +196,7 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
   #modes{ width:100%; padding-right:84px; gap:6px; }   /* keep clear of the sound button */
   .btn.mode{ height:44px; font-size:15px; padding:0 10px 0 6px; gap:5px; }
   .btn.mode img.art{ width:30px; height:30px; }
+  .btn.lang{ height:34px; font-size:12px; padding:0 8px; }
 }
 /* short phones (iPhone SE and similar): shrink the home screen so nothing needs scrolling */
 @media (max-height:620px){
@@ -190,6 +204,7 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
   #book{ gap:5px; padding:6px; margin:2px 0; max-width:330px; } .slot{ min-height:52px; border-radius:16px; }
   #play{ width:104px; height:104px; margin:0; }
   .btn.mode{ height:44px; font-size:16px; padding:0 14px 0 8px; } .btn.mode img.art{ width:30px; height:30px; }
+  .btn.lang{ height:34px; font-size:13px; padding:0 10px; }
   #diffs .btn{ min-width:48px; min-height:48px; width:48px; height:48px; } .dl{ font-size:13px; }
 }
 /* landscape: book and play side by side so nothing needs scrolling */
@@ -202,6 +217,8 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
   #diffs{ flex-direction:column; gap:14px; margin:0; }
   #modes{ flex-direction:column; gap:8px; }
   .btn.mode{ height:46px; font-size:16px; }
+  #home.words #langs{ display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  .btn.lang{ height:36px; font-size:13px; padding:0 10px; }
   #row2{ margin-top:4px; }
   #guide{ margin-top:6px; } #speech{ min-height:64px; } #guide-face{ font-size:50px; }
   .dl{ display:none; }
@@ -217,6 +234,13 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
     <div id="modes" aria-label="Game">
       <button class="btn mode on" data-mode="safari" data-testid="mode-safari" aria-label="Animals"><img class="art" src="art/lion.webp" alt="" data-fb="🦁"><span>Animals</span></button>
       <button class="btn mode" data-mode="math" data-testid="mode-math" aria-label="Math"><img class="art" src="art/math.webp" alt="" data-fb="➕"><span>Math</span></button>
+      <button class="btn mode" data-mode="words" data-testid="mode-words" aria-label="Words"><img class="art" src="art/words.webp" alt="" data-fb="💬"><span>Words</span></button>
+    </div>
+    <div id="langs" aria-label="Language">
+      <button class="btn lang" data-lang="fr" data-testid="lang-fr" aria-label="French">Français</button>
+      <button class="btn lang" data-lang="es" data-testid="lang-es" aria-label="Spanish">Español</button>
+      <button class="btn lang" data-lang="it" data-testid="lang-it" aria-label="Italian">Italiano</button>
+      <button class="btn lang" data-lang="de" data-testid="lang-de" aria-label="German">Deutsch</button>
     </div>
     <div id="book" aria-label="Sticker book"></div>
     <button id="play" class="btn" data-testid="play" aria-label="Play"><img class="art" src="art/next.webp" alt="" data-fb="▶"></button>
@@ -263,17 +287,19 @@ const COLORS = {
   purple: ['#9b4dff','#dfc9ff','#6a22c9'],
   orange: ['#ff8a1f','#ffd9b3','#c45f00'],
   pink:   ['#ff5fc8','#ffcdea','#c22a8e'],
-  bomb:   ['#4a3d6b','#8a7bb0','#1d1430']
+  bomb:   ['#4a3d6b','#8a7bb0','#1d1430'],
+  cloud:  ['#e9edf5','#ffffff','#aeb6c9']   /* words mode: a colour word the child has to work out, so the bubble gives nothing away */
 };
+const PLAY_COLORS = Object.keys(COLORS).filter(c=>c!=='bomb'&&c!=='cloud');
 /* emoji fallbacks, only used while the art is still loading (or if a file is missing) */
 const ANIMALS = { lion:'🦁', monkey:'🐵', elephant:'🐘', panda:'🐼', tiger:'🐯', frog:'🐸', koala:'🐨', zebra:'🦓', giraffe:'🦒', hippo:'🦛', owl:'🦉', bomb:'💣',
-  star:'⭐', heart:'❤️', play:'▶', home:'🏠', sound:'🔊', mute:'🔇', next:'➡️', hand:'👆', trophy:'🏆', chick:'🐣', flame:'🔥', bolt:'⚡', math:'➕' };
+  star:'⭐', heart:'❤️', play:'▶', home:'🏠', sound:'🔊', mute:'🔇', next:'➡️', hand:'👆', trophy:'🏆', chick:'🐣', flame:'🔥', bolt:'⚡', math:'➕', words:'💬' };
 const STICKERS = ['lion','monkey','elephant','panda','tiger','frog','koala','zebra','giraffe','hippo'];
 /* custom art: characters and UI icons (generated with Higgsfield, cut out and shrunk to 208px webp) */
 const ART_SRC = { lion:'art/lion.webp', monkey:'art/monkey.webp', elephant:'art/elephant.webp', panda:'art/panda.webp', tiger:'art/tiger.webp', frog:'art/frog.webp',
   koala:'art/koala.webp', zebra:'art/zebra.webp', giraffe:'art/giraffe.webp', hippo:'art/hippo.webp', owl:'art/owl.webp', bomb:'art/bomb.webp',
   star:'art/star.webp', heart:'art/heart.webp', play:'art/next.webp', home:'art/home.webp', sound:'art/sound.webp', mute:'art/mute.webp',
-  next:'art/next.webp', hand:'art/hand.webp', trophy:'art/trophy.webp', chick:'art/chick.webp', flame:'art/flame.webp', bolt:'art/bolt.webp', math:'art/math.webp' };
+  next:'art/next.webp', hand:'art/hand.webp', trophy:'art/trophy.webp', chick:'art/chick.webp', flame:'art/flame.webp', bolt:'art/bolt.webp', math:'art/math.webp', words:'art/words.webp' };
 const ROUNDS = [
   { color:'red',    count:3, max:5,  speed:1.00, colors:['red','blue','yellow'],            animals:['lion','monkey','frog'] },
   { animal:'lion',  count:3, max:6,  speed:1.05, colors:['red','blue','green','yellow'],    animals:['lion','monkey','elephant'] },
@@ -286,7 +312,7 @@ const ROUNDS = [
   { color:'red',  animal:'lion',     count:5, max:12, speed:1.50, colors:['red','orange','pink','blue'], animals:['lion','tiger','monkey','frog'] },
   { color:'purple', animal:'panda',  count:6, max:13, speed:1.60, colors:['purple','pink','blue','green'], animals:['panda','koala','zebra','elephant'] }
 ];
-const FREE = { free:true, count:10, max:10, speed:1.3, colors:Object.keys(COLORS).filter(c=>c!=='bomb'), animals:STICKERS };
+const FREE = { free:true, count:10, max:10, speed:1.3, colors:PLAY_COLORS, animals:STICKERS };
 /* math mode: bubbles carry numbers, pop the right answer. hi = biggest number per difficulty (easy, hard, expert) */
 const MATH = [
   { kind:'find', hi:[5,10,20] },
@@ -302,19 +328,51 @@ const MATH = [
 ];
 function mathRound(n){ const m=MATH[n-1]; return { math:true, kind:m.kind, hi:m.hi, count:5, max:6+n, speed:1+(n-1)*0.06, colors:FREE.colors, animals:STICKERS }; }
 const MATH_FREE = { free:true, math:true, kind:'mix', hi:[20,50,100], count:10, max:10, speed:1.3, colors:FREE.colors, animals:STICKERS };
-const MODES = ['safari','math'];
+/* words mode (a little Duolingo): the owl shows a word in another language, the bubbles carry the animals and colours.
+   'pic' rounds: the owl says the foreign word, pop the bubble showing that thing (each bubble also wears its word).
+   'rev' rounds: the owl shows the picture and the English word, the bubbles only carry foreign words.
+   A middle dot marks where a long word may break onto two lines inside a bubble. */
+const LANGS = {
+  fr:{ name:'Français', animal:{ lion:'LION', monkey:'SINGE', elephant:'ÉLÉ·PHANT', panda:'PANDA', tiger:'TIGRE', frog:'GRE·NOUILLE', koala:'KOALA', zebra:'ZÈBRE', giraffe:'GIRAFE', hippo:'HIPPO·POTAME' },
+       color:{ red:'ROUGE', blue:'BLEU', green:'VERT', yellow:'JAUNE', purple:'VIOLET', orange:'ORANGE', pink:'ROSE' } },
+  es:{ name:'Español', animal:{ lion:'LEÓN', monkey:'MONO', elephant:'ELE·FANTE', panda:'PANDA', tiger:'TIGRE', frog:'RANA', koala:'KOALA', zebra:'CEBRA', giraffe:'JIRAFA', hippo:'HIPO·PÓTAMO' },
+       color:{ red:'ROJO', blue:'AZUL', green:'VERDE', yellow:'AMA·RILLO', purple:'MORADO', orange:'NARANJA', pink:'ROSA' } },
+  it:{ name:'Italiano', animal:{ lion:'LEONE', monkey:'SCIMMIA', elephant:'ELE·FANTE', panda:'PANDA', tiger:'TIGRE', frog:'RANA', koala:'KOALA', zebra:'ZEBRA', giraffe:'GIRAFFA', hippo:'IPPO·POTAMO' },
+       color:{ red:'ROSSO', blue:'BLU', green:'VERDE', yellow:'GIALLO', purple:'VIOLA', orange:'ARAN·CIONE', pink:'ROSA' } },
+  de:{ name:'Deutsch', animal:{ lion:'LÖWE', monkey:'AFFE', elephant:'ELEFANT', panda:'PANDA', tiger:'TIGER', frog:'FROSCH', koala:'KOALA', zebra:'ZEBRA', giraffe:'GIRAFFE', hippo:'NIL·PFERD' },
+       color:{ red:'ROT', blue:'BLAU', green:'GRÜN', yellow:'GELB', purple:'LILA', orange:'ORANGE', pink:'ROSA' } }
+};
+const WORD_COLORS = ['red','blue','green','yellow','purple','orange','pink'];
+const wi = (type,keys) => keys.map(k=>({type,key:k}));
+const WORDS = [
+  { kind:'pic', set: wi('animal',['lion','monkey','frog','elephant']) },
+  { kind:'pic', set: wi('animal',['panda','tiger','koala','zebra']) },
+  { kind:'pic', set: wi('color',['red','blue','green','yellow']) },
+  { kind:'pic', set: wi('animal',['giraffe','hippo','lion','panda','monkey','frog']) },
+  { kind:'pic', set: wi('color',['purple','orange','pink','red','blue','green']) },
+  { kind:'pic', set: wi('animal',STICKERS) },
+  { kind:'pic', set: wi('animal',STICKERS).concat(wi('color',WORD_COLORS)) },
+  { kind:'rev', set: wi('animal',['lion','monkey','frog','elephant','panda','tiger','koala','zebra']) },
+  { kind:'rev', set: wi('color',WORD_COLORS) },
+  { kind:'rev', set: wi('animal',STICKERS).concat(wi('color',WORD_COLORS)) }
+];
+function wordRound(n){ const w=WORDS[n-1]; return { words:true, kind:w.kind, set:w.set, count:5, max:6+n, speed:1+(n-1)*0.05, colors:PLAY_COLORS, animals:STICKERS }; }
+const WORDS_FREE = { free:true, words:true, kind:'any', set:WORDS[9].set, count:10, max:10, speed:1.25, colors:PLAY_COLORS, animals:STICKERS };
+const wordOf = it => LANGS[lang][it.type][it.key].replace('·','');
+const MODES = ['safari','math','words'];
 /* difficulty: easy is the original game. hard/expert add hearts, bombs, ordered goals, speed, and (expert) a timer + colour-changing bubbles */
 const DIFFS = {
-  easy:   { speed:1.00, size:1.00, extra:0, bombs:0,    hearts:0, seqFrom:99, seq3From:99, timer:0,  shift:0,    ratio:0.45, minT:2, phrase:'Easy!' },
-  hard:   { speed:1.45, size:0.86, extra:3, bombs:0.18, hearts:3, seqFrom:5,  seq3From:99, timer:0,  shift:0,    ratio:0.35, minT:2, phrase:'Hard! Watch out!' },
-  expert: { speed:1.85, size:0.76, extra:5, bombs:0.26, hearts:3, seqFrom:3,  seq3From:7,  timer:22, shift:0.30, ratio:0.28, minT:1, phrase:'Expert! Be quick!' }
+  easy:   { speed:1.00, size:1.00, extra:0, bombs:0,    hearts:0, seqFrom:99, seq3From:99, timer:0,  shift:0,    ratio:0.45, minT:2, hint:0,  phrase:'Easy!' },
+  hard:   { speed:1.45, size:0.86, extra:3, bombs:0.18, hearts:3, seqFrom:5,  seq3From:99, timer:0,  shift:0,    ratio:0.35, minT:2, hint:4,  phrase:'Hard! Watch out!' },
+  expert: { speed:1.85, size:0.76, extra:5, bombs:0.26, hearts:3, seqFrom:3,  seq3From:7,  timer:22, shift:0.30, ratio:0.28, minT:1, hint:99, phrase:'Expert! Be quick!' }
 };
 const pick = a => a[(Math.random()*a.length)|0];
 const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
 const easeOutBack = x => { const c1=1.70158, c3=c1+1; return 1 + c3*Math.pow(x-1,3) + c1*Math.pow(x-1,2); };
 
 /* ---------- persistence ---------- */
-let mode='safari', bestAll = { safari:{ easy:{}, hard:{}, expert:{} }, math:{ easy:{}, hard:{}, expert:{} } }, best = bestAll.safari, muted = false, diff = 'easy', D = DIFFS.easy;
+let mode='safari', lang='fr', bestAll = emptyBest(), best = bestAll.safari, muted = false, diff = 'easy', D = DIFFS.easy;
+function emptyBest(){ const o={}; MODES.forEach(m=>{ o[m]={ easy:{}, hard:{}, expert:{} }; }); return o; }
 function cleanTable(b){ b=b||{}; return { easy:cleanBest(b.easy), hard:cleanBest(b.hard), expert:cleanBest(b.expert) }; }
 function cleanBest(o){ const r={}; if(o&&typeof o==='object') for(const k in o){ const n=+k, s=o[k]|0; if(Number.isInteger(n)&&n>=1&&n<=10&&s>=1&&s<=3) r[n]=s; } return r; }
 function load(){
@@ -325,12 +383,12 @@ function load(){
       if(o2) d={ muted:o2.muted, diff:o2.diff, bestAll:{ safari:o2.best } };
       else { d={ muted:o1.muted, bestAll:{ safari:{ easy:{} } } }; if(Array.isArray(o1.unlocked)) o1.unlocked.forEach(n=>{ d.bestAll.safari.easy[n]=3; }); }
     }
-    muted=!!d.muted; if(DIFFS[d.diff]) diff=d.diff; if(MODES.includes(d.mode)) mode=d.mode;
-    const ba=d.bestAll||{}; bestAll={ safari:cleanTable(ba.safari), math:cleanTable(ba.math) }; best=bestAll[mode];
+    muted=!!d.muted; if(DIFFS[d.diff]) diff=d.diff; if(MODES.includes(d.mode)) mode=d.mode; if(LANGS[d.lang]) lang=d.lang;
+    const ba=d.bestAll||{}; bestAll={}; MODES.forEach(m=>{ bestAll[m]=cleanTable(ba[m]); }); best=bestAll[mode];
   }catch(e){}
   D=DIFFS[diff];
 }
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify({bestAll, muted, diff, mode})); }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify({bestAll, muted, diff, mode, lang})); }catch(e){} }
 function unlockedList(){ const s=new Set(); for(const k in DIFFS) Object.keys(best[k]).forEach(n=>s.add(+n)); return [...s].sort((a,b)=>a-b); }
 function isUnlocked(n){ return !!(best.easy[n]||best.hard[n]||best.expert[n]); }
 load();
@@ -522,16 +580,45 @@ function wrongNum(){
   }
   return prob.ans+1;
 }
+/* ---------- words ---------- */
+function newWord(){
+  let kind=cur.kind; if(kind==='any') kind=pick(['pic','pic','rev']);
+  let it, g=0; do{ it=pick(cur.set); }while(prob && it.type+':'+it.key===prob.key && ++g<20);   // not the same word twice in a row
+  const key=it.type+':'+it.key, word=wordOf(it);
+  prob={ words:true, kind, item:it, key, word, en:it.key, text:word, hint: kind==='rev' || D.hint<=0, hintIn:D.hint };
+}
+function wrongItem(){
+  for(let k=0;k<12;k++){
+    const it=pick(cur.set), key=it.type+':'+it.key;
+    if(key===prob.key) continue;
+    if(k<8 && bubbles.some(b=>b.wkey===key)) continue;   // prefer words not already on screen
+    return it;
+  }
+  return cur.set.find(x=>x.type+':'+x.key!==prob.key);
+}
+function nextQuestion(){ if(cur.math) newProblem(); else if(cur.words) newWord(); }
+function isTargetNow(b){ return !b.bomb && (cur.math ? b.num===prob.ans : cur.words ? b.wkey===prob.key : matches(b.color,b.animal)); }
 function matches(color,animal){ const g=tgt(); return (!g.color||g.color===color) && (!g.animal||g.animal===animal); }
-function bubbleRadius(){ return Math.round((clamp(W*0.125,42,54) - (cur.free?4:(round-1)*0.8))*D.size); }
+function bubbleRadius(){ return Math.round((clamp(W*0.125,42,54) - (cur.free?4:(round-1)*0.8) + (cur.words?6:0))*D.size); }
 function speedMul(){ return cur.speed*D.speed; }
 function maxBubbles(){ return cur.max+(cur.free?Math.round(D.extra/2):D.extra); }
 
 function spawnBubble(forceTarget, y0){
   const r=bubbleRadius();
-  let color, animal=null, num=null, isTarget, bomb=false, shift=null;
+  let color, animal=null, num=null, isTarget, bomb=false, shift=null, word=null, wkey=null, item=null;
   const bombs=bubbles.filter(b=>b.bomb).length;
-  if(cur.math){
+  if(cur.words){
+    const nonT=bubbles.filter(b=>!b.isTarget).length;
+    const wantT=forceTarget || (nonT>=2 && Math.random()<(cur.free?0.5:D.ratio));
+    let it=prob.item;
+    if(!wantT){ it=wrongItem(); if(D.bombs>0 && bombs<2 && (Math.random()<D.bombs || bombT>6)) bomb=true; }
+    const rev=prob.kind==='rev';
+    item=it; wkey=it.type+':'+it.key; word=wordOf(it);
+    if(it.type==='color') color = rev ? 'cloud' : it.key;   // reverse rounds: the word alone, the bubble gives nothing away
+    else { color=pick(cur.colors); animal = rev ? null : it.key; }
+    isTarget=!bomb && wkey===prob.key;
+  }
+  else if(cur.math){
     color=pick(cur.colors);
     const nonT=bubbles.filter(b=>!b.isTarget).length;
     const wantT=forceTarget || (nonT>=2 && Math.random()<(cur.free?0.5:D.ratio));
@@ -553,7 +640,7 @@ function spawnBubble(forceTarget, y0){
     }
     isTarget=!bomb && matches(color,animal);
   }
-  if(bomb){ color='bomb'; animal='bomb'; num=null; isTarget=false; bombT=0; }
+  if(bomb){ color='bomb'; animal='bomb'; num=null; word=null; wkey=null; item=null; isTarget=false; bombT=0; }
   const y = (y0!=null) ? y0 : H+r+8;
   const amp=10+Math.random()*18; let x0=W/2;
   for(let k=0;k<8;k++){
@@ -561,7 +648,13 @@ function spawnBubble(forceTarget, y0){
     if(!bubbles.some(b=>Math.abs(b.y-y)<b.r+r && Math.abs(b.x0-x0)<b.r+r-8)) break;
   }
   bubbles.push({ id:++uid, x0, x:x0, y, r, vy:-(38+Math.random()*30)*speedMul(), amp, freq:0.8+Math.random()*1.2, phase:Math.random()*6.283,
-    color, animal, num, isTarget, bomb, shift, age:0, wig:0, alpha:1 });
+    color, animal, num, word, wkey, item, isTarget, bomb, shift, age:0, wig:0, alpha:1 });
+}
+/* words mode, reverse rounds: a wrong bubble shows what it really was, so a wrong tap still teaches */
+function revealBubble(b){
+  if(!b.item || b.animal || b.color===b.item.key) return;
+  if(b.item.type==='color') b.color=b.item.key; else b.animal=b.item.key;
+  b.revealed=true; b.gen=-1; b.wfs=undefined;
 }
 function spawnAmbient(){
   const r=44; const amp=12+Math.random()*16, m=r+amp+6, x0=m+Math.random()*Math.max(1,W-2*m);
@@ -611,7 +704,7 @@ function confettiBurst(big){
 
 /* ---------- UI ---------- */
 const els={ home:$('#home'), hud:$('#hud'), celebrate:$('#celebrate'), speech:$('#speech'), face:$('#guide-face'), fill:$('#bar-fill'), stars:$('#bar-stars'),
-  book:$('#book'), play:$('#play'), mute:$('#mute'), modes:$('#modes'), csticker:$('#celebrate-sticker'), cbook:$('#celebrate-book'), cstars:$('#cstars'), ctext:$('#ctext'), toast:$('#toast'),
+  book:$('#book'), play:$('#play'), mute:$('#mute'), modes:$('#modes'), langs:$('#langs'), csticker:$('#celebrate-sticker'), cbook:$('#celebrate-book'), cstars:$('#cstars'), ctext:$('#ctext'), toast:$('#toast'),
   hearts:$('#hearts'), tfill:$('#tbar-fill'), diffs:$('#diffs') };
 function showScreens(list){ ['home','hud','celebrate'].forEach(k=>els[k].classList.toggle('on', list.includes(k))); els.hud.classList.toggle('celebrating', list.includes('celebrate')); }
 let talkT=0;
@@ -626,14 +719,19 @@ function showDone(){   // the owl cheers while the celebration card comes in
   els.speech.classList.remove('pop'); void els.speech.offsetWidth; els.speech.classList.add('pop'); guideTalk();
 }
 function renderGoal(){
-  let html='';
+  let html='', sub='';
   // icons only: pointing hand + the bubble to pop; the star bar shows how many
   const hand='<span class="hand">'+artTag('hand')+'</span>';
-  if(cur.math){ html=hand+(prob.kind==='find'&&prob.ans<=10 ? '<span class="dots">'+'<i></i>'.repeat(prob.ans)+'</span>' : '<span class="gb big rainbow"><span class="q">?</span></span>'); }
+  if(cur.words){
+    const it=prob.item, gb=goalBubble(it.type==='color'?{color:it.key}:{animal:it.key}, true);
+    if(prob.kind==='pic'){ html=hand+(prob.hint ? gb : '<span class="gb big rainbow"><span class="q">?</span></span>'); sub='<div class="en">'+prob.en+'</div>'; }   // the picture is the hint: at once in easy, after a moment in hard, never in expert
+    else html=hand+gb;
+  }
+  else if(cur.math){ html=hand+(prob.kind==='find'&&prob.ans<=10 ? '<span class="dots">'+'<i></i>'.repeat(prob.ans)+'</span>' : '<span class="gb big rainbow"><span class="q">?</span></span>'); }
   else if(cur.free){ html=hand+'<span class="gb big rainbow">'+artTag('star')+'</span>'; }
   else if(seq){ const k=progress%seq.length; html=hand+'<span class="seq">'+seq.map((g,i)=>goalBubble(g,i===k)).join(artTag('next','arrow'))+'</span>'; }
   else html=hand+goalBubble(cur,true);
-  els.speech.innerHTML='<div class="say'+(cur.math?' math':'')+'">'+goalText()+'</div><div class="icons">'+html+'</div>'; els.speech.classList.remove('pop'); void els.speech.offsetWidth; els.speech.classList.add('pop');
+  els.speech.innerHTML='<div class="say'+(cur.math?' math':cur.words?' words':'')+'">'+goalText()+'</div>'+sub+'<div class="icons">'+html+'</div>'; els.speech.classList.remove('pop'); void els.speech.offsetWidth; els.speech.classList.add('pop');
 }
 function updateBar(){
   els.fill.style.width=(goal?Math.min(1,progress/goal)*100:0)+'%';
@@ -668,13 +766,19 @@ function renderBook(){
   els.play.classList.toggle('free', nextUnfinished()===0);
   els.diffs.querySelectorAll('.btn').forEach(b=>b.classList.toggle('on', b.dataset.diff===diff));
   els.modes.querySelectorAll('.btn').forEach(b=>b.classList.toggle('on', b.dataset.mode===mode));
+  els.langs.querySelectorAll('.btn').forEach(b=>b.classList.toggle('on', b.dataset.lang===lang));
+  els.home.classList.toggle('words', mode==='words');
 }
-function roundFor(n){ return mode==='math' ? mathRound(n) : ROUNDS[n-1]; }
+function roundFor(n){ return mode==='math' ? mathRound(n) : mode==='words' ? wordRound(n) : ROUNDS[n-1]; }
+function setLanguage(l, quiet){
+  if(!LANGS[l]) return; const changed=l!==lang; lang=l; save(); renderBook();
+  if(changed && !quiet){ sfx.tick(); toast(LANGS[l].name+'!', 1000); }
+}
 function setMode(m, quiet){
   if(!MODES.includes(m)) return; const changed=m!==mode; mode=m; best=bestAll[m]; save();
   if(screen==='home'){ round=nextUnfinished()||1; cur=roundFor(round); goal=cur.count; progress=0; }
   renderBook();
-  if(changed && !quiet){ sfx.tick(); toast(m==='math' ? 'Math!' : 'Animals!', 1000); }
+  if(changed && !quiet){ sfx.tick(); toast(m==='math' ? 'Math!' : m==='words' ? 'Words!' : 'Animals!', 1000); }
 }
 function renderMute(){ els.mute.innerHTML=artTag(muted?'mute':'sound'); els.mute.setAttribute('aria-label', muted?'Sound off':'Sound on'); els.mute.setAttribute('aria-pressed', String(muted)); }
 function toggleMute(){ muted=!muted; save(); renderMute(); music.volume(); if(!muted) sfx.tick(); }
@@ -688,6 +792,7 @@ function setDifficulty(d, quiet){
 /* ---------- flow ---------- */
 function cw(c){ return '<span class="cw" style="color:'+COLORS[c][2]+'">'+c.toUpperCase()+'</span>'; }
 function goalText(){
+  if(cur.words){ const it=prob.item; return prob.kind==='pic' ? prob.word : (it.type==='color' ? cw(it.key) : it.key.toUpperCase()); }
   if(cur.math) return prob.text;
   if(cur.free) return 'Pop them all!';
   if(seq) return 'Pop '+seq.map(g=>g.animal ? g.animal.toUpperCase() : cw(g.color)).join(', then ')+'!';
@@ -698,13 +803,13 @@ function beginPlay(r0){
   nextIn=0; doneIn=0; resume=null; shake=0;
   seq=buildSeq(); goal=cur.free?cur.count:cur.count+(seq?seq.length-1:0);
   progress=r0?r0.progress:0; hearts=r0?r0.hearts:D.hearts; mistakes=r0?r0.mistakes:0; timeLeft=D.timer;
-  bubbles=[]; fx=[]; spawnT=0.3; bombT=0; screen='play'; prob=null; if(cur.math) newProblem();
+  bubbles=[]; fx=[]; spawnT=0.3; bombT=0; screen='play'; prob=null; nextQuestion();
   showScreens(['hud']); renderGoal(); updateBar(); renderHearts(); renderTimer(); measureHud();
   seedBubbles();
   guideTalk(); music.set('play'); toast(cur.free ? 'Free play!' : 'Round '+round, 1000);
 }
 function startPlay(n,r0){ round=n; cur=roundFor(n); beginPlay(r0); }
-function startFree(){ round=11; cur=mode==='math'?MATH_FREE:FREE; beginPlay(); }
+function startFree(){ round=11; cur=mode==='math'?MATH_FREE:mode==='words'?WORDS_FREE:FREE; beginPlay(); }
 function startGame(){
   if(resume && resume.diff===diff && resume.mode===mode && !best[diff][resume.round]){ startPlay(resume.round, resume); return; }  // accidental Home tap costs nothing
   const n=nextUnfinished(); if(n) startPlay(n); else startFree();
@@ -714,7 +819,7 @@ function goHome(party){
   nextIn=0; doneIn=0; shake=0;
   screen='home'; bubbles=[]; fx=[]; spawnT=0; showScreens(['home']); renderBook();
   music.set('home');
-  if(party){ confettiBurst(true); sfx.party(); toast(mode==='math' ? 'Math star!' : 'Safari star!', 2500); }
+  if(party){ confettiBurst(true); sfx.party(); toast(mode==='math' ? 'Math star!' : mode==='words' ? 'Word star!' : 'Safari star!', 2500); }
 }
 function starsFor(){ if(diff==='easy') return 3; return mistakes===0?3:(mistakes<=2?2:1); }
 function unlockNow(){ if(!cur.free){ const s=starsFor(); if(!isUnlocked(round)) justEarned=round; if((best[diff][round]||0)<s){ best[diff][round]=s; save(); } } }
@@ -746,7 +851,7 @@ function penalty(why){
 }
 function loseRound(){
   for(const b of bubbles) if(!b.bomb) addPop(b);
-  bubbles=[]; progress=0; hearts=D.hearts; timeLeft=D.timer; spawnT=0.5; if(cur.math) newProblem();
+  bubbles=[]; progress=0; hearts=D.hearts; timeLeft=D.timer; spawnT=0.5; nextQuestion();
   renderGoal(); updateBar(); renderHearts(); renderTimer(); guideOops(); sfx.lose();
   toast('Try again!', 1400);
   seedBubbles();
@@ -766,13 +871,13 @@ function onTap(x,y){
     if(progress<goal){
       progress++; updateBar(); sfx.pop(progress/goal); if(D.timer>0) timeLeft=Math.min(D.timer, timeLeft+4);
       if(progress>=goal){ if(cur.free) freeFill(); else { unlockNow(); doneIn=0.65; } }   // sticker is safe the moment the bar fills
-      fx.push({type:'text', x:best.x, y:best.y-best.r, text:String(cur.math?best.num:progress), life:0.9, max:0.9});   // the count (or the answer) floats up from the bubble
+      fx.push({type:'text', x:best.x, y:best.y-best.r, text:String(cur.math?best.num:cur.words?best.word:progress), size:cur.words?30:40, life:0.9, max:0.9});   // the count (or the answer, or the word) floats up from the bubble
       if(progress>=goal && !cur.free) showDone();   // round won: no next question before the celebration
-      else if(cur.math){ newProblem(); renderGoal(); }
+      else if(cur.math||cur.words){ nextQuestion(); renderGoal(); }
       else if(seq) renderGoal();
     } else sfx.pop(1);
   } else {
-    best.wig=0.7; sfx.wrong(); guideOops(); if(D.hearts<=0||cur.free) toast('Oops!', 600); penalty('wrong');
+    best.wig=0.7; sfx.wrong(); guideOops(); if(cur.words && prob.kind==='rev') revealBubble(best); if(D.hearts<=0||cur.free) toast('Oops!', 600); penalty('wrong');
   }
 }
 canvas.addEventListener('pointerdown', e=>{ e.preventDefault(); onTap(e.clientX, e.clientY); });
@@ -786,6 +891,7 @@ $('#next').addEventListener('pointerdown', e=>{ e.preventDefault(); if(t-celebra
 els.mute.addEventListener('pointerdown', e=>{ e.preventDefault(); toggleMute(); });
 els.diffs.querySelectorAll('.btn').forEach(b=>b.addEventListener('pointerdown', e=>{ e.preventDefault(); setDifficulty(b.dataset.diff); }));
 els.modes.querySelectorAll('.btn').forEach(b=>b.addEventListener('pointerdown', e=>{ e.preventDefault(); setMode(b.dataset.mode); }));
+els.langs.querySelectorAll('.btn').forEach(b=>b.addEventListener('pointerdown', e=>{ e.preventDefault(); setLanguage(b.dataset.lang); }));
 
 /* ---------- loop ---------- */
 let tickT=0;
@@ -798,7 +904,7 @@ function update(dt){
   if(playing) bombT+=dt;
   for(let i=bubbles.length-1;i>=0;i--){ const b=bubbles[i]; b.age+=dt; b.y+=b.vy*dt; b.x=b.x0+Math.sin(t*b.freq+b.phase)*b.amp; if(b.wig>0) b.wig-=dt;
     if(b.shift && playing){ b.shift.t-=dt; if(b.shift.t<=0){ b.shift.t=1.1; const l=b.shift.list; b.color=l[(l.indexOf(b.color)+1)%l.length]; b.gen=-1; } }
-    if(playing && b.alpha===1 && (cur.math || !cur.free)) b.isTarget=!b.bomb && (cur.math ? b.num===prob.ans : matches(b.color,b.animal));   // ordered goals and colour shifts change who is a target
+    if(playing && b.alpha===1 && (cur.math || cur.words || !cur.free)) b.isTarget=isTargetNow(b);   // ordered goals and colour shifts change who is a target
     if(b.y < (playing ? hudB-b.r : -b.r*1.6)) bubbles.splice(i,1); }   // gone once fully under the guide pill
   spawnT-=dt;
   if(playing && progress<goal){
@@ -810,6 +916,7 @@ function update(dt){
       if(timeLeft<5){ tickT-=dt; if(tickT<=0){ tickT=1; sfx.tock(); } }
       if(timeLeft<=0){ timeLeft=D.timer; renderTimer(); sfx.wrong(); guideOops(); penalty('time'); }
     }
+    if(cur.words && !prob.hint){ prob.hintIn-=dt; if(prob.hintIn<=0){ prob.hint=true; renderGoal(); sfx.sparkle(); } }   // hard: the picture hint arrives after a moment
   } else if(screen==='home'){
     if(spawnT<=0 && bubbles.length<6){ spawnAmbient(); spawnT=1.1; }
   }
@@ -819,7 +926,7 @@ function update(dt){
     c.vy+=260*dt; c.vy*=0.985; c.vx*=0.985; c.wob+=dt*4; c.x+=(c.vx+Math.sin(c.wob)*40)*dt; c.y+=c.vy*dt; c.rot+=c.vr*dt; }
 }
 function drawBubble(b){
-  if(b.gen!==gen){ b.gen=gen; b.spr=b.animal?sprite(b.animal,Math.round(b.r*(b.bomb?1.4:1.15))):null; b.grad=bubbleGrad(b.color,b.r); }
+  if(b.gen!==gen){ b.gen=gen; b.spr=b.animal?sprite(b.animal,Math.round(b.r*(b.bomb?1.4:b.word?1.0:1.15))):null; b.grad=bubbleGrad(b.color,b.r); }
   let a=b.alpha; if(screen==='play' && hudB>0 && b.y<hudB+b.r) a*=clamp((b.y-(hudB-b.r))/(2*b.r),0,1);   // fade under the HUD
   let s=b.age<0.4?easeOutBack(b.age/0.4):1;
   const sq=Math.sin(t*2.6+b.phase)*0.045;
@@ -835,6 +942,9 @@ function drawBubble(b){
     const txt=String(b.num), fs=Math.round(b.r*(txt.length<2?1.15:txt.length<3?0.95:0.72));
     ctx.font='900 '+fs+'px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.lineWidth=Math.max(3,fs*0.16); ctx.lineJoin='round'; ctx.strokeStyle='rgba(43,43,69,.85)'; ctx.strokeText(txt,0,fs*0.06); ctx.fillStyle='#fff'; ctx.fillText(txt,0,fs*0.06);
+  } else if(b.word){   // words mode: the word alone, or the animal with its word on a name tag
+    if(b.animal){ ctx.save(); ctx.beginPath(); ctx.arc(0,0,b.r*0.97,0,6.2832); ctx.clip(); drawSprite(b.spr,0,-b.r*0.12,1,a); ctx.restore(); }
+    drawWord(b);
   } else {
     ctx.save(); ctx.beginPath(); ctx.arc(0,0,b.r*0.97,0,6.2832); ctx.clip();   // the animal sits inside the bubble
     drawSprite(b.spr,0,b.r*0.08,1,a); ctx.restore();
@@ -842,6 +952,31 @@ function drawBubble(b){
   ctx.beginPath(); ctx.ellipse(-b.r*0.42,-b.r*0.46,b.r*0.2,b.r*0.11,-0.6,0,6.2832); ctx.fillStyle='rgba(255,255,255,.9)'; ctx.fill();
   ctx.restore();
 }
+const UI_FONT='system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
+/* fit a word into a bubble: one line if it fits at a readable size, else two lines at the word's marked break */
+function fitWord(b, maxW, maxFs, minFs){
+  const raw=LANGS[lang][b.item.type][b.item.key], parts=raw.split('·');
+  let lines=[b.word], fs=maxFs;
+  const widest=ls=>{ ctx.font='900 100px '+UI_FONT; return Math.max(...ls.map(l=>ctx.measureText(l).width))/100; };   // width per px of font size
+  let w=widest(lines); if(w*fs>maxW) fs=maxW/w;
+  if(fs<minFs && parts.length>1){ lines=parts; fs=Math.min(maxFs*0.9, maxW/widest(lines)); }
+  return { lines, fs:Math.max(9,Math.round(fs)) };
+}
+function drawWord(b){
+  if(b.wfs===undefined || b.wgen!==gen){ b.wgen=gen; b.wfs = b.animal ? fitWord(b, b.r*2.2, b.r*0.36, b.r*0.27) : fitWord(b, b.r*1.72, b.r*0.5, b.r*0.34); }
+  const {lines,fs}=b.wfs, lh=fs*1.05;
+  ctx.font='900 '+fs+'px '+UI_FONT; ctx.textAlign='center'; ctx.textBaseline='middle';
+  if(b.animal){   // a white name tag across the bottom of the bubble
+    const w=Math.max(...lines.map(l=>ctx.measureText(l).width))+fs*0.9, h=lh*lines.length+fs*0.5, y=b.r*0.78;
+    ctx.fillStyle='rgba(43,43,69,.35)'; roundRect(-w/2,y-h/2+2,w,h,h/2); ctx.fill();
+    ctx.fillStyle='#fff'; roundRect(-w/2,y-h/2,w,h,h/2); ctx.fill();
+    ctx.fillStyle='#2b2b45'; lines.forEach((l,i)=>ctx.fillText(l,0,y+(i-(lines.length-1)/2)*lh+fs*0.06));
+  } else {   // big white letters with a dark rim, like the numbers
+    ctx.lineWidth=Math.max(3,fs*0.17); ctx.lineJoin='round'; ctx.strokeStyle='rgba(43,43,69,.85)';
+    lines.forEach((l,i)=>{ const y=(i-(lines.length-1)/2)*lh+fs*0.06; ctx.strokeText(l,0,y); ctx.fillStyle='#fff'; ctx.fillText(l,0,y); });
+  }
+}
+function roundRect(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
 function drawFx(f){
   const p=1-f.life/f.max;
   if(f.type==='ring'){ ctx.beginPath(); ctx.arc(f.x,f.y,f.r*(1+p*1.7),0,6.2832); ctx.strokeStyle=f.color; ctx.globalAlpha=1-p; ctx.lineWidth=2+7*(1-p); ctx.stroke(); ctx.globalAlpha=1; }
@@ -849,7 +984,7 @@ function drawFx(f){
   else if(f.type==='stars'){ ctx.globalAlpha=Math.min(1,f.life/0.3); for(const q of f.parts){ ctx.fillStyle=q.color; starPath(q.x,q.y,q.size,q.size*0.45,q.rot); ctx.fill(); } ctx.globalAlpha=1; }
   else if(f.type==='drops'){ ctx.globalAlpha=1-p; ctx.fillStyle=f.color; for(const q of f.parts){ ctx.beginPath(); ctx.arc(q.x,q.y,q.size*(1-p*0.5),0,6.2832); ctx.fill(); } ctx.globalAlpha=1; }
   else if(f.type==='text'){ const a=p<0.6?1:1-(p-0.6)/0.4, sc=1+0.5*Math.sin(Math.min(1,p*2)*Math.PI/2);
-    ctx.save(); ctx.translate(f.x,f.y-p*70); ctx.scale(sc,sc); ctx.globalAlpha=a; ctx.font='900 40px system-ui,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.save(); ctx.translate(f.x,f.y-p*70); ctx.scale(sc,sc); ctx.globalAlpha=a; ctx.font='900 '+(f.size||40)+'px system-ui,sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.lineWidth=7; ctx.lineJoin='round'; ctx.strokeStyle='#1f78c8'; ctx.strokeText(f.text,0,0); ctx.fillStyle='#fff'; ctx.fillText(f.text,0,0); ctx.restore(); }
   else if(f.type==='animal'){ const yOff=-Math.sin(Math.min(1,p*1.2)*Math.PI)*80-p*40; const sc=1+0.7*Math.sin(Math.min(1,p*1.6)*Math.PI/2); const a=p<0.65?1:1-(p-0.65)/0.35;
     if(f.gen!==gen){ f.gen=gen; f.spr=sprite(f.name,Math.round(f.size)); }
@@ -901,18 +1036,19 @@ try{ if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){ wi
 /* ---------- tiny test hook ---------- */
 window.__bps = {
   state(){ const g=tgt(); return {
-    screen, round, progress, goal, difficulty:diff, mode, hearts, mistakes, timeLeft:Math.round(timeLeft*10)/10, music:music.mode(),
-    problem: prob ? { kind:prob.kind, text:prob.text, answer:prob.ans } : null,
+    screen, round, progress, goal, difficulty:diff, mode, language:lang, hearts, mistakes, timeLeft:Math.round(timeLeft*10)/10, music:music.mode(),
+    problem: prob ? (prob.words ? { kind:prob.kind, text:prob.text, word:prob.word, en:prob.en, key:prob.key, hint:prob.hint } : { kind:prob.kind, text:prob.text, answer:prob.ans }) : null,
     target: Object.assign({}, g.color?{color:g.color}:{}, g.animal?{animal:g.animal}:{}, {count:goal}),
     sequence: seq ? seq.slice() : null,
     unlocked: unlockedList(), best: JSON.parse(JSON.stringify(best)), muted,
-    bubbles: screen==='play' ? bubbles.filter(b=>b.y>hudB&&b.y<=H&&b.x>=0&&b.x<=W).map(b=>({id:b.id, x:Math.round(b.x*10)/10, y:Math.round(b.y*10)/10, r:b.r, color:b.color, animal:b.animal, num:b.num, isTarget:b.isTarget, bomb:b.bomb, shift:!!b.shift})) : []
+    bubbles: screen==='play' ? bubbles.filter(b=>b.y>hudB&&b.y<=H&&b.x>=0&&b.x<=W).map(b=>({id:b.id, x:Math.round(b.x*10)/10, y:Math.round(b.y*10)/10, r:b.r, color:b.color, animal:b.animal, num:b.num, word:b.word, key:b.wkey, revealed:!!b.revealed, isTarget:b.isTarget, bomb:b.bomb, shift:!!b.shift})) : []
   }; },
   startGame(){ if(screen==='home') startGame(); },
   startRound(n){ if(screen==='home' && n>=1 && n<=10) startPlay(n); },
   setDifficulty(d){ setDifficulty(d, true); },
   setMode(m){ setMode(m, true); },
-  resetProgress(){ bestAll={ safari:{ easy:{}, hard:{}, expert:{} }, math:{ easy:{}, hard:{}, expert:{} } }; best=bestAll[mode]; resume=null; if(screen==='home'){ round=1; cur=roundFor(1); goal=cur.count; progress=0; } save(); renderBook(); }
+  setLanguage(l){ setLanguage(l, true); },
+  resetProgress(){ bestAll=emptyBest(); best=bestAll[mode]; resume=null; if(screen==='home'){ round=1; cur=roundFor(1); goal=cur.count; progress=0; } save(); renderBook(); }
 };
 })();
 </script>
