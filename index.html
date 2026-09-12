@@ -329,8 +329,9 @@ const MATH = [
 function mathRound(n){ const m=MATH[n-1]; return { math:true, kind:m.kind, hi:m.hi, count:5, max:6+n, speed:1+(n-1)*0.06, colors:FREE.colors, animals:STICKERS }; }
 const MATH_FREE = { free:true, math:true, kind:'mix', hi:[20,50,100], count:10, max:10, speed:1.3, colors:FREE.colors, animals:STICKERS };
 /* words mode (a little Duolingo): the owl shows a word in another language, the bubbles carry the animals and colours.
-   'pic' rounds: the owl says the foreign word, pop the bubble showing that thing (each bubble also wears its word).
+   'pic' rounds: the owl shows the foreign word, pop the bubble showing that thing. Nothing on screen gives the answer away.
    'rev' rounds: the owl shows the picture and the English word, the bubbles only carry foreign words.
+   The answer is revealed only after a failure (see revealAnswer), so a child learns from mistakes instead of copying.
    A middle dot marks where a long word may break onto two lines inside a bubble. */
 const LANGS = {
   fr:{ name:'Français', animal:{ lion:'LION', monkey:'SINGE', elephant:'ÉLÉ·PHANT', panda:'PANDA', tiger:'TIGRE', frog:'GRE·NOUILLE', koala:'KOALA', zebra:'ZÈBRE', giraffe:'GIRAFE', hippo:'HIPPO·POTAME' },
@@ -362,9 +363,9 @@ const wordOf = it => LANGS[lang][it.type][it.key].replace('·','');
 const MODES = ['safari','math','words'];
 /* difficulty: easy is the original game. hard/expert add hearts, bombs, ordered goals, speed, and (expert) a timer + colour-changing bubbles */
 const DIFFS = {
-  easy:   { speed:1.00, size:1.00, extra:0, bombs:0,    hearts:0, seqFrom:99, seq3From:99, timer:0,  shift:0,    ratio:0.45, minT:2, hint:0,  phrase:'Easy!' },
-  hard:   { speed:1.45, size:0.86, extra:3, bombs:0.18, hearts:3, seqFrom:5,  seq3From:99, timer:0,  shift:0,    ratio:0.35, minT:2, hint:4,  phrase:'Hard! Watch out!' },
-  expert: { speed:1.85, size:0.76, extra:5, bombs:0.26, hearts:3, seqFrom:3,  seq3From:7,  timer:22, shift:0.30, ratio:0.28, minT:1, hint:99, phrase:'Expert! Be quick!' }
+  easy:   { speed:1.00, size:1.00, extra:0, bombs:0,    hearts:0, seqFrom:99, seq3From:99, timer:0,  shift:0,    ratio:0.45, minT:2, phrase:'Easy!' },
+  hard:   { speed:1.45, size:0.86, extra:3, bombs:0.18, hearts:3, seqFrom:5,  seq3From:99, timer:0,  shift:0,    ratio:0.35, minT:2, phrase:'Hard! Watch out!' },
+  expert: { speed:1.85, size:0.76, extra:5, bombs:0.26, hearts:3, seqFrom:3,  seq3From:7,  timer:22, shift:0.30, ratio:0.28, minT:1, phrase:'Expert! Be quick!' }
 };
 const pick = a => a[(Math.random()*a.length)|0];
 const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
@@ -544,7 +545,7 @@ function starPath(x,y,R,r,rot){
 
 /* ---------- game state ---------- */
 let screen='home', round=1, progress=0, goal=3, cur=ROUNDS[0], seq=null, prob=null;
-let hearts=0, mistakes=0, timeLeft=0, shake=0, bombT=0;
+let hearts=0, mistakes=0, timeLeft=0, shake=0, bombT=0, revealT=0, afterReveal=null, wrongTries=0;
 let bubbles=[], fx=[], confetti=[], uid=0, spawnT=0, t=0, nextIn=0, doneIn=0, celebrateAt=0, resume=null;
 function nextUnfinished(){ for(let i=1;i<=10;i++) if(!best[diff][i]) return i; return 0; }
 /* ordered goals: in hard/expert the later rounds alternate between two (or three) targets */
@@ -585,7 +586,7 @@ function newWord(){
   let kind=cur.kind; if(kind==='any') kind=pick(['pic','pic','rev']);
   let it, g=0; do{ it=pick(cur.set); }while(prob && it.type+':'+it.key===prob.key && ++g<20);   // not the same word twice in a row
   const key=it.type+':'+it.key, word=wordOf(it);
-  prob={ words:true, kind, item:it, key, word, en:it.key, text:word, hint: kind==='rev' || D.hint<=0, hintIn:D.hint };
+  prob={ words:true, kind, item:it, key, word, en:it.key, text:word };
 }
 function wrongItem(){
   for(let k=0;k<12;k++){
@@ -596,7 +597,7 @@ function wrongItem(){
   }
   return cur.set.find(x=>x.type+':'+x.key!==prob.key);
 }
-function nextQuestion(){ if(cur.math) newProblem(); else if(cur.words) newWord(); }
+function nextQuestion(){ wrongTries=0; for(const b of bubbles) b.glow=false; if(cur.math) newProblem(); else if(cur.words) newWord(); }
 function isTargetNow(b){ return !b.bomb && (cur.math ? b.num===prob.ans : cur.words ? b.wkey===prob.key : matches(b.color,b.animal)); }
 function matches(color,animal){ const g=tgt(); return (!g.color||g.color===color) && (!g.animal||g.animal===animal); }
 function bubbleRadius(){ return Math.round((clamp(W*0.125,42,54) - (cur.free?4:(round-1)*0.8) + (cur.words?6:0))*D.size); }
@@ -613,7 +614,7 @@ function spawnBubble(forceTarget, y0){
     let it=prob.item;
     if(!wantT){ it=wrongItem(); if(D.bombs>0 && bombs<2 && (Math.random()<D.bombs || bombT>6)) bomb=true; }
     const rev=prob.kind==='rev';
-    item=it; wkey=it.type+':'+it.key; word=wordOf(it);
+    item=it; wkey=it.type+':'+it.key; word = rev ? wordOf(it) : null;   // picture rounds show the thing only, reverse rounds the word only
     if(it.type==='color') color = rev ? 'cloud' : it.key;   // reverse rounds: the word alone, the bubble gives nothing away
     else { color=pick(cur.colors); animal = rev ? null : it.key; }
     isTarget=!bomb && wkey===prob.key;
@@ -649,12 +650,6 @@ function spawnBubble(forceTarget, y0){
   }
   bubbles.push({ id:++uid, x0, x:x0, y, r, vy:-(38+Math.random()*30)*speedMul(), amp, freq:0.8+Math.random()*1.2, phase:Math.random()*6.283,
     color, animal, num, word, wkey, item, isTarget, bomb, shift, age:0, wig:0, alpha:1 });
-}
-/* words mode, reverse rounds: a wrong bubble shows what it really was, so a wrong tap still teaches */
-function revealBubble(b){
-  if(!b.item || b.animal || b.color===b.item.key) return;
-  if(b.item.type==='color') b.color=b.item.key; else b.animal=b.item.key;
-  b.revealed=true; b.gen=-1; b.wfs=undefined;
 }
 function spawnAmbient(){
   const r=44; const amp=12+Math.random()*16, m=r+amp+6, x0=m+Math.random()*Math.max(1,W-2*m);
@@ -724,7 +719,7 @@ function renderGoal(){
   const hand='<span class="hand">'+artTag('hand')+'</span>';
   if(cur.words){
     const it=prob.item, gb=goalBubble(it.type==='color'?{color:it.key}:{animal:it.key}, true);
-    if(prob.kind==='pic'){ html=hand+(prob.hint ? gb : '<span class="gb big rainbow"><span class="q">?</span></span>'); sub='<div class="en">'+prob.en+'</div>'; }   // the picture is the hint: at once in easy, after a moment in hard, never in expert
+    if(prob.kind==='pic') html=hand+'<span class="gb big rainbow"><span class="q">?</span></span>';   // the child has to work out which thing the word means
     else html=hand+gb;
   }
   else if(cur.math){ html=hand+(prob.kind==='find'&&prob.ans<=10 ? '<span class="dots">'+'<i></i>'.repeat(prob.ans)+'</span>' : '<span class="gb big rainbow"><span class="q">?</span></span>'); }
@@ -803,7 +798,7 @@ function beginPlay(r0){
   nextIn=0; doneIn=0; resume=null; shake=0;
   seq=buildSeq(); goal=cur.free?cur.count:cur.count+(seq?seq.length-1:0);
   progress=r0?r0.progress:0; hearts=r0?r0.hearts:D.hearts; mistakes=r0?r0.mistakes:0; timeLeft=D.timer;
-  bubbles=[]; fx=[]; spawnT=0.3; bombT=0; screen='play'; prob=null; nextQuestion();
+  bubbles=[]; fx=[]; spawnT=0.3; bombT=0; revealT=0; afterReveal=null; wrongTries=0; screen='play'; prob=null; nextQuestion();
   showScreens(['hud']); renderGoal(); updateBar(); renderHearts(); renderTimer(); measureHud();
   seedBubbles();
   guideTalk(); music.set('play'); toast(cur.free ? 'Free play!' : 'Round '+round, 1000);
@@ -849,17 +844,37 @@ function penalty(why){
   if(hearts<=0) loseRound();
   else toast(why==='time' ? 'Faster!' : 'Oops!', 800);
 }
+/* the learning moment: the answer is shown only after a failure (a lost round, or three wrong tries on one question when there
+   are no hearts to lose), never while the child is still trying. The right bubbles glow, then play goes on. */
+function answerHtml(){
+  if(cur.words){ const it=prob.item, gb=goalBubble(it.type==='color'?{color:it.key}:{animal:it.key}, true);
+    return '<div class="say words">'+prob.word+'</div><div class="en">'+(it.type==='color'?cw(it.key):it.key.toUpperCase())+'</div><div class="icons">'+gb+'</div>'; }
+  if(cur.math){ const t = prob.text.includes('?') ? prob.text.replace('?', String(prob.ans)) : prob.text;
+    const icon = prob.kind==='find' && prob.ans<=10 ? '<span class="dots">'+'<i></i>'.repeat(prob.ans)+'</span>' : '<span class="gb big rainbow"><span class="q">'+prob.ans+'</span></span>';
+    return '<div class="say math">'+t+'</div><div class="icons">'+icon+'</div>'; }
+  return null;
+}
+function revealAnswer(secs, then){
+  const h=answerHtml(); if(!h){ then(); return; }
+  els.speech.innerHTML=h; els.speech.classList.remove('pop'); void els.speech.offsetWidth; els.speech.classList.add('pop'); guideTalk();
+  for(const b of bubbles) if(b.isTarget) b.glow=true;
+  revealT=secs; afterReveal=then;
+}
 function loseRound(){
-  for(const b of bubbles) if(!b.bomb) addPop(b);
-  bubbles=[]; progress=0; hearts=D.hearts; timeLeft=D.timer; spawnT=0.5; nextQuestion();
-  renderGoal(); updateBar(); renderHearts(); renderTimer(); guideOops(); sfx.lose();
-  toast('Try again!', 1400);
-  seedBubbles();
+  guideOops(); sfx.lose();
+  const restart=()=>{
+    for(const b of bubbles) if(!b.bomb) addPop(b);
+    bubbles=[]; progress=0; hearts=D.hearts; timeLeft=D.timer; spawnT=0.5; nextQuestion();
+    renderGoal(); updateBar(); renderHearts(); renderTimer();
+    toast('Try again!', 1400);
+    seedBubbles();
+  };
+  if(cur.math||cur.words) revealAnswer(2.6, restart); else restart();
 }
 
 /* ---------- input ---------- */
 function onTap(x,y){
-  if(screen!=='play') return;
+  if(screen!=='play' || revealT>0) return;   // during the answer reveal the child just looks
   let best=null, bd=1e9;
   for(const b of bubbles){ if(b.y>H+b.r*0.5) continue; const d=Math.hypot(b.x-x,b.y-y); if(d<=b.r+12 && d<bd){ bd=d; best=b; } }
   if(!best){ addSparkle(x,y); sfx.sparkle(); return; }
@@ -871,13 +886,16 @@ function onTap(x,y){
     if(progress<goal){
       progress++; updateBar(); sfx.pop(progress/goal); if(D.timer>0) timeLeft=Math.min(D.timer, timeLeft+4);
       if(progress>=goal){ if(cur.free) freeFill(); else { unlockNow(); doneIn=0.65; } }   // sticker is safe the moment the bar fills
-      fx.push({type:'text', x:best.x, y:best.y-best.r, text:String(cur.math?best.num:cur.words?best.word:progress), size:cur.words?30:40, life:0.9, max:0.9});   // the count (or the answer, or the word) floats up from the bubble
+      fx.push({type:'text', x:best.x, y:best.y-best.r, text:String(cur.math?best.num:cur.words?wordOf(best.item):progress), size:cur.words?30:40, life:0.9, max:0.9});   // the count (or the answer, or the word) floats up from the bubble
       if(progress>=goal && !cur.free) showDone();   // round won: no next question before the celebration
       else if(cur.math||cur.words){ nextQuestion(); renderGoal(); }
       else if(seq) renderGoal();
     } else sfx.pop(1);
   } else {
-    best.wig=0.7; sfx.wrong(); guideOops(); if(cur.words && prob.kind==='rev') revealBubble(best); if(D.hearts<=0||cur.free) toast('Oops!', 600); penalty('wrong');
+    best.wig=0.7; sfx.wrong(); guideOops(); wrongTries++;
+    if((cur.math||cur.words) && (D.hearts<=0||cur.free) && wrongTries>=3){   // no hearts to lose: three wrong tries on one question count as a failure
+      penalty('wrong'); toast('Look!', 1000); revealAnswer(2.4, ()=>{ nextQuestion(); renderGoal(); });
+    } else { if(D.hearts<=0||cur.free) toast('Oops!', 600); penalty('wrong'); }
   }
 }
 canvas.addEventListener('pointerdown', e=>{ e.preventDefault(); onTap(e.clientX, e.clientY); });
@@ -900,6 +918,7 @@ function update(dt){
   if(doneIn>0){ doneIn-=dt; if(doneIn<=0){ doneIn=0; completeRound(); } }
   if(nextIn>0){ nextIn-=dt; if(nextIn<=0){ nextIn=0; nextRound(); } }
   if(shake>0) shake-=dt;
+  if(revealT>0){ revealT-=dt; if(revealT<=0){ revealT=0; const f=afterReveal; afterReveal=null; if(f) f(); } }
   const playing = screen==='play';
   if(playing) bombT+=dt;
   for(let i=bubbles.length-1;i>=0;i--){ const b=bubbles[i]; b.age+=dt; b.y+=b.vy*dt; b.x=b.x0+Math.sin(t*b.freq+b.phase)*b.amp; if(b.wig>0) b.wig-=dt;
@@ -907,7 +926,7 @@ function update(dt){
     if(playing && b.alpha===1 && (cur.math || cur.words || !cur.free)) b.isTarget=isTargetNow(b);   // ordered goals and colour shifts change who is a target
     if(b.y < (playing ? hudB-b.r : -b.r*1.6)) bubbles.splice(i,1); }   // gone once fully under the guide pill
   spawnT-=dt;
-  if(playing && progress<goal){
+  if(playing && progress<goal && revealT<=0){
     let targets=0; for(let i=0;i<bubbles.length;i++){ const b=bubbles[i]; if(b.isTarget && b.y>hudB && b.y<H+b.r*0.5) targets++; }   // only ones a child can see
     const need=targets<D.minT, mx=maxBubbles();
     if((need && bubbles.length<mx+2) || (spawnT<=0 && bubbles.length<mx)){ spawnBubble(need); spawnT=(0.55+Math.random()*0.5)/speedMul(); }
@@ -916,7 +935,6 @@ function update(dt){
       if(timeLeft<5){ tickT-=dt; if(tickT<=0){ tickT=1; sfx.tock(); } }
       if(timeLeft<=0){ timeLeft=D.timer; renderTimer(); sfx.wrong(); guideOops(); penalty('time'); }
     }
-    if(cur.words && !prob.hint){ prob.hintIn-=dt; if(prob.hintIn<=0){ prob.hint=true; renderGoal(); sfx.sparkle(); } }   // hard: the picture hint arrives after a moment
   } else if(screen==='home'){
     if(spawnT<=0 && bubbles.length<6){ spawnAmbient(); spawnT=1.1; }
   }
@@ -935,7 +953,8 @@ function drawBubble(b){
   ctx.save(); ctx.translate(b.x+dx,b.y); ctx.scale(sx,sy);
   if(a<1) ctx.globalAlpha=a;
   ctx.beginPath(); ctx.arc(0,0,b.r,0,6.2832); ctx.fillStyle=b.grad; ctx.fill();
-  if(b.bomb){ ctx.lineWidth=4; ctx.strokeStyle='rgba(255,70,70,'+(0.45+0.45*Math.sin(t*9+b.phase))+')'; ctx.stroke(); }
+  if(b.glow){ ctx.lineWidth=7; ctx.strokeStyle='rgba(255,205,30,'+(0.65+0.35*Math.sin(t*8))+')'; ctx.stroke(); ctx.beginPath(); ctx.arc(0,0,b.r+8,0,6.2832); ctx.lineWidth=3; ctx.strokeStyle='rgba(255,240,150,.7)'; ctx.stroke(); }
+  else if(b.bomb){ ctx.lineWidth=4; ctx.strokeStyle='rgba(255,70,70,'+(0.45+0.45*Math.sin(t*9+b.phase))+')'; ctx.stroke(); }
   else if(b.shift){ ctx.lineWidth=4; ctx.strokeStyle='hsl('+((t*260+b.phase*60)%360)+',95%,62%)'; ctx.stroke(); }
   else { ctx.lineWidth=3; ctx.strokeStyle='rgba(255,255,255,.8)'; ctx.stroke(); }
   if(b.num!=null){   // math bubble: a big number
@@ -946,8 +965,8 @@ function drawBubble(b){
     if(b.animal){ ctx.save(); ctx.beginPath(); ctx.arc(0,0,b.r*0.97,0,6.2832); ctx.clip(); drawSprite(b.spr,0,-b.r*0.12,1,a); ctx.restore(); }
     drawWord(b);
   } else {
-    ctx.save(); ctx.beginPath(); ctx.arc(0,0,b.r*0.97,0,6.2832); ctx.clip();   // the animal sits inside the bubble
-    drawSprite(b.spr,0,b.r*0.08,1,a); ctx.restore();
+    if(b.spr){ ctx.save(); ctx.beginPath(); ctx.arc(0,0,b.r*0.97,0,6.2832); ctx.clip();   // the animal sits inside the bubble (a plain colour bubble has none)
+      drawSprite(b.spr,0,b.r*0.08,1,a); ctx.restore(); }
   }
   ctx.beginPath(); ctx.ellipse(-b.r*0.42,-b.r*0.46,b.r*0.2,b.r*0.11,-0.6,0,6.2832); ctx.fillStyle='rgba(255,255,255,.9)'; ctx.fill();
   ctx.restore();
@@ -1037,11 +1056,12 @@ try{ if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){ wi
 window.__bps = {
   state(){ const g=tgt(); return {
     screen, round, progress, goal, difficulty:diff, mode, language:lang, hearts, mistakes, timeLeft:Math.round(timeLeft*10)/10, music:music.mode(),
-    problem: prob ? (prob.words ? { kind:prob.kind, text:prob.text, word:prob.word, en:prob.en, key:prob.key, hint:prob.hint } : { kind:prob.kind, text:prob.text, answer:prob.ans }) : null,
+    reveal: revealT>0, wrongTries,
+    problem: prob ? (prob.words ? { kind:prob.kind, text:prob.text, word:prob.word, en:prob.en, key:prob.key } : { kind:prob.kind, text:prob.text, answer:prob.ans }) : null,
     target: Object.assign({}, g.color?{color:g.color}:{}, g.animal?{animal:g.animal}:{}, {count:goal}),
     sequence: seq ? seq.slice() : null,
     unlocked: unlockedList(), best: JSON.parse(JSON.stringify(best)), muted,
-    bubbles: screen==='play' ? bubbles.filter(b=>b.y>hudB&&b.y<=H&&b.x>=0&&b.x<=W).map(b=>({id:b.id, x:Math.round(b.x*10)/10, y:Math.round(b.y*10)/10, r:b.r, color:b.color, animal:b.animal, num:b.num, word:b.word, key:b.wkey, revealed:!!b.revealed, isTarget:b.isTarget, bomb:b.bomb, shift:!!b.shift})) : []
+    bubbles: screen==='play' ? bubbles.filter(b=>b.y>hudB&&b.y<=H&&b.x>=0&&b.x<=W).map(b=>({id:b.id, x:Math.round(b.x*10)/10, y:Math.round(b.y*10)/10, r:b.r, color:b.color, animal:b.animal, num:b.num, word:b.word, key:b.wkey, glow:!!b.glow, isTarget:b.isTarget, bomb:b.bomb, shift:!!b.shift})) : []
   }; },
   startGame(){ if(screen==='home') startGame(); },
   startRound(n){ if(screen==='home' && n>=1 && n<=10) startPlay(n); },

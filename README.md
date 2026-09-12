@@ -10,9 +10,11 @@ Three games, picked with the three buttons under the title:
 | --- | --- | --- |
 | 🦁 | Animals | Pop the bubbles the owl asks for: a color, an animal, or both. |
 | 🔢 | Math | Every bubble carries a number. The owl shows a question ("3 + 2 = ?", "Find 4" with dots to count, "5 + ? = 9", "3 × 4 = ?") and the child pops the bubble with the right answer. Five right answers earn the sticker. Rounds go from finding numbers, to adding, subtracting, missing numbers, times tables, and a mix. Numbers go up to 20 in easy, 50 in hard, 100 in expert. |
-| 💬 | Words | A little Duolingo. Pick a language (French, Spanish, Italian or German) and the owl shows a word in it, "GRENOUILLE", with the English word small underneath. The bubbles carry the animals and colors, each wearing its word on a name tag, and the child pops the one that matches. Five right answers earn the sticker. Rounds 1 to 7 go from four animals, to colors, to everything mixed; rounds 8 to 10 turn it around: the owl shows the picture and the English word and the bubbles only carry the foreign words. A wrong tap on one of those reveals what it really was, so a mistake still teaches. In easy the picture hint sits next to the word from the start, in hard it appears after four seconds, in expert never. |
+| 💬 | Words | A little Duolingo. Pick a language (French, Spanish, Italian or German) and the owl shows a word in it, "GRENOUILLE". The bubbles carry the animals and colors, with nothing written on them, and the child pops the one the word means. Five right answers earn the sticker. Rounds 1 to 7 go from four animals, to colors, to everything mixed; rounds 8 to 10 turn it around: the owl shows the picture and the English word and the bubbles only carry the foreign words. |
 
 Each mode keeps its own sticker book and stars.
+
+**The learning rule.** The game never shows the answer while the child is still trying: no hints, no translations, no name tags on the bubbles. The answer appears only after a failure, so a mistake becomes a lesson: when the hearts run out in hard or expert, or after three wrong tries on one question in easy and free play, the owl's bubble shows the full answer (the word with its picture and English meaning, or the equation with its result), the right bubbles glow for a couple of seconds, and then play goes on. This applies to every mode.
 
 Three difficulties, picked with the three buttons under Play:
 
@@ -73,7 +75,8 @@ ngrok http 8080                  # terminal 2, copy the https URL
 | `test/smoke.js` | Playwright playthrough test (easy mode) used during development. |
 | `test/hard.js` | Playwright test for hard and expert mode: hearts, bombs, restart, stars, ordered goals, timer, colour shifts. |
 | `test/math.js` | Playwright test for math mode: every round kind, answers checked, wrong taps, separate progress, hard mode with hearts and bombs. |
-| `test/words.js` | Playwright test for words mode: language picker, picture and color rounds, reverse rounds with the reveal, the delayed hint in hard, separate progress, expert. |
+| `test/words.js` | Playwright test for words mode: language picker, picture and color rounds, reverse rounds, no answer on screen while playing, the reveal after three wrong tries and after a lost round, separate progress, expert. |
+| `CLAUDE.md` | The purpose of the app and the rules every change must follow (the learning rule above, art, tests, deployment). |
 | `screenshots/` | Home screen, rounds in each mode, a celebration. |
 | `PROMPT.md` | The prompt this game was built from. |
 
