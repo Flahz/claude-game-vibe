@@ -66,14 +66,23 @@ Rules the moderator states in the prompt:
 - No questions; the debater decides and writes it down.
 
 Spawn all debaters in one turn (Agent tool, general-purpose, `run_in_background: true`).
-Prompts are self-contained: the lens, the brief pasted in full, the repo path, the
-format, the rules. Ask for the reply to be the proposals and nothing else.
+Prompts are self-contained: the lens, the brief (pasted, or the absolute path of the
+scratch file with an instruction to read it first; the path is cheaper and works just
+as well), the repo path marked read-only, the format, the rules. Ask for the reply to
+be the proposals and nothing else. Expect one to three minutes per debater.
 
 ## Round 2: rebuttals and ballot
 
-Collect every proposal into one numbered list (eight to ten of them) and send it to
-every debater. Prefer continuing each agent with SendMessage so it keeps what it read;
-otherwise spawn fresh agents with the lens, the brief and the full list.
+Collect every proposal into one numbered list (eight to ten of them), with the seat
+that made it, and send it to every debater. Before sending, look for clusters: four
+seats given the same focus usually converge on two or three underlying ideas (three
+egg variants, three "ask again what was missed" variants). Name the clusters in the
+round-2 message and say that an AMEND merging a cluster is welcome and carries the
+merged proposals' points; that one sentence turns round 2 from eight rankings of
+near-duplicates into a real negotiation over the two or three ideas that matter.
+Prefer continuing each agent with SendMessage so it keeps what it read (tell it which
+numbers are its own); otherwise spawn fresh agents with the lens, the brief and the
+full list.
 
 Each debater returns:
 
