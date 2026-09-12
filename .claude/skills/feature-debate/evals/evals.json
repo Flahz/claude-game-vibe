@@ -1,0 +1,57 @@
+{
+  "skill_name": "feature-debate",
+  "evals": [
+    {
+      "id": 0,
+      "name": "open-debate-build-ship",
+      "prompt": "we need a new feature for the game. have a few agents debate what's worth adding, pick the winner and build it, then merge to main. don't ask me anything",
+      "expected_output": "Four debaters propose and vote, the judge writes a decision record naming the winner and the rejected ideas, one builder ships the winner with a Playwright test, main is fast-forwarded and pushed with the cache bumped, README updated, decisions/ record committed, artifact republished; the report names the winner, the vote, the losers, and asks no question.",
+      "files": [],
+      "assertions": [
+        "main on origin advanced past the base commit",
+        "all Playwright tests in test/ pass on origin's main",
+        "exactly one feature landed (one feature/* merge), not a batch",
+        "a decision record was committed under decisions/ naming the winner and at least two rejected proposals with reasons",
+        "sw.js CACHE version was bumped exactly once",
+        "README.md was updated to describe the shipped feature and lists decisions/",
+        "test coverage grew: at least one file under test/ was added or changed",
+        "no dependencies or external resources were added (no package.json, no external script/link)",
+        "during a round nothing on screen gives the answer away (learning rule kept; a test checks it when the feature involves questions)",
+        "working clone left clean: no feature/* branches and no extra worktrees",
+        "final report names the winner, the vote, and the losers with reasons, and asks no question"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "focused-words-mode",
+      "prompt": "What should we add to the words mode next? Argue it out between a few different perspectives, take a decision, implement it and ship it to main.",
+      "expected_output": "Same as the open run but every proposal serves the words mode and a language-teacher specialist joins the debate; the winner extends test/words.js or adds a words test, and the learning rule is explicitly checked.",
+      "files": [],
+      "assertions": [
+        "main on origin advanced past the base commit",
+        "all Playwright tests in test/ pass on origin's main",
+        "the shipped feature belongs to the words mode",
+        "a fifth specialist lens (language teacher) took part in the debate",
+        "a decision record was committed under decisions/ naming the winner and at least two rejected proposals with reasons",
+        "sw.js CACHE version was bumped exactly once",
+        "test/words.js or a new words test was changed and checks that no answer is on screen during play",
+        "working clone left clean: no feature/* branches and no extra worktrees",
+        "final report asks no question"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "decide-only",
+      "prompt": "/feature-debate --decide-only something that makes kids come back tomorrow",
+      "expected_output": "The debate runs and a decision record is printed in the final message with a winner, acceptance criteria, and rejected proposals; nothing is built, committed or pushed, and the repo is untouched.",
+      "files": [],
+      "assertions": [
+        "the working tree and every branch are unchanged (no new commits, no worktrees, no decisions/ file)",
+        "the final message contains a decision record with a winner, acceptance criteria and at least two rejected proposals with reasons",
+        "every proposal in the record serves the focus (replay value / coming back tomorrow)",
+        "four lenses (child, teacher, parent, engineer) each proposed and voted",
+        "final report asks no question"
+      ]
+    }
+  ]
+}
