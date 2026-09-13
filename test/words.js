@@ -108,7 +108,7 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
     await page.evaluate(()=>window.__bps.setMode('words'));
 
     step='7-hard'; await page.evaluate(()=>window.__bps.setDifficulty('hard')); await page.evaluate(()=>window.__bps.setLanguage('de')); await page.evaluate(()=>window.__bps.startRound(2)); await sleep(400); s=await state();
-    assert(s.hearts===3,'hearts in hard words'); assert(await page.evaluate(()=>document.querySelector('#speech .icons .q')?.textContent==='?'),'question mark, never a picture hint');
+    assert(s.hearts===3,'hearts in hard words'); assert(s.goal===5,'five pops in hard words too: a question mode never gets an ordered goal, got '+s.goal); assert(await page.evaluate(()=>document.querySelector('#speech .icons .q')?.textContent==='?'),'question mark, never a picture hint');
     assert(['PANDA','TIGER','KOALA','ZEBRA'].includes(s.problem.word),'german word '+s.problem.word);
     await page.screenshot({path:path.join(outDir,'words-hard.png')});
     const hb=await waitFor(x=>x.bubbles.find(b=>!b.isTarget&&!b.bomb&&visible(b)),'wrong bubble'); await tap(hb.x,hb.y); await sleep(150); s=await state(); assert(s.hearts===2,'heart lost on wrong word');
@@ -123,7 +123,7 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
     await playRound(2,'pic'); s=await state(); assert(s.best.hard[2]>=1,'hard r2 stars'); await tapEl('[data-testid="home"]'); await sleep(200);
 
     step='8-expert'; await page.evaluate(()=>window.__bps.setDifficulty('expert')); await page.evaluate(()=>window.__bps.startRound(10)); await sleep(400); s=await state();
-    assert(s.problem.kind==='rev','expert r10 reverse mix'); await playRound(10,'rev','words-expert.png'); s=await state(); assert(s.best.expert[10]>=1,'expert r10 stars'); noErrors();
+    assert(s.problem.kind==='rev','expert r10 reverse mix'); assert(s.goal===5,'five pops in expert words too, got '+s.goal); await playRound(10,'rev','words-expert.png'); s=await state(); assert(s.best.expert[10]>=1,'expert r10 stars'); noErrors();
     console.log('PASS'); await browser.close(); process.exit(0);
   }catch(e){ console.log('FAIL '+e.message); if(errors.length) console.log(errors.join('\n')); try{ await page.screenshot({path:path.join(outDir,'fail.png')}); }catch(_){} await browser.close(); process.exit(1); }
 })();

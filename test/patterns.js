@@ -74,6 +74,9 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
     assert(r.slots<=6,'at most six slots so the row fits a small phone: '+r.slots);
     assert(r.height<=44,'the row stays on one line so the play area does not move: '+r.height+'px');
     if(p.type==='num') assert(!r.nums.includes(p.key),'the answer number is not in the row: '+JSON.stringify(r.nums)+' key '+p.key);
+    // the whole mode rests on this: if the answer is whatever the row just ended on, copying the last item always wins
+    if(p.kind!=='count'&&p.kind!=='back') assert(String(p.seq[p.seq.length-1])!==p.key,
+      'the answer must not be the item the row ends on, or the rule need never be read: '+JSON.stringify(p.seq)+' -> '+p.key);
     assert(await page.evaluate(()=>!document.querySelector('#speech .en')),'no explanation while playing');
     for(const b of s.bubbles){ if(b.bomb) continue; assert(!b.glow,'no glowing bubble while playing'); }
   };
@@ -160,6 +163,24 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
     // ---- expert: the hardest content of the ladder
     step='11-expert'; await page.evaluate(()=>window.__bps.setDifficulty('expert')); s=await startRound(10);
     await noGiveaway(s); await playRound(10, 'mix', 'patterns-expert.png'); s=await state(); assert(s.best.expert[10]>=1,'expert r10 stars'); noErrors();
+    // ---- the smallest phone we support: the row must still be one line, or the owl's pill grows into the play area
+    step='12-narrow'; { const small=await browser.newContext({...devices['iPhone SE']}); const sp=await small.newPage();
+      await sp.goto(baseUrl+'/',{waitUntil:'load'}); await sp.waitForFunction(()=>window.__bps&&window.__bps.state);
+      const seen=new Set();
+      for(const n of [1,3,5,7,9]){
+        await sp.evaluate(n=>{ window.__bps.setDifficulty('easy'); window.__bps.setMode('patterns'); window.__bps.startRound(n); }, n);
+        await sleep(350);
+        const r=await sp.evaluate(()=>{ const el=document.querySelector('#speech .seq.pat'), gb=[...el.querySelectorAll('.gb')];
+          return { h:Math.round(el.getBoundingClientRect().height), slots:gb.length, kind:window.__bps.state().problem.kind,
+            tops:new Set(gb.map(e=>Math.round(e.getBoundingClientRect().top))).size,
+            pill:Math.round(document.querySelector('#guide').getBoundingClientRect().height) }; });
+        seen.add(r.kind);
+        assert(r.tops===1, `round ${n} (${r.kind}): the row wrapped onto ${r.tops} lines at 320px wide, ${r.slots} slots, ${r.h}px tall`);
+        assert(r.pill<=140, `round ${n}: the owl's pill is ${r.pill}px at 320px wide, too tall for the play area`);
+        await sp.evaluate(()=>document.querySelector('[data-testid="home"]').dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}))); await sleep(150);
+      }
+      assert(seen.size>=4,'the narrow check covered the kinds: '+[...seen].join(',')); await small.close(); }
+    noErrors();
     console.log('PASS'); await browser.close(); process.exit(0);
   }catch(e){ console.log('FAIL '+e.message); if(errors.length) console.log(errors.join('\n')); try{ await page.screenshot({path:path.join(outDir,'fail.png')}); }catch(_){} await browser.close(); process.exit(1); }
 })();

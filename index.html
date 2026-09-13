@@ -205,6 +205,9 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
   #book{ padding:4px; gap:4px; border-radius:22px; }
   .slot{ border-radius:18px; }
   #modes{ width:100%; padding-right:84px; gap:6px; }   /* keep clear of the sound button */
+  .seq.pat{ gap:3px; }
+  .seq.pat .gb{ width:29px; height:29px; }               /* six slots in the 212px the speech bubble has at 320px wide */
+  .seq.pat .gb .q{ font-size:16px; }
   .btn.mode{ height:44px; font-size:15px; padding:0 10px 0 6px; gap:5px; }
   .btn.mode img.art{ width:30px; height:30px; }
   .btn.lang{ height:34px; font-size:12px; padding:0 8px; }
@@ -677,7 +680,10 @@ function newPattern(){
       const need=kind==='abc'?3:2;   // ab and aab are built from two things, abc from three
       let guard=0; while(members.length<need && ++guard<60){ const v=pick(pool); if(!members.includes(v)) members.push(v); }
       const unit = kind==='abc' ? members.slice(0,3) : kind==='aab' ? [members[0],members[0],members[1]] : [members[0],members[1]];
-      const show=cur.show[d];
+      // the answer must never be the item the row just ended on, or "pop the same as the last one" wins without the child
+      // ever seeing the period. aab with four shown is A A B A, whose next is A: one more item moves the answer to B.
+      let show=cur.show[d];
+      if(String(unit[show%unit.length])===String(unit[(show-1)%unit.length])) show=Math.min(5, show+1);
       for(let i=0;i<show;i++) seqv.push(unit[i%unit.length]);
       ans=unit[show%unit.length];
     }

@@ -31,6 +31,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     await page.evaluate(() => { window.__bps.resetProgress(); window.__bps.setMode('safari'); window.__bps.setDifficulty('easy'); });
     await sleep(500); await shot('home');
     await page.evaluate(() => window.__bps.setMode('math')); await sleep(300); await shot('home-math');
+    await page.evaluate(() => window.__bps.setMode('patterns')); await sleep(300); await shot('home-patterns');
     await page.evaluate(() => window.__bps.setMode('safari'));
 
     await page.evaluate(() => window.__bps.startRound(1)); await bubbles(); await sleep(600); await shot('easy-round');
