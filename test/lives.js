@@ -45,8 +45,8 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
   // bubble must sit well below the pill and have nothing else within tap reach; otherwise a hidden target can take the tap
   let hudB=0;
   const pickWrong=s=>{ const c=s.bubbles.filter(b=>!b.isTarget&&!b.bomb&&visible(b)); const near=(b,o)=>o.id!==b.id&&Math.hypot(o.x-b.x,o.y-b.y)<o.r+b.r+14;
-    const lone=b=>!s.bubbles.some(o=>near(b,o)), safe=b=>!s.bubbles.some(o=>near(b,o)&&(o.isTarget||o.bomb)), low=b=>b.y>hudB+b.r*1.3;
-    return c.find(b=>lone(b)&&low(b)) || c.find(b=>safe(b)&&low(b)) || c.find(safe) || null; };
+    const lone=b=>!s.bubbles.some(o=>near(b,o)), safe=b=>!s.bubbles.some(o=>near(b,o)&&(o.isTarget||o.bomb)), low=b=>b.y>hudB+b.r*2+20;   // a hidden bubble under the pill is out of reach
+    return c.find(b=>lone(b)&&low(b)) || c.find(b=>safe(b)&&low(b)) || null; };
   const pickRight=s=>{ const c=s.bubbles.filter(b=>b.isTarget&&!b.bomb&&visible(b)).sort((a,b)=>b.y-a.y); const lone=b=>!s.bubbles.some(o=>o.id!==b.id&&Math.hypot(o.x-b.x,o.y-b.y)<(o.r+b.r)*0.95);
     return c.find(lone) || c[0]; };
   async function tapWrong(){ // tap a wrong bubble until the game counted it (a strike, a lost heart or a reveal); re-read the state before every try
