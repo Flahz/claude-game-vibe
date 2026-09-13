@@ -145,6 +145,8 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
 #speech .en{ font-size:16px; font-weight:800; color:var(--ink); opacity:.6; margin-top:-3px; letter-spacing:.3px; }
 .dots{ display:flex; flex-wrap:wrap; justify-content:center; gap:4px; max-width:112px; }
 .dots i{ width:16px; height:16px; border-radius:50%; background:#2f7cff; box-shadow: inset -3px -3px 5px rgba(0,0,0,.2), inset 3px 3px 5px rgba(255,255,255,.5); }
+.dots i.b{ background:#ff8c2a; }        /* the second number of an easy sum: "3 + 2" is three blue dots and two orange ones */
+.dots i.gone{ opacity:.22; }            /* taken away: "7 − 3" is seven dots, the last three faded; the child counts the bright ones */
 .gb .q{ font-size:34px; font-weight:900; color:#fff; text-shadow: 0 2px 0 rgba(0,0,0,.25); }
 #speech .say.math{ font-size: clamp(24px, 7.6vw, 32px); letter-spacing:1px; }
 /* ---------- DIFFICULTY ---------- */
@@ -572,7 +574,18 @@ function newProblem(){
   else if(kind==='sub'){ a=ri(2,hi); b=ri(1,a-1); ans=a-b; text=a+' − '+b+' = ?'; }
   else if(kind==='miss'){ ans=ri(1,hi-1); a=ri(1,hi-ans); text=a+' + ? = '+(a+ans); }
   else { const m=cur.kind==='mul'?hi:5; a=ri(1,m); b=ri(1,m); ans=a*b; text=a+' × '+b+' = ?'; }
-  prob={ kind, ans, text, lim: kind==='mul' ? ans+12 : Math.max(hi, ans+3) };
+  prob={ kind, a, b, ans, text, lim: kind==='mul' ? ans+12 : Math.max(hi, ans+3) };
+}
+/* the question drawn as dots, for a child who cannot read digits yet: "Find n" is n dots to count; in easy, "a + b" is a blue dots and b orange
+   ones (count them all), "a − b" is a dots with the last b faded (count the bright ones). Nothing on screen names the answer: the "?" stays in
+   the text and no dot is marked as the result, the child still has to count and find the bubble. Ten dots at most (two rows), so the owl's
+   bubble is never taller than "Find 10". Returns null when the question is not drawn (missing number, times tables, sums over 10, hard/expert). */
+function questionDots(){
+  let d=null;
+  if(prob.kind==='find' && prob.ans<=10) d='<i></i>'.repeat(prob.ans);
+  else if(D.teach && prob.kind==='add' && prob.ans<=10) d='<i></i>'.repeat(prob.a)+'<i class="b"></i>'.repeat(prob.b);
+  else if(D.teach && prob.kind==='sub' && prob.a<=10) d='<i></i>'.repeat(prob.ans)+'<i class="gone"></i>'.repeat(prob.b);
+  return d ? '<span class="dots">'+d+'</span>' : null;
 }
 function wrongNum(){
   for(let k=0;k<12;k++){
@@ -729,7 +742,7 @@ function renderGoal(){
     if(prob.kind==='pic') html=hand+'<span class="gb big rainbow"><span class="q">?</span></span>';   // the child has to work out which thing the word means
     else html=hand+gb;
   }
-  else if(cur.math){ html=hand+(prob.kind==='find'&&prob.ans<=10 ? '<span class="dots">'+'<i></i>'.repeat(prob.ans)+'</span>' : '<span class="gb big rainbow"><span class="q">?</span></span>'); }
+  else if(cur.math){ html=hand+(questionDots() || '<span class="gb big rainbow"><span class="q">?</span></span>'); }   // the child has to count, or work the sum out; the "?" never fills in
   else if(cur.free){ html=hand+'<span class="gb big rainbow">'+artTag('star')+'</span>'; }
   else html=hand+safariIcons();
   els.speech.innerHTML='<div class="say'+(cur.math?' math':cur.words?' words':'')+'">'+goalText()+'</div>'+sub+'<div class="icons">'+html+'</div>'; els.speech.classList.remove('pop'); void els.speech.offsetWidth; els.speech.classList.add('pop');
@@ -858,7 +871,7 @@ function answerHtml(){
   if(cur.words){ const it=prob.item, gb=goalBubble(it.type==='color'?{color:it.key}:{animal:it.key}, true);
     return '<div class="say words">'+prob.word+'</div><div class="en">'+(it.type==='color'?cw(it.key):it.key.toUpperCase())+'</div><div class="icons">'+gb+'</div>'; }
   if(cur.math){ const t = prob.text.includes('?') ? prob.text.replace('?', String(prob.ans)) : prob.text;
-    const icon = prob.kind==='find' && prob.ans<=10 ? '<span class="dots">'+'<i></i>'.repeat(prob.ans)+'</span>' : '<span class="gb big rainbow"><span class="q">'+prob.ans+'</span></span>';
+    const dots=questionDots(), icon = prob.kind==='find' && dots ? dots : (dots||'')+'<span class="gb big rainbow"><span class="q">'+prob.ans+'</span></span>';   // the same dots as the question, now with the result
     return '<div class="say math">'+t+'</div><div class="icons">'+icon+'</div>'; }
   if(cur.free) return null;   // "pop them all": nothing to reveal
   return '<div class="say">'+goalText()+'</div><div class="icons">'+safariIcons()+'</div>';   // animals: the goal again, while the matching bubbles glow
@@ -935,7 +948,7 @@ function update(dt){
     if(b.y < (playing ? hudB-b.r : -b.r*1.6)) bubbles.splice(i,1); }   // gone once fully under the guide pill
   spawnT-=dt;
   if(playing && progress<goal && revealT<=0){
-    let targets=0; for(let i=0;i<bubbles.length;i++){ const b=bubbles[i]; if(b.isTarget && b.y>hudB && b.y<H+b.r*0.5) targets++; }   // only ones a child can see
+    let targets=0; for(let i=0;i<bubbles.length;i++){ const b=bubbles[i]; if(b.isTarget && b.y>hudB && b.y<H+b.r+10) targets++; }   // ones a child can see, or just spawned below the edge (else a new answer spawns a target every frame)
     const need=targets<D.minT, mx=maxBubbles();
     if((need && bubbles.length<mx+2) || (spawnT<=0 && bubbles.length<mx)){ spawnBubble(need); spawnT=(0.55+Math.random()*0.5)/speedMul(); }
     if(D.timer>0 && !cur.free && doneIn<=0){
@@ -1065,7 +1078,7 @@ window.__bps = {
   state(){ const g=tgt(); return {
     screen, round, progress, goal, difficulty:diff, mode, language:lang, hearts, mistakes, timeLeft:Math.round(timeLeft*10)/10, music:music.mode(),
     reveal: revealT>0, wrongTries,
-    problem: prob ? (prob.words ? { kind:prob.kind, text:prob.text, word:prob.word, en:prob.en, key:prob.key } : { kind:prob.kind, text:prob.text, answer:prob.ans }) : null,
+    problem: prob ? (prob.words ? { kind:prob.kind, text:prob.text, word:prob.word, en:prob.en, key:prob.key } : { kind:prob.kind, text:prob.text, answer:prob.ans, a:prob.a, b:prob.b }) : null,
     target: Object.assign({}, g.color?{color:g.color}:{}, g.animal?{animal:g.animal}:{}, {count:goal}),
     sequence: seq ? seq.slice() : null,
     unlocked: unlockedList(), best: JSON.parse(JSON.stringify(best)), muted,

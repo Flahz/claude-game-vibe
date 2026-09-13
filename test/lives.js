@@ -43,11 +43,14 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
   // a bubble the child would tap by mistake: not a target, not a bomb, well inside the screen and not overlapping anything
   // state() omits bubbles fading under the owl's pill, and the game still counts a tap on them (tap slop 12px), so a wrong
   // bubble must sit well below the pill and have nothing else within tap reach; otherwise a hidden target can take the tap
+  // a bubble's target flag is refreshed once per frame, so right after a pop the flag can lag the new question: judge a bubble by
+  // the game's own answer (its number or word against the problem) as well as by the flag
+  const isRight=(s,b)=> s.mode==='math'&&s.problem ? b.num===s.problem.answer : s.mode==='words'&&s.problem ? b.key===s.problem.key : b.isTarget;
   let hudB=0;
-  const pickWrong=s=>{ const c=s.bubbles.filter(b=>!b.isTarget&&!b.bomb&&visible(b)); const near=(b,o)=>o.id!==b.id&&Math.hypot(o.x-b.x,o.y-b.y)<o.r+b.r+14;
-    const lone=b=>!s.bubbles.some(o=>near(b,o)), safe=b=>!s.bubbles.some(o=>near(b,o)&&(o.isTarget||o.bomb)), low=b=>b.y>hudB+b.r*2+20;   // a hidden bubble under the pill is out of reach
+  const pickWrong=s=>{ const c=s.bubbles.filter(b=>!isRight(s,b)&&!b.bomb&&visible(b)); const near=(b,o)=>o.id!==b.id&&Math.hypot(o.x-b.x,o.y-b.y)<o.r+b.r+14;
+    const lone=b=>!s.bubbles.some(o=>near(b,o)), safe=b=>!s.bubbles.some(o=>near(b,o)&&(isRight(s,o)||o.bomb)), low=b=>b.y>hudB+b.r*2+20;   // a hidden bubble under the pill is out of reach
     return c.find(b=>lone(b)&&low(b)) || c.find(b=>safe(b)&&low(b)) || null; };
-  const pickRight=s=>{ const c=s.bubbles.filter(b=>b.isTarget&&!b.bomb&&visible(b)).sort((a,b)=>b.y-a.y); const lone=b=>!s.bubbles.some(o=>o.id!==b.id&&Math.hypot(o.x-b.x,o.y-b.y)<(o.r+b.r)*0.95);
+  const pickRight=s=>{ const c=s.bubbles.filter(b=>isRight(s,b)&&!b.bomb&&visible(b)).sort((a,b)=>b.y-a.y); const lone=b=>!s.bubbles.some(o=>o.id!==b.id&&Math.hypot(o.x-b.x,o.y-b.y)<(o.r+b.r)*0.95);
     return c.find(lone) || c[0]; };
   async function tapWrong(){ // tap a wrong bubble until the game counted it (a strike, a lost heart or a reveal); re-read the state before every try
     if(!hudB) hudB=await page.evaluate(()=>document.querySelector('#guide').getBoundingClientRect().bottom);

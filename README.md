@@ -9,7 +9,7 @@ Three games, picked with the three buttons under the title:
 | | Mode | What it is |
 | --- | --- | --- |
 | 🦁 | Animals | Pop the bubbles the owl asks for: a color, an animal, or both. |
-| 🔢 | Math | Every bubble carries a number. The owl shows a question ("3 + 2 = ?", "Find 4" with dots to count, "5 + ? = 9", "3 × 4 = ?") and the child pops the bubble with the right answer. Five right answers earn the sticker. Rounds go from finding numbers, to adding, subtracting, missing numbers, times tables, and a mix. Numbers go up to 20 in easy, 50 in hard, 100 in expert. |
+| 🔢 | Math | Every bubble carries a number. The owl shows a question ("3 + 2 = ?", "Find 4" with dots to count, "5 + ? = 9", "3 × 4 = ?") and the child pops the bubble with the right answer. In easy, sums are drawn as dots to count: three blue dots and two orange ones for "3 + 2", seven dots with the last three faded for "7 − 3", so a child who cannot read digits yet can count instead of guess. Five right answers earn the sticker. Rounds go from finding numbers, to adding, subtracting, missing numbers, times tables, and a mix. Numbers go up to 20 in easy, 50 in hard, 100 in expert. |
 | 💬 | Words | A little Duolingo. Pick a language (French, Spanish, Italian or German) and the owl shows a word in it, "GRENOUILLE". The bubbles carry the animals and colors, with nothing written on them, and the child pops the one the word means. Five right answers earn the sticker. Rounds 1 to 7 go from four animals, to colors, to everything mixed; rounds 8 to 10 turn it around: the owl shows the picture and the English word and the bubbles only carry the foreign words. |
 
 Each mode keeps its own sticker book and stars.
