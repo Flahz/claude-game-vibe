@@ -35,15 +35,22 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
       if(s.mode==='words'&&s.problem.kind==='pic') assert(b.word==null,'picture bubble must not wear its word'); }
   };
   // during a reveal the targets glow; the ones on screen may still be rising into view, so give them a moment
-  const glowSoon=async()=>waitFor(x=>x.reveal&&x.bubbles.some(b=>b.isTarget&&b.glow)?x:null,'a glowing target during the reveal',1500,40);
+  // (state() lists the bubbles on screen; a reveal that starts while every target is still under the pill has nothing to glow yet)
+  const glowSoon=async()=>{ let last=null; const r=await waitFor(x=>{ last=x; if(x.reveal) for(const b of x.bubbles) assert(b.isTarget||!b.glow,'only targets glow'); return x.reveal&&x.bubbles.some(b=>b.isTarget&&b.glow)?x:null; },'a glowing target during the reveal',1500,40).catch(()=>null);
+    if(r) return r; assert(last&&last.reveal&&!last.bubbles.some(b=>b.isTarget),'a glowing target during the reveal'); return last; };
   const assertHearts=async(n,label)=>{ const s=await state(); const h=await hud(); assert(s.hearts===n,`${label}: hearts ${s.hearts}, expected ${n}`);
     assert(h.hp===3&&h.row2==='flex',`${label}: three hearts visible (${JSON.stringify(h)})`); assert(h.lost===3-n,`${label}: ${h.lost} lost hearts drawn, expected ${3-n}`); return s; };
   // a bubble the child would tap by mistake: not a target, not a bomb, well inside the screen and not overlapping anything
-  const pickWrong=s=>{ const c=s.bubbles.filter(b=>!b.isTarget&&!b.bomb&&visible(b)); const lone=b=>!s.bubbles.some(o=>o.id!==b.id&&Math.hypot(o.x-b.x,o.y-b.y)<(o.r+b.r)*0.95);
-    return c.find(b=>lone(b)&&b.y>vp.height*0.3) || c.find(lone) || c[0]; };
+  // state() omits bubbles fading under the owl's pill, and the game still counts a tap on them (tap slop 12px), so a wrong
+  // bubble must sit well below the pill and have nothing else within tap reach; otherwise a hidden target can take the tap
+  let hudB=0;
+  const pickWrong=s=>{ const c=s.bubbles.filter(b=>!b.isTarget&&!b.bomb&&visible(b)); const near=(b,o)=>o.id!==b.id&&Math.hypot(o.x-b.x,o.y-b.y)<o.r+b.r+14;
+    const lone=b=>!s.bubbles.some(o=>near(b,o)), safe=b=>!s.bubbles.some(o=>near(b,o)&&(o.isTarget||o.bomb)), low=b=>b.y>hudB+b.r*1.3;
+    return c.find(b=>lone(b)&&low(b)) || c.find(b=>safe(b)&&low(b)) || c.find(safe) || null; };
   const pickRight=s=>{ const c=s.bubbles.filter(b=>b.isTarget&&!b.bomb&&visible(b)).sort((a,b)=>b.y-a.y); const lone=b=>!s.bubbles.some(o=>o.id!==b.id&&Math.hypot(o.x-b.x,o.y-b.y)<(o.r+b.r)*0.95);
     return c.find(lone) || c[0]; };
   async function tapWrong(){ // tap a wrong bubble until the game counted it (a strike, a lost heart or a reveal); re-read the state before every try
+    if(!hudB) hudB=await page.evaluate(()=>document.querySelector('#guide').getBoundingClientRect().bottom);
     for(let i=0;i<60;i++){ const s0=await state(); assert(!s0.reveal,'tapping while revealing'); const b=pickWrong(s0); if(!b){ await sleep(120); continue; }
       await tap(b.x,b.y);
       const s1=await waitFor(s=>(s.wrongTries!==s0.wrongTries||s.hearts!==s0.hearts||s.reveal||s.progress!==s0.progress)?s:null,'tap counted',700,40).catch(()=>null);
@@ -109,7 +116,7 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
         const s0=await state(); const b=pickWrong(s0); assert(b,'a wrong bubble for the last strike'); await tap(b.x,b.y);
         let reveals=0, was=false, glowed=false, sawZero=false, fin=null; const t0=Date.now();
         while(Date.now()-t0<5000){ const x=await state(); if(x.reveal&&!was){ reveals++; if(reveals===1){ const h=await hud(); assert(h.lost===3,'all hearts drawn lost during the reveal: '+JSON.stringify(h)); txt=await say(); assert(txt===w0,'the last reveal shows the failed word: '+txt); } }
-          if(x.reveal&&x.bubbles.some(b=>b.isTarget&&b.glow)) glowed=true;
+          if(x.reveal){ assert(x.bubbles.every(b=>b.isTarget||!b.glow),'only targets glow'); if(x.bubbles.some(b=>b.isTarget&&b.glow)||!x.bubbles.some(b=>b.isTarget)) glowed=true; }
           was=x.reveal; if(x.hearts===0) sawZero=true; if(reveals>0&&!x.reveal&&x.hearts===3){ fin=x; break; } await sleep(50); }
         assert(reveals===1,'exactly one reveal on the last heart, got '+reveals); assert(sawZero,'hearts reached 0'); assert(glowed,'targets glow during the last reveal');
         assert(fin,'round restarted within 5 s'); assert(fin.progress===0&&fin.round===1&&fin.screen==='play'&&fin.wrongTries===0,'same round from zero: '+JSON.stringify({p:fin.progress,r:fin.round,sc:fin.screen,w:fin.wrongTries}));
