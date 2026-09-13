@@ -31,6 +31,8 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
     assert(await page.evaluate(()=>!document.querySelector('#speech .en')),'no english word on screen while playing');
     if(s.mode==='words'&&s.problem&&s.problem.kind==='pic') assert(await page.evaluate(()=>document.querySelector('#speech .icons .q')?.textContent==='?'),'question mark, no picture hint');
     if(s.mode==='math') assert(await page.evaluate(()=>!document.querySelector('#speech .icons .q')||document.querySelector('#speech .icons .q').textContent==='?'),'no answer number in the owl bubble');
+    if(s.mode==='patterns') assert(await page.evaluate(()=>{ const gb=[...document.querySelectorAll('#speech .seq.pat .gb')], l=gb[gb.length-1];
+      return !!l && l.querySelector('.q')?.textContent==='?' && !l.classList.contains('ans'); }),'the pattern row ends in a bare "?"');
     for(const b of s.bubbles){ if(b.bomb) continue; assert(!b.glow,'no glowing bubble while playing');
       if(s.mode==='words'&&s.problem.kind==='pic') assert(b.word==null,'picture bubble must not wear its word'); }
   };
@@ -45,7 +47,8 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
   // bubble must sit well below the pill and have nothing else within tap reach; otherwise a hidden target can take the tap
   // a bubble's target flag is refreshed once per frame, so right after a pop the flag can lag the new question: judge a bubble by
   // the game's own answer (its number or word against the problem) as well as by the flag
-  const isRight=(s,b)=> s.mode==='math'&&s.problem ? b.num===s.problem.answer : s.mode==='words'&&s.problem ? b.key===s.problem.key : b.isTarget;
+  const isRight=(s,b)=> s.mode==='math'&&s.problem ? b.num===s.problem.answer : s.mode==='words'&&s.problem ? b.key===s.problem.key
+    : s.mode==='patterns'&&s.problem ? String(b.pkey)===s.problem.key : b.isTarget;
   let hudB=0;
   const pickWrong=s=>{ const c=s.bubbles.filter(b=>!isRight(s,b)&&!b.bomb&&visible(b)); const near=(b,o)=>o.id!==b.id&&Math.hypot(o.x-b.x,o.y-b.y)<o.r+b.r+14;
     const lone=b=>!s.bubbles.some(o=>near(b,o)), safe=b=>!s.bubbles.some(o=>near(b,o)&&(isRight(s,o)||o.bomb)), low=b=>b.y>hudB+b.r*2+20;   // a hidden bubble under the pill is out of reach
@@ -127,6 +130,19 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
       await noGiveaway(s); assert(s.reveal===false,'hearts never stick at zero'); }
     noErrors(); await goHome(); s=await state(); assert(JSON.stringify(s.best)===best0,'sticker book untouched');
     assert(await page.evaluate(()=>document.querySelectorAll('#book .slot .st img').length===0),'no stars shown in easy');
+
+    // ---- patterns: the fourth mode loses hearts and reveals the same way
+    step='4b-patterns'; await page.evaluate(()=>window.__bps.setMode('patterns')); s=await startRound(1); await assertHearts(3,'start');
+    assert(s.problem&&s.problem.kind==='ab','a repeating row '+JSON.stringify(s.problem)); const pbest0=JSON.stringify(s.best); await noGiveaway(s);
+    { const pk0=s.problem.key;
+      for(let i=1;i<=2;i++){ s=await tapWrong(); assert(!s.reveal,'no reveal after miss '+i); await assertHearts(3-i,'miss '+i); assert(s.problem.key===pk0,'same row'); await noGiveaway(s); }
+      s=await tapWrong(); assert(s.reveal===true,'the third miss reveals'); await assertHearts(0,'all three gone');
+      assert(await page.evaluate(()=>{ const gb=[...document.querySelectorAll('#speech .seq.pat .gb')], l=gb[gb.length-1];
+        return !!l && l.classList.contains('ans') && !l.querySelector('.q'); }),'the reveal fills the gap in');
+      await sleep(300); await page.screenshot({path:path.join(outDir,'lives-patterns-reveal.png')});
+      s=await waitFor(x=>!x.reveal&&x.screen==='home'?x:null,'home after the failed level',6000);
+      assert(JSON.stringify(s.best)===pbest0,'nothing recorded for the failed level'); }
+    noErrors();   // the failed level already went home, so there is no HUD home button to tap
 
     // ---- hard: the same three hearts, a single wrong tap costs one
     step='5-hard'; await page.evaluate(()=>{ window.__bps.setDifficulty('hard'); window.__bps.setMode('safari'); }); s=await startRound(1); await assertHearts(3,'hard start');

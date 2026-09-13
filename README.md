@@ -4,12 +4,13 @@ A mobile web game for kids aged 4 to 8. Colorful animal bubbles float up the scr
 
 Ten rounds, ten stickers, progress saved on the phone. Works offline and can be added to the home screen on iOS and Android.
 
-Three games, picked with the three buttons under the title:
+Four games, picked with the four buttons under the title:
 
 | | Mode | What it is |
 | --- | --- | --- |
 | 🦁 | Animals | Pop the bubbles the owl asks for: a color, an animal, or both. |
 | 🔢 | Math | Every bubble carries a number. The owl shows a question ("3 + 2 = ?", "Find 4" with dots to count, "5 + ? = 9", "3 × 4 = ?") and the child pops the bubble with the right answer. In easy, sums are drawn as dots to count: three blue dots and two orange ones for "3 + 2", seven dots with the last three faded for "7 − 3", so a child who cannot read digits yet can count instead of guess. Five right answers earn the sticker. Rounds go from finding numbers, to adding, subtracting, missing numbers, times tables, and a mix. Numbers go up to 20 in easy, 50 in hard, 100 in expert. |
+| 🔴 | Patterns | A row of things that follows a rule, and the child pops what comes next: red blue red blue red and then a gap, or 4 6 8 and then a gap. Five right answers earn the sticker. Rounds go from two-part colour and animal patterns, to three-part ones, to the uneven "two the same then one different", to counting up in ones, twos, threes, fives and tens, and counting back down. Nothing marks the answer, so the child has to find the rule first. |
 | 💬 | Words | A little Duolingo. Pick a language (French, Spanish, Italian or German) and the owl shows a word in it, "GRENOUILLE". The bubbles carry the animals and colors, with nothing written on them, and the child pops the one the word means. Five right answers earn the sticker. Rounds 1 to 7 go from four animals, to colors, to everything mixed; rounds 8 to 10 turn it around: the owl shows the picture and the English word and the bubbles only carry the foreign words. |
 
 Each mode keeps its own sticker book and stars.
@@ -79,6 +80,7 @@ ngrok http 8080                  # terminal 2, copy the https URL
 | `test/hard.js` | Playwright test for hard and expert mode: hearts, bombs, the failed level, stars, ordered goals, timer, colour shifts. |
 | `test/math.js` | Playwright test for math mode: every round kind, answers checked, the dots drawn for easy sums (and none for missing numbers, times tables, sums over 10 or hard), nothing given away during play, the reveal after three misses, separate progress, hard mode with hearts and bombs. |
 | `test/comeback.js` | Playwright test for "the one you missed comes back" in free play: three wrong tries reveal the answer, the same question returns one question later, unmarked and only once, and the memory survives the home screen but is dropped on a mode, difficulty or language change. |
+| `test/patterns.js` | Playwright test for patterns mode: every round kind, the row and its bare "?" checked against the rule, nothing given away while playing, the reveal after three misses, separate progress, hard with bombs, expert. |
 | `test/words.js` | Playwright test for words mode: language picker, picture and color rounds, reverse rounds, no answer on screen while playing, the reveal after three wrong tries and after a lost round, separate progress, expert. |
 | `CLAUDE.md` | The purpose of the app and the rules every change must follow (the learning rule above, art, tests, deployment). |
 | `screenshots/` | Home screen, rounds in each mode, a celebration. |
@@ -107,4 +109,4 @@ NODE_PATH=/path/to/node_modules node test/smoke.js http://127.0.0.1:8080 /tmp/ou
 
 `test/smoke.js` needs Playwright. It plays two rounds, checks a wrong tap costs a heart but no progress, reloads to check the stickers and mute setting persisted, and fails on any page error or external request. `test/hard.js` (same arguments minus the device) switches to hard, loses hearts to a wrong tap and a bomb, checks the failed level goes home and Play restarts it, finishes round 1 with two stars, plays an ordered round, then plays expert round 7 with the timer and colour-shifting bubbles, and measures the frame rate on expert round 10. `test/lives.js` plays easy in all three modes and checks the hearts: a heart per miss, the reveal on the third, the failed level.
 
-The test hook `window.__bps` exposes `state()`, `startGame()`, `startRound(n)`, `setDifficulty('easy'|'hard'|'expert')`, `setMode('safari'|'math'|'words')`, `setLanguage('fr'|'es'|'it'|'de')`, `unlockAll()` (every round done, so a test can reach free play) and `resetProgress()`.
+The test hook `window.__bps` exposes `state()`, `startGame()`, `startRound(n)`, `setDifficulty('easy'|'hard'|'expert')`, `setMode('safari'|'math'|'words'|'patterns')`, `setLanguage('fr'|'es'|'it'|'de')`, `unlockAll()` (every round done, so a test can reach free play) and `resetProgress()`.

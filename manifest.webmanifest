@@ -2,7 +2,7 @@
   "id": "./",
   "name": "Bubble Pop Safari",
   "short_name": "Bubble Pop",
-  "description": "Pop colorful animal bubbles, solve sums and learn words in another language, and collect safari stickers.",
+  "description": "Pop colorful animal bubbles, solve sums, learn words in another language, work out what comes next in a row of patterns, and collect safari stickers.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

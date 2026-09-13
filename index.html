@@ -147,6 +147,15 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
 .dots i{ width:16px; height:16px; border-radius:50%; background:#2f7cff; box-shadow: inset -3px -3px 5px rgba(0,0,0,.2), inset 3px 3px 5px rgba(255,255,255,.5); }
 .dots i.b{ background:#ff8c2a; }        /* the second number of an easy sum: "3 + 2" is three blue dots and two orange ones */
 .dots i.gone{ opacity:.22; }            /* taken away: "7 − 3" is seven dots, the last three faded; the child counts the bright ones */
+/* patterns mode: the row the owl shows. Six slots at most (five items and the "?") at 34px, which fits the speech
+   bubble on an iPhone SE and stays shorter than "Find 10" with its two rows of dots, so the play area does not move. */
+.seq.pat{ gap:4px; flex-wrap:wrap; justify-content:center; }
+.seq.pat .gb{ width:34px; height:34px; opacity:1; transform:none; }
+.seq.pat .gb::after{ left:7px; top:5px; width:9px; height:5px; }
+.seq.pat .gb .q{ font-size:19px; }
+.seq.pat .gb.num{ background:#eaf2ff; }
+.seq.pat .gb .n{ font-weight:900; color:var(--ink); line-height:1; }
+.seq.pat .gb.ans{ box-shadow: inset -4px -5px 8px rgba(0,0,0,.18), inset 4px 4px 7px rgba(255,255,255,.55), 0 0 0 3px #ffd23f, 0 3px 0 3px rgba(0,0,0,.12); }
 .gb .q{ font-size:34px; font-weight:900; color:#fff; text-shadow: 0 2px 0 rgba(0,0,0,.25); }
 #speech .say.math{ font-size: clamp(24px, 7.6vw, 32px); letter-spacing:1px; }
 /* ---------- DIFFICULTY ---------- */
@@ -209,6 +218,13 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
   .btn.lang{ height:34px; font-size:13px; padding:0 10px; }
   #diffs .btn{ min-width:48px; min-height:48px; width:48px; height:48px; } .dl{ font-size:13px; }
 }
+/* four game buttons do not fit one line with their labels below 430px, and a second line would push the home screen
+   into scrolling on an iPhone SE. The icons are what a child who cannot read picks the game by; aria-label keeps the name. */
+@media (max-width:429px){
+  .btn.mode{ padding:0 9px; gap:0; }
+  .btn.mode span{ display:none; }
+  .btn.mode img.art{ width:32px; height:32px; }
+}
 /* landscape: book and play side by side so nothing needs scrolling */
 @media (max-height:460px){
   #home{ flex-direction:row; justify-content:center; align-items:center; gap:18px; }
@@ -237,6 +253,7 @@ img.art{ display:block; width:1em; height:1em; object-fit:contain; pointer-event
       <button class="btn mode on" data-mode="safari" data-testid="mode-safari" aria-label="Animals"><img class="art" src="art/lion.webp" alt="" data-fb="🦁"><span>Animals</span></button>
       <button class="btn mode" data-mode="math" data-testid="mode-math" aria-label="Math"><img class="art" src="art/math.webp" alt="" data-fb="➕"><span>Math</span></button>
       <button class="btn mode" data-mode="words" data-testid="mode-words" aria-label="Words"><img class="art" src="art/words.webp" alt="" data-fb="💬"><span>Words</span></button>
+      <button class="btn mode" data-mode="patterns" data-testid="mode-patterns" aria-label="Patterns"><img class="art" src="art/patterns.webp" alt="" data-fb="🔴"><span>Patterns</span></button>
     </div>
     <div id="langs" aria-label="Language">
       <button class="btn lang" data-lang="fr" data-testid="lang-fr" aria-label="French">Français</button>
@@ -295,13 +312,13 @@ const COLORS = {
 const PLAY_COLORS = Object.keys(COLORS).filter(c=>c!=='bomb'&&c!=='cloud');
 /* emoji fallbacks, only used while the art is still loading (or if a file is missing) */
 const ANIMALS = { lion:'🦁', monkey:'🐵', elephant:'🐘', panda:'🐼', tiger:'🐯', frog:'🐸', koala:'🐨', zebra:'🦓', giraffe:'🦒', hippo:'🦛', owl:'🦉', bomb:'💣',
-  star:'⭐', heart:'❤️', play:'▶', home:'🏠', sound:'🔊', mute:'🔇', next:'➡️', hand:'👆', trophy:'🏆', chick:'🐣', flame:'🔥', bolt:'⚡', math:'➕', words:'💬' };
+  star:'⭐', heart:'❤️', play:'▶', home:'🏠', sound:'🔊', mute:'🔇', next:'➡️', hand:'👆', trophy:'🏆', chick:'🐣', flame:'🔥', bolt:'⚡', math:'➕', words:'💬', patterns:'🔴' };
 const STICKERS = ['lion','monkey','elephant','panda','tiger','frog','koala','zebra','giraffe','hippo'];
 /* custom art: characters and UI icons (generated with Higgsfield, cut out and shrunk to 208px webp) */
 const ART_SRC = { lion:'art/lion.webp', monkey:'art/monkey.webp', elephant:'art/elephant.webp', panda:'art/panda.webp', tiger:'art/tiger.webp', frog:'art/frog.webp',
   koala:'art/koala.webp', zebra:'art/zebra.webp', giraffe:'art/giraffe.webp', hippo:'art/hippo.webp', owl:'art/owl.webp', bomb:'art/bomb.webp',
   star:'art/star.webp', heart:'art/heart.webp', play:'art/next.webp', home:'art/home.webp', sound:'art/sound.webp', mute:'art/mute.webp',
-  next:'art/next.webp', hand:'art/hand.webp', trophy:'art/trophy.webp', chick:'art/chick.webp', flame:'art/flame.webp', bolt:'art/bolt.webp', math:'art/math.webp', words:'art/words.webp' };
+  next:'art/next.webp', hand:'art/hand.webp', trophy:'art/trophy.webp', chick:'art/chick.webp', flame:'art/flame.webp', bolt:'art/bolt.webp', math:'art/math.webp', words:'art/words.webp', patterns:'art/patterns.webp' };
 const ROUNDS = [
   { color:'red',    count:3, max:5,  speed:1.00, colors:['red','blue','yellow'],            animals:['lion','monkey','frog'] },
   { animal:'lion',  count:3, max:6,  speed:1.05, colors:['red','blue','green','yellow'],    animals:['lion','monkey','elephant'] },
@@ -328,8 +345,8 @@ const MATH = [
   { kind:'mul',  hi:[5,10,12] },
   { kind:'mix',  hi:[20,50,100] }
 ];
-function mathRound(n){ const m=MATH[n-1]; return { math:true, kind:m.kind, hi:m.hi, count:5, max:6+n, speed:1+(n-1)*0.06, colors:FREE.colors, animals:STICKERS }; }
-const MATH_FREE = { free:true, math:true, kind:'mix', hi:[20,50,100], count:10, max:10, speed:1.3, colors:FREE.colors, animals:STICKERS };
+function mathRound(n){ const m=MATH[n-1]; return { math:true, quiz:true, kind:m.kind, hi:m.hi, count:5, max:6+n, speed:1+(n-1)*0.06, colors:FREE.colors, animals:STICKERS }; }
+const MATH_FREE = { free:true, math:true, quiz:true, kind:'mix', hi:[20,50,100], count:10, max:10, speed:1.3, colors:FREE.colors, animals:STICKERS };
 /* words mode (a little Duolingo): the owl shows a word in another language, the bubbles carry the animals and colours.
    'pic' rounds: the owl shows the foreign word, pop the bubble showing that thing. Nothing on screen gives the answer away.
    'rev' rounds: the owl shows the picture and the English word, the bubbles only carry foreign words.
@@ -359,10 +376,33 @@ const WORDS = [
   { kind:'rev', set: wi('color',WORD_COLORS) },
   { kind:'rev', set: wi('animal',STICKERS).concat(wi('color',WORD_COLORS)) }
 ];
-function wordRound(n){ const w=WORDS[n-1]; return { words:true, kind:w.kind, set:w.set, count:5, max:6+n, speed:1+(n-1)*0.05, colors:PLAY_COLORS, animals:STICKERS }; }
-const WORDS_FREE = { free:true, words:true, kind:'any', set:WORDS[9].set, count:10, max:10, speed:1.25, colors:PLAY_COLORS, animals:STICKERS };
+function wordRound(n){ const w=WORDS[n-1]; return { words:true, quiz:true, kind:w.kind, set:w.set, count:5, max:6+n, speed:1+(n-1)*0.05, colors:PLAY_COLORS, animals:STICKERS }; }
+const WORDS_FREE = { free:true, words:true, quiz:true, kind:'any', set:WORDS[9].set, count:10, max:10, speed:1.25, colors:PLAY_COLORS, animals:STICKERS };
 const wordOf = it => LANGS[lang][it.type][it.key].replace('·','');
-const MODES = ['safari','math','words'];
+/* patterns mode: a row of things that follows a rule, and the child pops what comes next. The owl shows the row ending in a
+   "?"; nothing marks the answer, so the child has to find the rule first. Repeating rounds (ab, abc, aab) use colours and
+   animals, counting rounds (count, back) use numbers, so no new drawing is needed. `show` is how many items the owl shows
+   before the "?" (fewer in expert: less evidence to go on). `pool` is how many distinct colours or animals the round draws
+   from, so everything past the pattern's own members is a distractor. `step`/`cap` size the number rounds. */
+const PAT_COLORS = ['red','blue','yellow','green','purple','orange','pink'];   // easy takes the first few, the easiest to tell apart
+const PAT_ANIMALS = ['lion','frog','elephant','panda','monkey','tiger','zebra','giraffe','koala','hippo'];
+const PAT = [
+  { kind:'ab',    type:'color',  show:[5,5,4], pool:[3,5,7] },
+  { kind:'ab',    type:'animal', show:[5,5,4], pool:[3,5,8] },
+  { kind:'abc',   type:'color',  show:[5,5,4], pool:[4,6,7] },
+  { kind:'abc',   type:'animal', show:[5,5,4], pool:[4,6,10] },
+  { kind:'count', type:'num',    step:[1,2,5],  cap:[10,24,60] },
+  { kind:'count', type:'num',    step:[2,3,10], cap:[20,40,120] },
+  { kind:'aab',   type:'color',  show:[5,5,4], pool:[4,6,7] },
+  { kind:'aab',   type:'animal', show:[5,5,4], pool:[4,6,10] },
+  { kind:'back',  type:'num',    step:[1,2,10], cap:[12,30,100] },
+  { kind:'mix',   type:'any',    show:[5,5,4], pool:[4,6,8], step:[2,3,10], cap:[20,40,120] }
+];
+function patRound(n){ const p=PAT[n-1]; return { patterns:true, quiz:true, kind:p.kind, ptype:p.type, show:p.show||[5,5,4], pool:p.pool||[4,6,8],
+  step:p.step||[2,3,10], cap:p.cap||[20,40,120], count:5, max:6+n, speed:1+(n-1)*0.05, colors:PLAY_COLORS, animals:STICKERS }; }
+const PAT_FREE = { free:true, patterns:true, quiz:true, kind:'mix', ptype:'any', show:[5,5,4], pool:[4,6,8], step:[2,3,10], cap:[20,40,120],
+  count:10, max:10, speed:1.25, colors:PLAY_COLORS, animals:STICKERS };
+const MODES = ['safari','math','words','patterns'];
 /* difficulty: easy is the original game. hard/expert add bombs, ordered goals, speed, and (expert) a timer + colour-changing bubbles.
    Every difficulty has three lives: a wrong tap costs a heart, the third one fails the level (the owl shows the answer, then back
    to the home screen; Play starts the level again). `teach` (easy): a lost animals round also shows the goal and glows the right bubbles before the restart. */
@@ -557,7 +597,7 @@ let comeback=null;
 function nextUnfinished(){ for(let i=1;i<=10;i++) if(!best[diff][i]) return i; return 0; }
 /* ordered goals: in hard/expert the later rounds alternate between two (or three) targets */
 function buildSeq(){
-  if(cur.free || cur.math || round<D.seqFrom) return null;
+  if(cur.free || cur.quiz || round<D.seqFrom) return null;   // question modes ask one thing at a time; ordered goals are the animals game
   const s=[];
   if(cur.color&&cur.animal){ s.push({color:cur.color}); s.push({animal:cur.animal}); }
   else if(cur.color){ s.push({color:cur.color}); s.push({color:cur.colors.find(c=>c!==cur.color)}); }
@@ -616,12 +656,57 @@ function wrongItem(){
   }
   return cur.set.find(x=>x.type+':'+x.key!==prob.key);
 }
+/* ---------- patterns ---------- */
+function patLevel(){ return diff==='easy'?0:diff==='hard'?1:2; }
+/* build the row and the answer. The row is the question; the answer is never on screen until revealAnswer. */
+function newPattern(){
+  const d=patLevel();
+  let kind=cur.kind, type=cur.ptype;
+  if(kind==='mix') kind=pick(['ab','abc','aab','count','back']);
+  if(type==='any') type=(kind==='count'||kind==='back') ? 'num' : pick(['color','animal']);
+  const last=prob?prob.sig:null;
+  let seqv, ans, members, step=0, sig, g=0;
+  do{
+    seqv=[]; members=[];
+    if(type==='num'){
+      step=cur.step[d]; const top=Math.max(4*step, cur.cap[d]), units=Math.floor(top/step);
+      if(kind==='back'){ const start=step*ri(4, Math.max(4,units)); seqv=[start,start-step,start-2*step]; ans=start-3*step; }
+      else { const start=step*ri(1, Math.max(1,units-3)); seqv=[start,start+step,start+2*step]; ans=start+3*step; }
+    } else {
+      const src=type==='color'?PAT_COLORS:PAT_ANIMALS, pool=src.slice(0, Math.min(src.length, cur.pool[d]));
+      const need=kind==='abc'?3:2;   // ab and aab are built from two things, abc from three
+      let guard=0; while(members.length<need && ++guard<60){ const v=pick(pool); if(!members.includes(v)) members.push(v); }
+      const unit = kind==='abc' ? members.slice(0,3) : kind==='aab' ? [members[0],members[0],members[1]] : [members[0],members[1]];
+      const show=cur.show[d];
+      for(let i=0;i<show;i++) seqv.push(unit[i%unit.length]);
+      ans=unit[show%unit.length];
+    }
+    sig=kind+':'+seqv.join(',');
+  } while(sig===last && ++g<20);   // not the same row twice in a row
+  prob={ patterns:true, quiz:true, kind, ptype:type, seq:seqv, members, step, ans, key:String(ans), text:'What comes next?', sig };
+}
+/* a wrong bubble is the mistake a child actually makes: another member of the pattern (carrying on without seeing the
+   period), or one step short or long in a counting row. Never the answer, and preferably not already on a bubble. */
+function wrongPat(){
+  const cands=[];
+  if(prob.ptype==='num'){ const s=prob.step||1; for(const v of [prob.ans-s, prob.ans+s, prob.ans-1, prob.ans+1, prob.ans+2*s]) if(v>=0 && !cands.includes(v)) cands.push(v); }
+  else{
+    for(const m of prob.members) if(!cands.includes(m)) cands.push(m);
+    const src=prob.ptype==='color'?PAT_COLORS:PAT_ANIMALS;
+    for(const v of src.slice(0, Math.min(src.length, cur.pool[patLevel()]))) if(!cands.includes(v)) cands.push(v);
+  }
+  const ok=cands.filter(v=>String(v)!==prob.key);
+  if(!ok.length) return prob.ptype==='num' ? prob.ans+1 : (prob.ptype==='color'?PAT_COLORS:PAT_ANIMALS).find(v=>v!==prob.ans);
+  const free=ok.filter(v=>!bubbles.some(b=>b.pkey===String(v)));
+  const list=free.length?free:ok;
+  return list[(Math.random()*Math.min(list.length,3))|0];   // the first few are the pattern's own members, the ones worth offering
+}
 function nextQuestion(){
   wrongTries=0; for(const b of bubbles) b.glow=false;
   if(comeback){ if(comeback.in<=0){ prob=comeback.prob; comeback=null; return; } comeback.in--; }   // the missed one, asked like any other question
-  if(cur.math) newProblem(); else if(cur.words) newWord();
+  if(cur.math) newProblem(); else if(cur.words) newWord(); else if(cur.patterns) newPattern();
 }
-function isTargetNow(b){ return !b.bomb && (cur.math ? b.num===prob.ans : cur.words ? b.wkey===prob.key : matches(b.color,b.animal)); }
+function isTargetNow(b){ return !b.bomb && (cur.math ? b.num===prob.ans : cur.words ? b.wkey===prob.key : cur.patterns ? b.pkey===prob.key : matches(b.color,b.animal)); }
 function matches(color,animal){ const g=tgt(); return (!g.color||g.color===color) && (!g.animal||g.animal===animal); }
 function bubbleRadius(){ return Math.round((clamp(W*0.125,42,54) - (cur.free?4:(round-1)*0.8) + (cur.words?6:0))*D.size); }
 function speedMul(){ return cur.speed*D.speed; }
@@ -629,7 +714,7 @@ function maxBubbles(){ return cur.max+(cur.free?Math.round(D.extra/2):D.extra); 
 
 function spawnBubble(forceTarget, y0){
   const r=bubbleRadius();
-  let color, animal=null, num=null, isTarget, bomb=false, shift=null, word=null, wkey=null, item=null;
+  let color, animal=null, num=null, isTarget, bomb=false, shift=null, word=null, wkey=null, item=null, pkey=null;
   const bombs=bubbles.filter(b=>b.bomb).length;
   if(cur.words){
     const nonT=bubbles.filter(b=>!b.isTarget).length;
@@ -650,6 +735,18 @@ function spawnBubble(forceTarget, y0){
     else { num=wrongNum(); if(D.bombs>0 && bombs<2 && (Math.random()<D.bombs || bombT>6)) bomb=true; }
     isTarget=!bomb && num===prob.ans;
   }
+  else if(cur.patterns){
+    const nonT=bubbles.filter(b=>!b.isTarget).length;
+    const wantT=forceTarget || (nonT>=2 && Math.random()<(cur.free?0.5:D.ratio));
+    let v;
+    if(wantT) v=prob.ans;
+    else { v=wrongPat(); if(D.bombs>0 && bombs<2 && (Math.random()<D.bombs || bombT>6)) bomb=true; }
+    pkey=String(v);
+    if(prob.ptype==='color') color=v;                                  // the colour is the answer, so the bubble is just that colour
+    else if(prob.ptype==='animal'){ color=pick(cur.colors); animal=v; }   // the animal is the answer, the colour is decoration
+    else { color=pick(cur.colors); num=v; }
+    isTarget=!bomb && pkey===prob.key;
+  }
   else if(cur.free){ color=pick(cur.colors); animal=pick(cur.animals); isTarget=true;
     if(!forceTarget && D.bombs>0 && bombs<2 && Math.random()<D.bombs*0.6) bomb=true; }
   else{
@@ -664,7 +761,7 @@ function spawnBubble(forceTarget, y0){
     }
     isTarget=!bomb && matches(color,animal);
   }
-  if(bomb){ color='bomb'; animal='bomb'; num=null; word=null; wkey=null; item=null; isTarget=false; bombT=0; }
+  if(bomb){ color='bomb'; animal='bomb'; num=null; word=null; wkey=null; item=null; pkey=null; isTarget=false; bombT=0; }
   const y = (y0!=null) ? y0 : H+r+8;
   const amp=10+Math.random()*18; let x0=W/2;
   for(let k=0;k<8;k++){
@@ -672,7 +769,7 @@ function spawnBubble(forceTarget, y0){
     if(!bubbles.some(b=>Math.abs(b.y-y)<b.r+r && Math.abs(b.x0-x0)<b.r+r-8)) break;
   }
   bubbles.push({ id:++uid, x0, x:x0, y, r, vy:-(38+Math.random()*30)*speedMul(), amp, freq:0.8+Math.random()*1.2, phase:Math.random()*6.283,
-    color, animal, num, word, wkey, item, isTarget, bomb, shift, age:0, wig:0, alpha:1 });
+    color, animal, num, word, wkey, item, pkey, isTarget, bomb, shift, age:0, wig:0, alpha:1 });
 }
 function spawnAmbient(){
   const r=44; const amp=12+Math.random()*16, m=r+amp+6, x0=m+Math.random()*Math.max(1,W-2*m);
@@ -741,6 +838,18 @@ function safariIcons(){
   if(seq){ const k=progress%seq.length; return '<span class="seq">'+seq.map((g,i)=>goalBubble(g,i===k)).join(artTag('next','arrow'))+'</span>'; }
   return goalBubble(cur,true);
 }
+/* the pattern row the owl shows: the sequence as small bubbles, then a bare "?" for the child to work out */
+function patItem(v, cls){
+  const c = cls ? ' '+cls : '';
+  if(prob.ptype==='color') return '<span class="gb'+c+'" style="background:'+COLORS[v][0]+'"></span>';
+  if(prob.ptype==='animal') return '<span class="gb rainbow'+c+'">'+artTag(v)+'</span>';
+  const s=String(v);
+  return '<span class="gb num'+c+'"><span class="n" style="font-size:'+(s.length>2?11:s.length>1?14:18)+'px">'+s+'</span></span>';
+}
+function patIcons(ans){
+  const last = ans!=null ? patItem(ans,'ans') : '<span class="gb rainbow"><span class="q">?</span></span>';
+  return '<span class="seq pat">'+prob.seq.map(v=>patItem(v)).join('')+last+'</span>';
+}
 function renderGoal(){
   let html='', sub='';
   // icons only: pointing hand + the bubble to pop; the star bar shows how many
@@ -751,6 +860,9 @@ function renderGoal(){
     else html=hand+gb;
   }
   else if(cur.math){ html=hand+(questionDots() || '<span class="gb big rainbow"><span class="q">?</span></span>'); }   // the child has to count, or work the sum out; the "?" never fills in
+  // the row, then a bare "?": the child has to see the rule, nothing marks the answer. No pointing hand: the row is the
+  // question, and the hand's 58px would push a six-slot row onto a second line on a phone.
+  else if(cur.patterns){ html=patIcons(); }
   else if(cur.free){ html=hand+'<span class="gb big rainbow">'+artTag('star')+'</span>'; }
   else html=hand+safariIcons();
   els.speech.innerHTML='<div class="say'+(cur.math?' math':cur.words?' words':'')+'">'+goalText()+'</div>'+sub+'<div class="icons">'+html+'</div>'; els.speech.classList.remove('pop'); void els.speech.offsetWidth; els.speech.classList.add('pop');
@@ -791,7 +903,7 @@ function renderBook(){
   els.langs.querySelectorAll('.btn').forEach(b=>b.classList.toggle('on', b.dataset.lang===lang));
   els.home.classList.toggle('words', mode==='words');
 }
-function roundFor(n){ return mode==='math' ? mathRound(n) : mode==='words' ? wordRound(n) : ROUNDS[n-1]; }
+function roundFor(n){ return mode==='math' ? mathRound(n) : mode==='words' ? wordRound(n) : mode==='patterns' ? patRound(n) : ROUNDS[n-1]; }
 function setLanguage(l, quiet){
   if(!LANGS[l]) return; const changed=l!==lang; lang=l; if(changed) comeback=null; save(); renderBook();
   if(changed && !quiet){ sfx.tick(); toast(LANGS[l].name+'!', 1000); }
@@ -800,7 +912,7 @@ function setMode(m, quiet){
   if(!MODES.includes(m)) return; const changed=m!==mode; mode=m; best=bestAll[m]; if(changed) comeback=null; save();
   if(screen==='home'){ round=nextUnfinished()||1; cur=roundFor(round); goal=cur.count; progress=0; }
   renderBook();
-  if(changed && !quiet){ sfx.tick(); toast(m==='math' ? 'Math!' : m==='words' ? 'Words!' : 'Animals!', 1000); }
+  if(changed && !quiet){ sfx.tick(); toast(m==='math' ? 'Math!' : m==='words' ? 'Words!' : m==='patterns' ? 'Patterns!' : 'Animals!', 1000); }
 }
 function renderMute(){ els.mute.innerHTML=artTag(muted?'mute':'sound'); els.mute.setAttribute('aria-label', muted?'Sound off':'Sound on'); els.mute.setAttribute('aria-pressed', String(muted)); }
 function toggleMute(){ muted=!muted; save(); renderMute(); music.volume(); if(!muted) sfx.tick(); }
@@ -816,6 +928,7 @@ function cw(c){ return '<span class="cw" style="color:'+COLORS[c][2]+'">'+c.toUp
 function goalText(){
   if(cur.words){ const it=prob.item; return prob.kind==='pic' ? prob.word : (it.type==='color' ? cw(it.key) : it.key.toUpperCase()); }
   if(cur.math) return prob.text;
+  if(cur.patterns) return prob.text;
   if(cur.free) return 'Pop them all!';
   if(seq) return 'Pop '+seq.map(g=>g.animal ? g.animal.toUpperCase() : cw(g.color)).join(', then ')+'!';
   const thing = cur.animal ? cur.animal.toUpperCase()+(goal>1?'S':'') : (goal>1?'bubbles':'bubble');
@@ -832,7 +945,7 @@ function beginPlay(r0){
   guideTalk(); music.set('play'); toast(cur.free ? 'Free play!' : 'Round '+round, 1000);
 }
 function startPlay(n,r0){ round=n; cur=roundFor(n); beginPlay(r0); }
-function startFree(){ round=11; cur=mode==='math'?MATH_FREE:mode==='words'?WORDS_FREE:FREE; beginPlay(); }
+function startFree(){ round=11; cur=mode==='math'?MATH_FREE:mode==='words'?WORDS_FREE:mode==='patterns'?PAT_FREE:FREE; beginPlay(); }
 function startGame(){
   if(resume && resume.diff===diff && resume.mode===mode && !best[diff][resume.round]){ startPlay(resume.round, resume); return; }  // accidental Home tap costs nothing
   const n=nextUnfinished(); if(n) startPlay(n); else startFree();
@@ -842,7 +955,7 @@ function goHome(party){
   nextIn=0; doneIn=0; shake=0;
   screen='home'; bubbles=[]; fx=[]; spawnT=0; showScreens(['home']); renderBook();
   music.set('home');
-  if(party){ confettiBurst(true); sfx.party(); toast(mode==='math' ? 'Math star!' : mode==='words' ? 'Word star!' : 'Safari star!', 2500); }
+  if(party){ confettiBurst(true); sfx.party(); toast(mode==='math' ? 'Math star!' : mode==='words' ? 'Word star!' : mode==='patterns' ? 'Pattern star!' : 'Safari star!', 2500); }
 }
 function starsFor(){ if(diff==='easy') return 3; return mistakes===0?3:(mistakes<=2?2:1); }
 function unlockNow(){ if(!cur.free){ const s=starsFor(); if(!isUnlocked(round)) justEarned=round; if((best[diff][round]||0)<s){ best[diff][round]=s; save(); } } }
@@ -882,6 +995,7 @@ function answerHtml(){
   if(cur.math){ const t = prob.text.includes('?') ? prob.text.replace('?', String(prob.ans)) : prob.text;
     const dots=questionDots(), icon = prob.kind==='find' && dots ? dots : (dots||'')+'<span class="gb big rainbow"><span class="q">'+prob.ans+'</span></span>';   // the same dots as the question, now with the result
     return '<div class="say math">'+t+'</div><div class="icons">'+icon+'</div>'; }
+  if(cur.patterns) return '<div class="say">'+prob.text+'</div><div class="icons">'+patIcons(prob.ans)+'</div>';   // the same row, the gap filled in and ringed
   if(cur.free) return null;   // "pop them all": nothing to reveal
   return '<div class="say">'+goalText()+'</div><div class="icons">'+safariIcons()+'</div>';   // animals: the goal again, while the matching bubbles glow
 }
@@ -890,7 +1004,7 @@ function revealAnswer(secs, then){
   // the question the child just missed comes back once, so the correction is answered rather than only looked at: first question when the
   // lost level is played again, and in free play (no hearts, play goes straight on) the second question after the reveal. It is asked
   // exactly like any other question - nothing marks it - and a come-back missed again is not queued once more, so nobody loops on one word.
-  if((cur.math||cur.words) && prob && !prob.back) comeback={ prob:Object.assign({}, prob, {back:true}), in:cur.free?1:0, round };
+  if(cur.quiz && prob && !prob.back) comeback={ prob:Object.assign({}, prob, {back:true}), in:cur.free?1:0, round };
   els.speech.innerHTML=h; els.speech.classList.remove('pop'); void els.speech.offsetWidth; els.speech.classList.add('pop'); guideTalk();
   for(const b of bubbles) if(b.isTarget) b.glow=true;
   revealT=secs; afterReveal=then;
@@ -901,7 +1015,7 @@ function loseRound(){
   const fail=()=>{ goHome(false); resume=null; toast('Try again!', 1600); };
   // math and words always show the failed question; animals only in easy (D.teach), where the lost round is the lesson. In hard/expert
   // the goal was in front of the child all along and the round was lost to speed, bombs or the clock, so it ends straight away
-  if(cur.math||cur.words||D.teach) revealAnswer(2.6, fail); else fail();
+  if(cur.quiz||D.teach) revealAnswer(2.6, fail); else fail();
 }
 
 /* ---------- input ---------- */
@@ -918,9 +1032,9 @@ function onTap(x,y){
     if(progress<goal){
       progress++; updateBar(); sfx.pop(progress/goal); if(D.timer>0) timeLeft=Math.min(D.timer, timeLeft+4);
       if(progress>=goal){ if(cur.free) freeFill(); else { unlockNow(); doneIn=0.65; } }   // sticker is safe the moment the bar fills
-      fx.push({type:'text', x:best.x, y:best.y-best.r, text:String(cur.math?best.num:cur.words?wordOf(best.item):progress), size:cur.words?30:40, life:0.9, max:0.9});   // the count (or the answer, or the word) floats up from the bubble
+      fx.push({type:'text', x:best.x, y:best.y-best.r, text:String(cur.math?best.num:cur.words?wordOf(best.item):cur.patterns&&best.num!=null?best.num:progress), size:cur.words?30:40, life:0.9, max:0.9});   // the count (or the answer, or the word) floats up from the bubble
       if(progress>=goal && !cur.free) showDone();   // round won: no next question before the celebration
-      else if(cur.math||cur.words){ nextQuestion(); renderGoal(); }
+      else if(cur.quiz){ nextQuestion(); renderGoal(); }
       else if(seq) renderGoal();
     } else sfx.pop(1);
   } else {
@@ -957,7 +1071,7 @@ function update(dt){
   if(playing) bombT+=dt;
   for(let i=bubbles.length-1;i>=0;i--){ const b=bubbles[i]; b.age+=dt; b.y+=b.vy*dt; b.x=b.x0+Math.sin(t*b.freq+b.phase)*b.amp; if(b.wig>0) b.wig-=dt;
     if(b.shift && playing){ b.shift.t-=dt; if(b.shift.t<=0){ b.shift.t=1.1; const l=b.shift.list; b.color=l[(l.indexOf(b.color)+1)%l.length]; b.gen=-1; } }
-    if(playing && b.alpha===1 && (cur.math || cur.words || !cur.free)) b.isTarget=isTargetNow(b);   // ordered goals and colour shifts change who is a target
+    if(playing && b.alpha===1 && (cur.quiz || !cur.free)) b.isTarget=isTargetNow(b);   // ordered goals and colour shifts change who is a target
     if(b.y < (playing ? hudB-b.r : -b.r*1.6)) bubbles.splice(i,1); }   // gone once fully under the guide pill
   spawnT-=dt;
   if(playing && progress<goal && revealT<=0){
@@ -1092,11 +1206,13 @@ window.__bps = {
     screen, round, progress, goal, difficulty:diff, mode, language:lang, hearts, mistakes, timeLeft:Math.round(timeLeft*10)/10, music:music.mode(),
     reveal: revealT>0, wrongTries,
     comeback: comeback ? (comeback.prob.words ? { key:comeback.prob.key, in:comeback.in } : { text:comeback.prob.text, in:comeback.in }) : null,
-    problem: prob ? (prob.words ? { kind:prob.kind, text:prob.text, word:prob.word, en:prob.en, key:prob.key } : { kind:prob.kind, text:prob.text, answer:prob.ans, a:prob.a, b:prob.b }) : null,
+    problem: prob ? (prob.words ? { kind:prob.kind, text:prob.text, word:prob.word, en:prob.en, key:prob.key }
+      : prob.patterns ? { kind:prob.kind, type:prob.ptype, text:prob.text, seq:prob.seq.slice(), members:prob.members.slice(), step:prob.step, key:prob.key }
+      : { kind:prob.kind, text:prob.text, answer:prob.ans, a:prob.a, b:prob.b }) : null,
     target: Object.assign({}, g.color?{color:g.color}:{}, g.animal?{animal:g.animal}:{}, {count:goal}),
     sequence: seq ? seq.slice() : null,
     unlocked: unlockedList(), best: JSON.parse(JSON.stringify(best)), muted,
-    bubbles: screen==='play' ? bubbles.filter(b=>b.y>hudB&&b.y<=H&&b.x>=0&&b.x<=W).map(b=>({id:b.id, x:Math.round(b.x*10)/10, y:Math.round(b.y*10)/10, r:b.r, color:b.color, animal:b.animal, num:b.num, word:b.word, key:b.wkey, glow:!!b.glow, isTarget:b.isTarget, bomb:b.bomb, shift:!!b.shift})) : []
+    bubbles: screen==='play' ? bubbles.filter(b=>b.y>hudB&&b.y<=H&&b.x>=0&&b.x<=W).map(b=>({id:b.id, x:Math.round(b.x*10)/10, y:Math.round(b.y*10)/10, r:b.r, color:b.color, animal:b.animal, num:b.num, word:b.word, key:b.wkey, pkey:b.pkey, glow:!!b.glow, isTarget:b.isTarget, bomb:b.bomb, shift:!!b.shift})) : []
   }; },
   startGame(){ if(screen==='home') startGame(); },
   startRound(n){ if(screen==='home' && n>=1 && n<=10) startPlay(n); },
