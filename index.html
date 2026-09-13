@@ -565,7 +565,8 @@ function buildSeq(){
 function tgt(){ return seq ? seq[progress % seq.length] : cur; }
 /* ---------- math problems ---------- */
 const ri=(a,b)=>a+((Math.random()*(b-a+1))|0);
-function newProblem(){
+function newProblem(){ const prev=prob&&prob.text; for(let k=0;k<8;k++){ rollProblem(); if(prob.text!==prev) break; } }   // never the same question twice in a row
+function rollProblem(){
   const hi=cur.hi[diff==='easy'?0:diff==='hard'?1:2];
   let kind=cur.kind; if(kind==='mix') kind=pick(['add','sub','miss','mul']);
   let a,b,ans,text;

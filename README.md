@@ -75,7 +75,7 @@ ngrok http 8080                  # terminal 2, copy the https URL
 | `test/smoke.js` | Playwright playthrough test (easy mode) used during development. |
 | `test/lives.js` | Playwright test for the three lives in easy, all modes: every wrong tap costs a heart, a right pop does not give one back, the third miss reveals the answer exactly once and ends the level (home screen, nothing recorded, Play restarts it from zero), nothing given away during play. |
 | `test/hard.js` | Playwright test for hard and expert mode: hearts, bombs, the failed level, stars, ordered goals, timer, colour shifts. |
-| `test/math.js` | Playwright test for math mode: every round kind, answers checked, wrong taps, separate progress, hard mode with hearts and bombs. |
+| `test/math.js` | Playwright test for math mode: every round kind, answers checked, the dots drawn for easy sums (and none for missing numbers, times tables, sums over 10 or hard), nothing given away during play, the reveal after three misses, separate progress, hard mode with hearts and bombs. |
 | `test/words.js` | Playwright test for words mode: language picker, picture and color rounds, reverse rounds, no answer on screen while playing, the reveal after three wrong tries and after a lost round, separate progress, expert. |
 | `CLAUDE.md` | The purpose of the app and the rules every change must follow (the learning rule above, art, tests, deployment). |
 | `screenshots/` | Home screen, rounds in each mode, a celebration. |
