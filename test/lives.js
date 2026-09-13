@@ -1,6 +1,6 @@
 // Usage: NODE_PATH=/opt/node22/lib/node_modules node lives.js <baseUrl> <outDir>
 // Three lives on every level. In easy too, every wrong tap costs a heart and a right pop gives none back; the third miss shows
-// the answer once (the owl's bubble, the right bubbles glowing), then the same round restarts with full hearts and nothing recorded.
+// the answer once (the owl's bubble, the right bubbles glowing), then the level is over: home screen, nothing recorded, Play again from zero.
 // Nothing on screen gives the answer away while playing.
 const { chromium, devices } = require('playwright');
 const fs=require('fs'), path=require('path');
@@ -64,13 +64,15 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
     throw new Error(`[${step}] no target bubble could be tapped`); }
   const startRound=async(n)=>{ await page.evaluate(n=>window.__bps.startRound(n),n); await waitFor(s=>s.screen==='play'&&s.round===n&&s.bubbles.length>=3,'round '+n+' with bubbles',8000); await sleep(200); return state(); };
   const goHome=async()=>{ await tapEl('[data-testid="home"]'); await waitFor(s=>s.screen==='home','home',3000); };
+  // the third miss: after the reveal the level is over and the game is back on the home screen (Play starts it again from zero)
+  const failedHome=async()=>{ const s=await waitFor(x=>!x.reveal&&x.screen==='home'?x:null,'home after the failed level',5000); assert(s.hearts===0,'hearts were emptied'); return s; };
   try{
     step='1-home'; await page.goto(baseUrl+'/',{waitUntil:'load'}); await page.waitForFunction(()=>window.__bps&&window.__bps.state);
     await page.evaluate(()=>{ window.__bps.resetProgress(); window.__bps.setDifficulty('easy'); window.__bps.setMode('math'); }); await page.reload({waitUntil:'load'}); await page.waitForFunction(()=>window.__bps&&window.__bps.state);
     let s=await state(); assert(s.screen==='home'&&s.difficulty==='easy'&&s.mode==='math','easy math on home, got '+JSON.stringify({sc:s.screen,d:s.difficulty,m:s.mode}));
-    assert(await page.evaluate(()=>getComputedStyle(document.querySelector('#row2')).display==='none'),'no hearts on the home screen'); noErrors();
+    assert(await page.evaluate(()=>document.querySelector('#row2').getClientRects().length===0),'no hearts on the home screen'); noErrors();
 
-    // ---- easy math: every miss costs a heart, the bar is kept; the third miss loses the round: one reveal, then the same round from zero
+    // ---- easy math: every miss costs a heart, the bar is kept; the third miss fails the level: one reveal, then the home screen
     step='2-math'; s=await startRound(3); await assertHearts(3,'start'); await noGiveaway(s);
     s=await tapRight(); assert(s.progress===1,'one right pop'); assert(s.hearts===3,'right pop keeps hearts');
     const mt0=s.problem.text, ma0=s.problem.answer;
@@ -80,8 +82,9 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
     s=await tapWrong(); assert(s.reveal===true,'the third miss reveals'); await assertHearts(0,'third miss');
     let txt=await say(); assert(txt===mt0.replace('?',String(ma0)),'reveal shows the equation with its answer: '+txt);
     await glowSoon(); await sleep(400); await page.screenshot({path:path.join(outDir,'lives-math-reveal.png')});
-    s=await waitFor(x=>!x.reveal&&x.hearts===3?x:null,'round restarted',5000); assert(s.progress===0&&s.round===3&&s.screen==='play'&&s.wrongTries===0,'same round from zero: '+JSON.stringify({p:s.progress,r:s.round,sc:s.screen,w:s.wrongTries}));
-    assert(s.problem&&Number.isInteger(s.problem.answer),'a question after the restart'); await noGiveaway(s); noErrors(); await goHome();
+    s=await failedHome(); assert(JSON.stringify(s.best)==='{"easy":{},"hard":{},"expert":{}}','nothing recorded for the failed level');
+    s=await startRound(3); await assertHearts(3,'the level again from zero'); assert(s.progress===0&&s.wrongTries===0&&s.problem&&Number.isInteger(s.problem.answer),'fresh attempt: '+JSON.stringify({p:s.progress,w:s.wrongTries}));
+    await noGiveaway(s); noErrors(); await goHome();
     assert(await page.evaluate(()=>document.querySelectorAll('#book .slot .st img').length===0),'no stars shown in easy');
 
     // ---- easy animals: a miss costs a heart, a right pop does not give one back; the lost round shows the goal with the right bubbles glowing
@@ -95,8 +98,11 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
     txt=await say(); assert(txt===goalTxt,'the owl shows the goal during the reveal: '+txt);
     assert(await page.evaluate(()=>!!document.querySelector('#speech .icons .gb.big')),'the goal bubble is shown');
     await sleep(400); await page.screenshot({path:path.join(outDir,'lives-animals-reveal.png')});
-    s=await waitFor(x=>!x.reveal&&x.hearts===3?x:null,'round restarted',5000); assert(s.progress===0&&s.round===1&&s.screen==='play','same round from zero: '+JSON.stringify({p:s.progress,r:s.round,sc:s.screen}));
-    assert(s.bubbles.every(b=>!b.glow),'glow cleared after the restart'); txt=await say(); assert(txt===goalTxt,'goal back after the restart'); noErrors(); await goHome();
+    s=await failedHome();
+    // Play starts the same level again from zero: no resume of the failed attempt
+    await tapEl('[data-testid="play"]'); s=await waitFor(x=>x.screen==='play'&&x.bubbles.length>=3?x:null,'play again',8000); await sleep(200);
+    await assertHearts(3,'the level again'); assert(s.round===1&&s.progress===0&&s.wrongTries===0,'fresh attempt: '+JSON.stringify({r:s.round,p:s.progress,w:s.wrongTries}));
+    assert(s.bubbles.every(b=>!b.glow),'no glow on the fresh attempt'); txt=await say(); assert(txt===goalTxt,'goal back: '+txt); noErrors(); await goHome();
 
     // ---- easy words: nothing given away while playing; the third miss shows the answer exactly once, then the same round restarts with nothing recorded
     step='4-words'; await page.evaluate(()=>{ window.__bps.setMode('words'); window.__bps.setLanguage('fr'); }); s=await startRound(1); await assertHearts(3,'start');
@@ -108,12 +114,14 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
       while(Date.now()-t0<5000){ const x=await state(); if(x.reveal&&!was){ reveals++; if(reveals===1){ const h=await hud(); assert(h.lost===3,'all hearts drawn lost during the reveal: '+JSON.stringify(h)); txt=await say(); assert(txt===w0,'the reveal shows the failed word: '+txt);
             assert(await page.evaluate(()=>!!document.querySelector('#speech .en')),'reveal shows the english word'); await sleep(300); await page.screenshot({path:path.join(outDir,'lives-words-reveal.png')}); } }
         if(x.reveal){ assert(x.bubbles.every(b=>b.isTarget||!b.glow),'only targets glow'); if(x.bubbles.some(b=>b.isTarget&&b.glow)||!x.bubbles.some(b=>b.isTarget)) glowed=true; }
-        was=x.reveal; if(x.hearts===0) sawZero=true; if(reveals>0&&!x.reveal&&x.hearts===3){ fin=x; break; } await sleep(50); }
+        was=x.reveal; if(x.hearts===0) sawZero=true; if(reveals>0&&!x.reveal&&x.screen==='home'){ fin=x; break; } await sleep(50); }
       assert(reveals===1,'exactly one reveal on the last heart, got '+reveals); assert(sawZero,'hearts reached 0'); assert(glowed,'targets glow during the reveal');
-      assert(fin,'round restarted within 5 s'); assert(fin.progress===0&&fin.round===1&&fin.screen==='play'&&fin.wrongTries===0,'same round from zero: '+JSON.stringify({p:fin.progress,r:fin.round,sc:fin.screen,w:fin.wrongTries}));
-      await assertHearts(3,'after the restart'); assert(JSON.stringify(fin.best)===best0,'nothing recorded for a lost round'); assert(fin.problem.key!==k0,'a new word after the restart');
-      await sleep(600); await page.screenshot({path:path.join(outDir,'lives-words-restart.png')}); s=await state(); await noGiveaway(s);
-      assert(s.hearts===3&&s.reveal===false,'hearts never stick at zero'); }
+      assert(fin,'home within 5 s of the third miss'); assert(JSON.stringify(fin.best)===best0,'nothing recorded for the failed level');
+      assert(await page.evaluate(()=>document.querySelector('#row2').getClientRects().length===0),'no hearts on the home screen');
+      await sleep(600); await page.screenshot({path:path.join(outDir,'lives-words-failed.png')});
+      await tapEl('[data-testid="play"]'); s=await waitFor(x=>x.screen==='play'&&x.bubbles.length>=3?x:null,'play again',8000); await sleep(200);
+      await assertHearts(3,'the level again'); assert(s.round===1&&s.progress===0&&s.wrongTries===0&&s.problem&&s.problem.kind==='pic','fresh attempt from zero: '+JSON.stringify({r:s.round,p:s.progress,w:s.wrongTries}));
+      await noGiveaway(s); assert(s.reveal===false,'hearts never stick at zero'); }
     noErrors(); await goHome(); s=await state(); assert(JSON.stringify(s.best)===best0,'sticker book untouched');
     assert(await page.evaluate(()=>document.querySelectorAll('#book .slot .st img').length===0),'no stars shown in easy');
 

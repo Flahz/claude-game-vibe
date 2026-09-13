@@ -92,3 +92,8 @@ too, every wrong tap costs a heart and the third miss loses the round. Shipped a
 in easy is gone (free play, which has no hearts, keeps the three-tries reveal). A lost easy Animals round still shows the
 goal with the right bubbles glowing before the restart; hard and expert are unchanged; easy still records no stars. The
 parent's and teacher's objections to a heart per tap in easy stand in the record above as the risk to watch for.
+
+## Revised again the same day, by the owner: the third miss fails the level
+The round no longer restarts in place. After the reveal the game goes back to the home screen ("Try again!"), the
+failed attempt is not resumed, and Play starts the same level again from zero with three hearts. Stickers already
+earned are untouched and nothing about the failure is recorded, so it is a lost level, not a game over.

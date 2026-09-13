@@ -19,8 +19,8 @@ it does not belong here.
    - in free play, which has no hearts, three wrong tries on the same question.
    At that moment the owl's bubble shows the full answer (the word with its picture and English meaning,
    the equation with its result, the animals goal with its bubble), the correct bubbles glow, taps are
-   ignored for a couple of seconds, and then play continues (the same round restarts with full hearts and
-   nothing recorded; in free play, a new question).
+   ignored for a couple of seconds, and then the level is over: back to the home screen, nothing recorded,
+   and Play starts the same level again from zero (in free play, which has no hearts, a new question).
 3. **A correct answer may be celebrated.** After a right pop it is fine to show the word or number that
    was just popped; that is reinforcement, not a giveaway.
 4. Any new mode (letters, shapes, another language, anything) follows the same three points. Put the
@@ -29,16 +29,18 @@ it does not belong here.
 ## Other rules that shape the game
 
 - **Kids first.** Ages 4 to 8: big touch targets (≥ 44px), short words, no reading required to play
-  the animals mode, no dead ends, no game over, no ads, no network calls, works offline.
+  the animals mode, no dead ends, no game-over screen (a failed level just goes back to the home screen),
+  no ads, no network calls, works offline.
 - **No voice.** Instructions are on screen as short bold text in the owl's bubble, with color words in
   their color. Feedback is big pop-up words ("Round 3", "Oops!", "Try again!", "Look!").
-- **Never punish, always continue.** Wrong taps wiggle. Losing all three hearts restarts the round.
-  Progress and stickers are never taken away, and nothing about hearts is ever shown on the home screen.
+- **Never punish, always continue.** Wrong taps wiggle. Losing all three hearts fails the level: the owl
+  shows the answer, then the home screen, and Play tries it again. Stickers are never taken away, and nothing
+  about hearts is ever shown on the home screen.
 - **Custom art only.** All characters and interface icons are generated with Higgsfield and cut out into
   small webp files in `art/` (208px). Emoji are used only as a fallback while an image loads. New art goes
   through the same pipeline and into the service worker file list.
 - **Three difficulties, same rounds, three lives each.** Easy = the gentle original plus the three hearts
-  (a wrong tap costs one, the third restarts the round); easy never records stars. Hard/expert add speed,
+  (a wrong tap costs one, the third fails the level); easy never records stars. Hard/expert add speed,
   bombs, ordered goals, a timer, colour-shifting bubbles. A difficulty must never remove learning, only add
   challenge.
 - **Each mode keeps its own stickers and stars** (save format `bps.v3`, migrate older formats, never

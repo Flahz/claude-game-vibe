@@ -49,13 +49,18 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
     await sleep(300); await page.screenshot({path:path.join(outDir,'hard-round.png')});
     step='3-bomb'; const bomb=await tapKind(b=>b.bomb,'a bomb',40000); s=await state(); assert(s.hearts===1,'after bomb hearts='+s.hearts); assert(!s.bubbles.find(b=>b.id===bomb.id),'bomb removed');
     await page.screenshot({path:path.join(outDir,'hard-boom.png')});
-    step='4-restart'; await tapKind(b=>!b.isTarget&&!b.bomb,'a wrong bubble'); s=await state(); assert(s.screen==='play'&&s.hearts===3&&s.progress===0&&s.mistakes===3,`restart: ${JSON.stringify({h:s.hearts,p:s.progress,m:s.mistakes,sc:s.screen})}`);
+    step='4-fail'; await tapKind(b=>!b.isTarget&&!b.bomb,'a wrong bubble'); s=await waitFor(x=>x.screen==='home'?x:null,'home after the third miss',3000);
+    assert(s.hearts===0&&s.unlocked.length===0,`failed level: ${JSON.stringify({h:s.hearts,u:s.unlocked,sc:s.screen})}`);
+    assert(await page.evaluate(()=>document.querySelector('#row2').getClientRects().length===0),'no hearts on the home screen');
+    // Play starts the same level again from zero, with three hearts and a clean slate (no resume of the failed attempt)
+    await tapEl('[data-testid="play"]'); await sleep(250); s=await state(); assert(s.screen==='play'&&s.round===1&&s.hearts===3&&s.progress===0&&s.mistakes===0,`fresh attempt: ${JSON.stringify({h:s.hearts,p:s.progress,m:s.mistakes,r:s.round,sc:s.screen})}`);
     noErrors();
-    step='5-finish-r1'; await playRound(1); s=await state(); assert(s.best.hard[1]===1,'1 star expected, best='+JSON.stringify(s.best)); assert(s.unlocked.includes(1),'unlocked 1');
-    const dim=await page.evaluate(()=>document.querySelectorAll('#cstars span.dim').length); assert(dim===2,'2 dim stars, got '+dim);
+    step='5-finish-r1'; await tapKind(b=>!b.isTarget&&!b.bomb,'a wrong bubble'); s=await state(); assert(s.hearts===2&&s.mistakes===1,'one mistake on the fresh attempt');
+    await playRound(1); s=await state(); assert(s.best.hard[1]===2,'2 stars expected, best='+JSON.stringify(s.best)); assert(s.unlocked.includes(1),'unlocked 1');
+    const dim=await page.evaluate(()=>document.querySelectorAll('#cstars span.dim').length); assert(dim===1,'1 dim star, got '+dim);
     await sleep(900); await page.screenshot({path:path.join(outDir,'hard-celebrate.png')});
     await tapEl('[data-testid="home"]'); await sleep(200); s=await state(); assert(s.screen==='home','home');
-    assert(await page.evaluate(()=>document.querySelectorAll('#book .slot[data-round="1"] .st img').length===1),'book shows 1 star');
+    assert(await page.evaluate(()=>document.querySelectorAll('#book .slot[data-round="1"] .st img').length===2),'book shows 2 stars');
 
     step='6-sequence'; await page.evaluate(()=>window.__bps.startRound(5)); await sleep(250); s=await state();
     assert(s.sequence&&s.sequence.length===2,'seq len 2: '+JSON.stringify(s.sequence)); assert(s.goal===6,'goal 6, got '+s.goal);

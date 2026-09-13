@@ -94,7 +94,7 @@ h1{ font-size: clamp(26px, 7.6vw, 38px); margin:0 0 0 10px; font-weight:900; col
 #speech .say{ font-size: clamp(18px, 5.6vw, 24px); font-weight:900; text-align:center; line-height:1.15; letter-spacing:.2px; color:var(--ink); }
 #speech .say .cw{ text-shadow: 0 1px 0 rgba(255,255,255,.6); }
 #speech .icons{ display:flex; align-items:center; justify-content:center; gap:12px; }
-#toast{ position:absolute; left:0; right:0; top:46%; text-align:center; pointer-events:none; z-index:6; font-size: clamp(34px, 10vw, 52px); font-weight:900; color:#fff;
+#toast{ position:absolute; left:0; right:0; top:46%; text-align:center; pointer-events:none; z-index:40; font-size: clamp(34px, 10vw, 52px); font-weight:900; color:#fff;
   text-shadow: 0 3px 0 #1f78c8, 0 0 12px rgba(0,0,0,.25), -2px -2px 0 #1f78c8, 2px -2px 0 #1f78c8, -2px 2px 0 #1f78c8, 2px 2px 0 #1f78c8; opacity:0; transform:scale(.6); }
 #toast.on{ animation: toastIn .55s cubic-bezier(.34,1.56,.64,1) forwards; }
 #toast.out{ animation: toastOut .3s ease-in forwards; }
@@ -362,8 +362,8 @@ const WORDS_FREE = { free:true, words:true, kind:'any', set:WORDS[9].set, count:
 const wordOf = it => LANGS[lang][it.type][it.key].replace('·','');
 const MODES = ['safari','math','words'];
 /* difficulty: easy is the original game. hard/expert add bombs, ordered goals, speed, and (expert) a timer + colour-changing bubbles.
-   Every difficulty has three lives: a wrong tap costs a heart, the third one loses the round (the owl shows the answer, then the
-   round starts over). `teach` (easy): a lost animals round also shows the goal and glows the right bubbles before the restart. */
+   Every difficulty has three lives: a wrong tap costs a heart, the third one fails the level (the owl shows the answer, then back
+   to the home screen; Play starts the level again). `teach` (easy): a lost animals round also shows the goal and glows the right bubbles before the restart. */
 const DIFFS = {
   easy:   { speed:1.00, size:1.00, extra:0, bombs:0,    hearts:3, teach:true, seqFrom:99, seq3From:99, timer:0,  shift:0,    ratio:0.45, minT:2, phrase:'Easy!' },
   hard:   { speed:1.45, size:0.86, extra:3, bombs:0.18, hearts:3, seqFrom:5,  seq3From:99, timer:0,  shift:0,    ratio:0.35, minT:2, phrase:'Hard! Watch out!' },
@@ -842,8 +842,9 @@ function completeRound(){
 }
 function nextRound(){ nextIn=0; if(screen!=='celebrate') return; if(round>=10) goHome(true); else startPlay(round+1); }
 function freeFill(){ confettiBurst(false); sfx.fanfare(); toast(pick(['Wow!','Super!','Pop pop pop!']), 1200); progress=0; updateBar(); }
-/* a miss costs a heart (a wrong tap in any difficulty, a bomb or a timeout in hard/expert); with no hearts left the round simply
-   starts over (never a game over). Free play has no hearts. why==='look' means the reveal speaks, not a toast */
+/* a miss costs a heart (a wrong tap in any difficulty, a bomb or a timeout in hard/expert); with no hearts left the level is failed
+   and the game goes back to the home screen (nothing is taken away, Play tries the level again). Free play has no hearts.
+   why==='look' means the reveal speaks, not a toast */
 function penalty(why){
   mistakes++;
   if(D.hearts<=0 || cur.free) return;
@@ -870,16 +871,11 @@ function revealAnswer(secs, then){
 }
 function loseRound(){
   guideOops(); sfx.lose();
-  const restart=()=>{
-    for(const b of bubbles) if(!b.bomb) addPop(b);
-    bubbles=[]; progress=0; hearts=D.hearts; timeLeft=D.timer; spawnT=0.5; nextQuestion();
-    renderGoal(); updateBar(); renderHearts(); renderTimer();
-    toast('Try again!', 1400);
-    seedBubbles();
-  };
+  // the level is failed: back to the home screen, no resume (Play starts the same level again from zero, the stickers are untouched)
+  const fail=()=>{ goHome(false); resume=null; toast('Try again!', 1600); };
   // math and words always show the failed question; animals only in easy (D.teach), where the lost round is the lesson. In hard/expert
-  // the goal was in front of the child all along and the round was lost to speed, bombs or the clock, so it restarts straight away
-  if(cur.math||cur.words||D.teach) revealAnswer(2.6, restart); else restart();
+  // the goal was in front of the child all along and the round was lost to speed, bombs or the clock, so it ends straight away
+  if(cur.math||cur.words||D.teach) revealAnswer(2.6, fail); else fail();
 }
 
 /* ---------- input ---------- */

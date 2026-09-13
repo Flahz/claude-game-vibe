@@ -62,7 +62,8 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
       for(let i=0;i<3;i++){ const w=await waitFor(x=>x.bubbles.find(b=>!b.isTarget&&!b.bomb&&visible(b)),'wrong bubble'); await tap(w.x,w.y); await sleep(150); if(i<2){ s=await state(); assert(s.hearts===2-i&&!s.reveal,'wrong tap '+(i+1)+' costs a heart, hearts='+s.hearts); } }
       s=await state(); assert(s.reveal===true,'third wrong tap reveals'); assert(s.hearts===0,'the third miss empties the hearts, hearts='+s.hearts); const rt=await page.evaluate(()=>document.querySelector('#speech .say').textContent);
       assert(rt===t0.replace('?',String(a0)),'reveal shows the equation with its answer: '+rt); await page.screenshot({path:path.join(outDir,'math-reveal.png')});
-      await waitFor(x=>!x.reveal,'reveal over',5000); s=await state(); assert(s.progress===0,'no progress from the reveal'); assert(s.hearts===3&&s.round===3,'round restarted with three hearts'); }
+      s=await waitFor(x=>!x.reveal&&x.screen==='home'?x:null,'home after the failed level',5000); assert(s.unlocked.length===1&&s.unlocked[0]===1,'nothing recorded for the failed level');
+      await page.evaluate(()=>window.__bps.startRound(3)); await sleep(300); s=await state(); assert(s.screen==='play'&&s.round===3&&s.hearts===3&&s.progress===0,'the level starts again from zero with three hearts'); }
     ch=await playRound(3,'math-add.png'); assert(ch>=2,'add changes '+ch); await tapEl('[data-testid="home"]'); await sleep(200);
     step='4-sub'; await page.evaluate(()=>window.__bps.startRound(5)); await sleep(300); s=await state(); assert(s.problem.kind==='sub','sub kind'); await playRound(5); await tapEl('[data-testid="home"]'); await sleep(200);
     step='5-miss'; await page.evaluate(()=>window.__bps.startRound(8)); await sleep(300); s=await state(); assert(s.problem.kind==='miss','miss kind'); await playRound(8,'math-missing.png'); await tapEl('[data-testid="home"]'); await sleep(200);
@@ -78,7 +79,8 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
       for(let i=0;i<2;i++){ const w=await waitFor(x=>x.bubbles.find(b=>!b.isTarget&&!b.bomb&&visible(b)),'wrong bubble'); await tap(w.x,w.y); await sleep(150); }
       s=await state(); assert(s.hearts===0&&s.reveal===true,'hearts gone -> reveal'); const rt=await page.evaluate(()=>document.querySelector('#speech .say').textContent);
       assert(rt===t0.replace('?',String(a0)),'lost round shows the answer: '+rt);
-      await waitFor(x=>x.hearts===3&&!x.reveal,'round restarted',6000); }
+      s=await waitFor(x=>!x.reveal&&x.screen==='home'?x:null,'home after the failed level',6000); assert(!s.best.hard[10],'nothing recorded for the failed level');
+      await page.evaluate(()=>window.__bps.startRound(10)); await sleep(400); s=await state(); assert(s.screen==='play'&&s.hearts===3&&s.progress===0,'the level starts again from zero'); }
     await waitFor(x=>x.bubbles.some(b=>b.bomb),'a bomb',30000); await page.screenshot({path:path.join(outDir,'math-hard.png')});
     await playRound(10); s=await state(); assert(s.best.hard[10]>=1,'hard r10 stars'); noErrors();
     console.log('PASS'); await browser.close(); process.exit(0);

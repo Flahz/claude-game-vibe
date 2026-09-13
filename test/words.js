@@ -66,7 +66,8 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
     assert(await page.evaluate(()=>!!document.querySelector('#speech .icons .gb img')),'reveal shows the picture');
     assert(s.bubbles.some(b=>b.isTarget&&b.glow),'right bubbles glow during the reveal');
     await page.screenshot({path:path.join(outDir,'words-reveal.png')});
-    await waitFor(x=>!x.reveal,'reveal over',5000); s=await state(); assert(s.problem.key!==k0,'new word after the reveal'); assert(s.progress===0,'no progress from the reveal'); assert(s.hearts===3,'round restarted with three hearts');
+    s=await waitFor(x=>!x.reveal&&x.screen==='home'?x:null,'home after the failed level',5000); assert(s.unlocked.length===0,'nothing recorded for the failed level');
+    await tapEl('[data-testid="play"]'); await sleep(300); s=await state(); assert(s.screen==='play'&&s.round===1&&s.hearts===3&&s.progress===0&&s.problem&&s.problem.kind==='pic','the level starts again from zero with three hearts');
     let ch=await playRound(1,'pic'); assert(ch>=2,'word changes after correct pops: '+ch); s=await state(); assert(s.best.easy[1]===3,'r1 done');
     await sleep(900); await page.screenshot({path:path.join(outDir,'words-celebrate.png')}); await tapEl('[data-testid="home"]'); await sleep(200);
 
@@ -105,7 +106,8 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
     for(let i=0;i<2;i++){ const wb2=await waitFor(x=>x.bubbles.find(b=>!b.isTarget&&!b.bomb&&visible(b)),'wrong bubble'); await tap(wb2.x,wb2.y); await sleep(150); }
     s=await state(); assert(s.hearts===0&&s.reveal===true,'hearts gone -> reveal, got '+JSON.stringify({h:s.hearts,r:s.reveal}));
     txt=await say(); assert(txt===wordBefore,'reveal shows the failed word'); await page.screenshot({path:path.join(outDir,'words-lost.png')});
-    await waitFor(x=>x.hearts===3&&!x.reveal,'round restarted',6000); s=await state(); assert(s.progress===0,'restart from zero');
+    s=await waitFor(x=>!x.reveal&&x.screen==='home'?x:null,'home after the failed level',6000); assert(!s.best.hard[2],'nothing recorded for the failed level');
+    await page.evaluate(()=>window.__bps.startRound(2)); await sleep(400); s=await state(); assert(s.screen==='play'&&s.hearts===3&&s.progress===0,'the level starts again from zero');
     await playRound(2,'pic'); s=await state(); assert(s.best.hard[2]>=1,'hard r2 stars'); await tapEl('[data-testid="home"]'); await sleep(200);
 
     step='8-expert'; await page.evaluate(()=>window.__bps.setDifficulty('expert')); await page.evaluate(()=>window.__bps.startRound(10)); await sleep(400); s=await state();
