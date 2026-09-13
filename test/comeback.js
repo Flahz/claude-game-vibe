@@ -47,15 +47,21 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
   const isRight=(s,b)=> s.mode==='math'&&s.problem ? b.num===s.problem.answer : s.mode==='words'&&s.problem ? b.key===s.problem.key : b.isTarget;
   let hudB=0;
   const near=(s,b,o)=>o.id!==b.id&&Math.hypot(o.x-b.x,o.y-b.y)<o.r+b.r+14;
-  const pickWrong=s=>{ const c=s.bubbles.filter(b=>!isRight(s,b)&&!b.bomb&&visible(b));
+  // a tap selects the bubble whose centre is nearest to it, so a wrong bubble's own centre always selects that bubble; the
+  // lone/safe preferences only cover the drift between reading the state and the tap landing. Free play keeps about half the
+  // bubbles on target, so the screen can stay crowded for several seconds: once it has, any wrong bubble well clear of the
+  // owl's pill will do (`low` is the guard that matters, since a bubble hidden under the pill is absent from state()).
+  const pickWrong=(s,loose)=>{ const c=s.bubbles.filter(b=>!isRight(s,b)&&!b.bomb&&visible(b));
     const lone=b=>!s.bubbles.some(o=>near(s,b,o)), safe=b=>!s.bubbles.some(o=>near(s,b,o)&&(isRight(s,o)||o.bomb)), low=b=>b.y>hudB+b.r*2+20;
-    return c.find(b=>lone(b)&&low(b)) || c.find(b=>safe(b)&&low(b)) || null; };
+    return c.find(b=>lone(b)&&low(b)) || c.find(b=>safe(b)&&low(b)) || (loose ? c.find(low) : null); };
   const pickRight=s=>{ const c=s.bubbles.filter(b=>isRight(s,b)&&!b.bomb&&visible(b)).sort((a,b)=>b.y-a.y);
     const lone=b=>!s.bubbles.some(o=>o.id!==b.id&&Math.hypot(o.x-b.x,o.y-b.y)<(o.r+b.r)*0.95);
     return c.find(lone) || c[0]; };
   async function tapWrong(){ // tap a wrong bubble until the game counted it; re-read the state before every try
     if(!hudB) hudB=await page.evaluate(()=>document.querySelector('#guide').getBoundingClientRect().bottom);
-    for(let i=0;i<60;i++){ const s0=await state(); assert(!s0.reveal,'tapping while revealing'); const b=pickWrong(s0); if(!b){ await sleep(120); continue; }
+    const t0=Date.now();   // bubbles rise slowly and spawn on a timer, so wait on the clock rather than on a number of tries
+    while(Date.now()-t0<25000){ const s0=await state(); assert(!s0.reveal,'tapping while revealing');
+      const b=pickWrong(s0, Date.now()-t0>8000); if(!b){ await sleep(120); continue; }
       await tap(b.x,b.y);
       const s1=await waitFor(s=>(s.wrongTries!==s0.wrongTries||s.hearts!==s0.hearts||s.reveal||s.progress!==s0.progress)?s:null,'a counted wrong tap',700,40).catch(()=>null);
       if(!s1) continue;   // the bubble moved away or had just left: try another
@@ -63,7 +69,8 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
       return s1; }
     throw new Error(`[${step}] no wrong bubble could be tapped`); }
   async function tapRight(){ // pop the right bubble; in free play the bar wraps round, so wait for the question to move on
-    for(let i=0;i<60;i++){ const s0=await state(); const b=pickRight(s0); if(!b){ await sleep(120); continue; }
+    const t0=Date.now();
+    while(Date.now()-t0<25000){ const s0=await state(); const b=pickRight(s0); if(!b){ await sleep(120); continue; }
       await tap(b.x,b.y);
       const s1=await waitFor(s=>(!sameQ(s.problem,s0.problem)&&s.progress!==s0.progress)?s:null,'a popped target',700,40).catch(()=>null);
       if(s1){ await sleep(150); return state(); }   // a couple of frames so the bubbles' target flags follow the new question

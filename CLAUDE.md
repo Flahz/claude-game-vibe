@@ -64,7 +64,7 @@ it does not belong here.
   all with `NODE_PATH=/opt/node22/lib/node_modules node test/<name>.js http://127.0.0.1:8951 <outDir>`.
   A change to a mode needs its test updated in the same commit.
 - The test hook `window.__bps` (`state()`, `startRound(n)`, `setMode()`, `setDifficulty()`,
-  `setLanguage()`, `resetProgress()`) is the contract the tests use; keep it working.
+  `setLanguage()`, `unlockAll()`, `resetProgress()`) is the contract the tests use; keep it working.
 - Check the layout on a small phone (iPhone SE), a normal one (Pixel 5) and a tablet; the home screen
   must never scroll.
 - Also republish the Claude artifact (same URL) with the art inlined as data URIs when the game changes.
