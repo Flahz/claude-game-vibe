@@ -16,6 +16,8 @@ Each mode keeps its own sticker book and stars.
 
 **The learning rule.** The game never shows the answer while the child is still trying: no hints, no translations, no name tags on the bubbles. The answer appears only after a failure, so a mistake becomes a lesson: when the three hearts run out (or, in free play, after three wrong tries on one question), the owl's bubble shows the full answer (the word with its picture and English meaning, the equation with its result, or the animals goal with its bubble), the right bubbles glow for a couple of seconds, and then play goes on. This applies to every mode.
 
+**The one you missed comes back.** In math and words, the question the owl had to answer for the child is asked again shortly after, so the correction is something the child answers rather than only looks at: it is the first question when the lost level is played again, and in free play the second question after the reveal. It comes back exactly like any other question - no toast, no colour, no icon, no glow - so a child who just lost is quietly given a chance to show they remember, never reminded that they failed. It is asked once, it is only kept in memory (never saved), and changing mode, difficulty or language forgets it.
+
 Three difficulties, picked with the three buttons under Play:
 
 | | Mode | What changes |
@@ -76,6 +78,7 @@ ngrok http 8080                  # terminal 2, copy the https URL
 | `test/lives.js` | Playwright test for the three lives in easy, all modes: every wrong tap costs a heart, a right pop does not give one back, the third miss reveals the answer exactly once and ends the level (home screen, nothing recorded, Play restarts it from zero), nothing given away during play. |
 | `test/hard.js` | Playwright test for hard and expert mode: hearts, bombs, the failed level, stars, ordered goals, timer, colour shifts. |
 | `test/math.js` | Playwright test for math mode: every round kind, answers checked, the dots drawn for easy sums (and none for missing numbers, times tables, sums over 10 or hard), nothing given away during play, the reveal after three misses, separate progress, hard mode with hearts and bombs. |
+| `test/comeback.js` | Playwright test for "the one you missed comes back" in free play: three wrong tries reveal the answer, the same question returns one question later, unmarked and only once, and the memory survives the home screen but is dropped on a mode, difficulty or language change. |
 | `test/words.js` | Playwright test for words mode: language picker, picture and color rounds, reverse rounds, no answer on screen while playing, the reveal after three wrong tries and after a lost round, separate progress, expert. |
 | `CLAUDE.md` | The purpose of the app and the rules every change must follow (the learning rule above, art, tests, deployment). |
 | `screenshots/` | Home screen, rounds in each mode, a celebration. |

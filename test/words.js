@@ -67,7 +67,19 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
     assert(s.bubbles.some(b=>b.isTarget&&b.glow),'right bubbles glow during the reveal');
     await page.screenshot({path:path.join(outDir,'words-reveal.png')});
     s=await waitFor(x=>!x.reveal&&x.screen==='home'?x:null,'home after the failed level',5000); assert(s.unlocked.length===0,'nothing recorded for the failed level');
+    // the one you missed comes back: the home screen keeps the failed word in mind (in memory only, never saved) and the level asks it first
+    assert(s.comeback&&s.comeback.key===k0&&s.comeback.in===0,'the missed word is remembered on the home screen: '+JSON.stringify(s.comeback));
+    assert(!(await page.evaluate(()=>localStorage.getItem('bps.v3')||'')).includes('comeback'),'the missed word is never saved');
     await tapEl('[data-testid="play"]'); await sleep(300); s=await state(); assert(s.screen==='play'&&s.round===1&&s.hearts===3&&s.progress===0&&s.problem&&s.problem.kind==='pic','the level starts again from zero with three hearts');
+    assert(s.problem.key===k0,'the missed word is the first question of the new attempt: '+s.problem.key+' vs '+k0);
+    assert(s.comeback===null,'it is asked once and then forgotten'); assert(s.wrongTries===0,'a fresh count of tries');
+    // and it is unmarked: the foreign word alone with its "?" bubble, no english word, no glowing bubble, nothing saying "you missed this one"
+    check(s,'pic'); assert((await say())===s.problem.word,'the owl shows the word only: '+(await say()));
+    assert(await page.evaluate(()=>!document.querySelector('#speech .en')),'no english word on the come-back question');
+    assert(await page.evaluate(()=>document.querySelector('#speech .icons .q')?.textContent==='?'),'question mark, no picture hint');
+    assert(await page.evaluate(()=>[...document.querySelector('#speech').children].map(e=>e.className).join(','))==='say words,icons','the owl bubble looks like any other question');
+    assert(s.bubbles.every(b=>!b.glow),'no bubble glows on the come-back question');
+    await page.screenshot({path:path.join(outDir,'words-comeback.png')});
     let ch=await playRound(1,'pic'); assert(ch>=2,'word changes after correct pops: '+ch); s=await state(); assert(s.best.easy[1]===3,'r1 done');
     await sleep(900); await page.screenshot({path:path.join(outDir,'words-celebrate.png')}); await tapEl('[data-testid="home"]'); await sleep(200);
 

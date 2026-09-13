@@ -551,6 +551,9 @@ function starPath(x,y,R,r,rot){
 let screen='home', round=1, progress=0, goal=3, cur=ROUNDS[0], seq=null, prob=null;
 let hearts=0, mistakes=0, timeLeft=0, shake=0, bombT=0, revealT=0, afterReveal=null, wrongTries=0;
 let bubbles=[], fx=[], confetti=[], uid=0, spawnT=0, t=0, nextIn=0, doneIn=0, celebrateAt=0, resume=null;
+/* the one the child missed: a math or words question the owl had to reveal comes back once, unmarked, so the child can show they
+   remember it. {prob, in, round}: `in` counts the questions still to ask before it returns (0 = next one). Memory only, never saved. */
+let comeback=null;
 function nextUnfinished(){ for(let i=1;i<=10;i++) if(!best[diff][i]) return i; return 0; }
 /* ordered goals: in hard/expert the later rounds alternate between two (or three) targets */
 function buildSeq(){
@@ -613,7 +616,11 @@ function wrongItem(){
   }
   return cur.set.find(x=>x.type+':'+x.key!==prob.key);
 }
-function nextQuestion(){ wrongTries=0; for(const b of bubbles) b.glow=false; if(cur.math) newProblem(); else if(cur.words) newWord(); }
+function nextQuestion(){
+  wrongTries=0; for(const b of bubbles) b.glow=false;
+  if(comeback){ if(comeback.in<=0){ prob=comeback.prob; comeback=null; return; } comeback.in--; }   // the missed one, asked like any other question
+  if(cur.math) newProblem(); else if(cur.words) newWord();
+}
 function isTargetNow(b){ return !b.bomb && (cur.math ? b.num===prob.ans : cur.words ? b.wkey===prob.key : matches(b.color,b.animal)); }
 function matches(color,animal){ const g=tgt(); return (!g.color||g.color===color) && (!g.animal||g.animal===animal); }
 function bubbleRadius(){ return Math.round((clamp(W*0.125,42,54) - (cur.free?4:(round-1)*0.8) + (cur.words?6:0))*D.size); }
@@ -786,11 +793,11 @@ function renderBook(){
 }
 function roundFor(n){ return mode==='math' ? mathRound(n) : mode==='words' ? wordRound(n) : ROUNDS[n-1]; }
 function setLanguage(l, quiet){
-  if(!LANGS[l]) return; const changed=l!==lang; lang=l; save(); renderBook();
+  if(!LANGS[l]) return; const changed=l!==lang; lang=l; if(changed) comeback=null; save(); renderBook();
   if(changed && !quiet){ sfx.tick(); toast(LANGS[l].name+'!', 1000); }
 }
 function setMode(m, quiet){
-  if(!MODES.includes(m)) return; const changed=m!==mode; mode=m; best=bestAll[m]; save();
+  if(!MODES.includes(m)) return; const changed=m!==mode; mode=m; best=bestAll[m]; if(changed) comeback=null; save();
   if(screen==='home'){ round=nextUnfinished()||1; cur=roundFor(round); goal=cur.count; progress=0; }
   renderBook();
   if(changed && !quiet){ sfx.tick(); toast(m==='math' ? 'Math!' : m==='words' ? 'Words!' : 'Animals!', 1000); }
@@ -798,7 +805,7 @@ function setMode(m, quiet){
 function renderMute(){ els.mute.innerHTML=artTag(muted?'mute':'sound'); els.mute.setAttribute('aria-label', muted?'Sound off':'Sound on'); els.mute.setAttribute('aria-pressed', String(muted)); }
 function toggleMute(){ muted=!muted; save(); renderMute(); music.volume(); if(!muted) sfx.tick(); }
 function setDifficulty(d, quiet){
-  if(!DIFFS[d]) return; const changed=d!==diff; diff=d; D=DIFFS[d]; save();
+  if(!DIFFS[d]) return; const changed=d!==diff; diff=d; D=DIFFS[d]; if(changed) comeback=null; save();
   if(screen==='home'){ round=nextUnfinished()||1; cur=roundFor(round); goal=cur.count; progress=0; }
   renderBook();
   if(changed && !quiet){ sfx.tick(); toast(D.phrase, 1100); }
@@ -818,6 +825,7 @@ function beginPlay(r0){
   nextIn=0; doneIn=0; resume=null; shake=0;
   seq=buildSeq(); goal=cur.free?cur.count:cur.count+(seq?seq.length-1:0);
   progress=r0?r0.progress:0; hearts=r0?r0.hearts:D.hearts; mistakes=r0?r0.mistakes:0; timeLeft=D.timer;
+  if(r0 || (comeback && comeback.round!==round)) comeback=null;   // the missed question waits for the same level started afresh, not for a resume or another round
   bubbles=[]; fx=[]; spawnT=0.3; bombT=0; revealT=0; afterReveal=null; wrongTries=0; screen='play'; prob=null; nextQuestion();
   showScreens(['hud']); renderGoal(); updateBar(); renderHearts(); renderTimer(); measureHud();
   seedBubbles();
@@ -840,7 +848,7 @@ function starsFor(){ if(diff==='easy') return 3; return mistakes===0?3:(mistakes
 function unlockNow(){ if(!cur.free){ const s=starsFor(); if(!isUnlocked(round)) justEarned=round; if((best[diff][round]||0)<s){ best[diff][round]=s; save(); } } }
 function completeRound(){
   if(screen!=='play') return;
-  screen='celebrate'; celebrateAt=t;
+  screen='celebrate'; celebrateAt=t; comeback=null;   // the round is won: nothing left to come back
   const final = !cur.free && round===10;
   unlockNow();
   const stars=starsFor();
@@ -879,6 +887,10 @@ function answerHtml(){
 }
 function revealAnswer(secs, then){
   const h=answerHtml(); if(!h){ then(); return; }
+  // the question the child just missed comes back once, so the correction is answered rather than only looked at: first question when the
+  // lost level is played again, and in free play (no hearts, play goes straight on) the second question after the reveal. It is asked
+  // exactly like any other question - nothing marks it - and a come-back missed again is not queued once more, so nobody loops on one word.
+  if((cur.math||cur.words) && prob && !prob.back) comeback={ prob:Object.assign({}, prob, {back:true}), in:cur.free?1:0, round };
   els.speech.innerHTML=h; els.speech.classList.remove('pop'); void els.speech.offsetWidth; els.speech.classList.add('pop'); guideTalk();
   for(const b of bubbles) if(b.isTarget) b.glow=true;
   revealT=secs; afterReveal=then;
@@ -1079,6 +1091,7 @@ window.__bps = {
   state(){ const g=tgt(); return {
     screen, round, progress, goal, difficulty:diff, mode, language:lang, hearts, mistakes, timeLeft:Math.round(timeLeft*10)/10, music:music.mode(),
     reveal: revealT>0, wrongTries,
+    comeback: comeback ? (comeback.prob.words ? { key:comeback.prob.key, in:comeback.in } : { text:comeback.prob.text, in:comeback.in }) : null,
     problem: prob ? (prob.words ? { kind:prob.kind, text:prob.text, word:prob.word, en:prob.en, key:prob.key } : { kind:prob.kind, text:prob.text, answer:prob.ans, a:prob.a, b:prob.b }) : null,
     target: Object.assign({}, g.color?{color:g.color}:{}, g.animal?{animal:g.animal}:{}, {count:goal}),
     sequence: seq ? seq.slice() : null,
@@ -1090,7 +1103,8 @@ window.__bps = {
   setDifficulty(d){ setDifficulty(d, true); },
   setMode(m){ setMode(m, true); },
   setLanguage(l){ setLanguage(l, true); },
-  resetProgress(){ bestAll=emptyBest(); best=bestAll[mode]; resume=null; if(screen==='home'){ round=1; cur=roundFor(1); goal=cur.count; progress=0; } save(); renderBook(); }
+  unlockAll(){ for(let i=1;i<=10;i++) best[diff][i]=3; save(); renderBook(); },
+  resetProgress(){ bestAll=emptyBest(); best=bestAll[mode]; resume=null; comeback=null; if(screen==='home'){ round=1; cur=roundFor(1); goal=cur.count; progress=0; } save(); renderBook(); }
 };
 })();
 </script>

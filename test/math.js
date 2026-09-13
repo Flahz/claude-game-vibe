@@ -83,7 +83,17 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
       assert(rt===t0.replace('?',String(a0)),'reveal shows the equation with its answer: '+rt); await page.screenshot({path:path.join(outDir,'math-reveal.png')});
       { const d=await dom(); assert(d.dots===pa+pb&&d.b===pb&&d.gone===0,'the reveal keeps the same dots: '+JSON.stringify(d)); assert(d.q.length===1&&d.q[0]===String(a0),'the reveal adds the answer bubble: '+JSON.stringify(d.q)); }
       s=await waitFor(x=>!x.reveal&&x.screen==='home'?x:null,'home after the failed level',5000); assert(s.unlocked.length===1&&s.unlocked[0]===1,'nothing recorded for the failed level');
-      await page.evaluate(()=>window.__bps.startRound(3)); await sleep(300); s=await state(); assert(s.screen==='play'&&s.round===3&&s.hearts===3&&s.progress===0,'the level starts again from zero with three hearts'); }
+      // the one you missed comes back: the home screen keeps the failed sum in mind (in memory only, never saved) and the level asks it first
+      assert(s.comeback&&s.comeback.text===t0&&s.comeback.in===0,'the missed sum is remembered on the home screen: '+JSON.stringify(s.comeback));
+      assert(!(await page.evaluate(()=>localStorage.getItem('bps.v3')||'')).includes('comeback'),'the missed sum is never saved');
+      await page.evaluate(()=>window.__bps.startRound(3)); await sleep(300); s=await state(); assert(s.screen==='play'&&s.round===3&&s.hearts===3&&s.progress===0,'the level starts again from zero with three hearts');
+      assert(s.problem.text===t0&&s.problem.answer===a0,'the missed sum is the first question of the new attempt: '+s.problem.text+' vs '+t0);
+      assert(s.comeback===null,'it is asked once and then forgotten'); assert(s.wrongTries===0,'a fresh count of tries');
+      // and it is unmarked: the same dots and "?" as any other question, no english word, no glowing bubble, nothing saying "you missed this one"
+      await dotsOk(s); assert(!(await page.evaluate(()=>!!document.querySelector('#speech .en'))),'nothing extra in the owl bubble');
+      assert(await page.evaluate(()=>[...document.querySelector('#speech').children].map(e=>e.className).join(','))==='say math,icons','the owl bubble looks like any other question');
+      assert(s.bubbles.every(b=>!b.glow),'no bubble glows on the come-back question');
+      await page.screenshot({path:path.join(outDir,'math-comeback.png')}); }
     ch=await playRound(3,'math-add.png'); assert(ch>=2,'add changes '+ch); await tapEl('[data-testid="home"]'); await sleep(200);
     step='4-sub'; await page.evaluate(()=>window.__bps.startRound(5)); await sleep(300); s=await state(); assert(s.problem.kind==='sub','sub kind');
     // easy round 5 subtracts from at most 10: a dots with the last b faded, the child counts the bright ones
