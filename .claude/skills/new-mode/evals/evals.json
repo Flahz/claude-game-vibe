@@ -1,0 +1,59 @@
+{
+  "skill_name": "new-mode",
+  "evals": [
+    {
+      "id": 0,
+      "name": "named-subject-letters",
+      "prompt": "add a letters mode to the game, like the math and words ones but for the alphabet and first sounds, with the harder rounds for the older kids. do the whole thing: icon, rounds, test, readme, ship it to main. don't ask me anything",
+      "expected_output": "A fourth mode button (Letters, custom icon) with ten rounds that climb from finding a letter to first sounds and alphabet order, easy playable without reading, wrong bubbles that are look-alike letters; nothing on screen gives the answer away, the reveal after a failure shows the letter with its word and picture; test/letters.js passes with the whole suite; sw.js cache bumped, README and manifest updated, design record under decisions/; main fast-forwarded and pushed; report with the ladder and no question.",
+      "files": [],
+      "assertions": [
+        "main on origin advanced past the base commit and the working clone is left clean (no mode/* branch, no extra worktree)",
+        "all Playwright tests in test/ pass on origin's main, including a new test for the mode",
+        "index.html has a fourth entry in MODES and a matching data-mode button with a custom art/<id>.webp icon (208x208, not an emoji)",
+        "the mode has ten round definitions whose content escalates with the round and with the difficulty (easy/hard/expert differ)",
+        "during a round nothing on screen gives the answer away, and the new test checks it for every round kind",
+        "after the third miss the answer is revealed through revealAnswer()/answerHtml() and the test checks the reveal content",
+        "wrong bubbles are plausible neighbours of the answer (look-alike letters, adjacent letters), not uniformly random",
+        "the home screen does not scroll on an iPhone SE with four mode buttons (a screenshot or check was made)",
+        "sw.js CACHE bumped exactly once and the new art listed in FILES",
+        "README.md games table has the new row, manifest description mentions the subject, decisions/ has a design record",
+        "final report names the mode, the ladder and how the learning rule holds, and asks no question"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "open-pick-harder-subject",
+      "prompt": "I want another game in bubble pop safari. Something new to learn, harder than what's there, for the older kids too. Pick it yourself, build the full mode and push it live.",
+      "expected_output": "The skill picks a subject not already in the game (not a re-skin of animals, math or words), designs a ten-round ladder with difficulty escalation, builds and wires the mode with its icon and test, verifies on three devices with the learning-rule review, releases to main and republishes the artifact, and reports the ladder without asking a question.",
+      "files": [],
+      "assertions": [
+        "main on origin advanced past the base commit and the working clone is left clean (no mode/* branch, no extra worktree)",
+        "all Playwright tests in test/ pass on origin's main, including a new test for the mode",
+        "the subject is new: not another language, not bigger numbers or another arithmetic operation, not colours/animals",
+        "index.html has a fourth entry in MODES and a matching data-mode button with a custom art/<id>.webp icon (208x208, not an emoji)",
+        "the mode has ten round definitions whose content escalates with the round and with the difficulty (easy/hard/expert differ)",
+        "easy round 1 is playable without reading (a picture, dots, a digit or a single letter as the prompt)",
+        "during a round nothing on screen gives the answer away, and the new test checks it",
+        "after the third miss the answer is revealed through revealAnswer()/answerHtml()",
+        "sw.js CACHE bumped exactly once and the new art listed in FILES",
+        "README.md games table has the new row and decisions/ has a design record",
+        "final report names the mode, the ladder and how the learning rule holds, and asks no question"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "design-only-clock",
+      "prompt": "design a clock mode for bubble pop safari (telling the time, like the math and words modes) but don't build anything yet, i just want the design first: the ten rounds for easy/hard/expert, what the bubbles show, what the owl says, and how it stays fair so nothing gives the answer away",
+      "expected_output": "A design record for a telling-the-time mode is printed: ten rounds with easy/hard/expert asks, what bubbles carry (clock faces), the owl's prompt (digital time, never the analog face when bubbles are analog), the reveal, the learning-rule check per kind, art and test plan. Nothing is built, committed or pushed.",
+      "files": [],
+      "assertions": [
+        "the working tree and every branch are unchanged (no new commits, no worktrees, no decisions/ file, no art file)",
+        "the final message contains a design record with a ten-row ladder giving easy, hard and expert asks per round",
+        "the record says what a target bubble and a wrong bubble carry and how wrong bubbles are chosen",
+        "the record has a learning-rule check per round kind and the prompt never shows the same representation the bubbles carry",
+        "final report asks no question"
+      ]
+    }
+  ]
+}
