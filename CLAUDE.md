@@ -14,11 +14,14 @@ it does not belong here.
    no name tag on the bubble that matches the question, no highlighted "right" bubble, no hint that
    appears after a few seconds. The child has to think, remember, count, or guess.
 2. **Reveal the answer only after a failure, so the child can learn from it.** A failure is:
-   - losing the round (all hearts gone in hard or expert), or
-   - in modes without hearts (easy, free play), three wrong tries on the same question.
+   - losing a question: three wrong tries on the same question (easy, free play; in Animals "the same
+     question" is the goal since the last right pop). In easy this also costs one of the three hearts:
+     a heart goes when the owl shows you the answer, never for a single slip of the finger; or
+   - losing the round (all hearts gone: in hard or expert a wrong tap, a bomb or a timeout costs a heart).
    At that moment the owl's bubble shows the full answer (the word with its picture and English meaning,
-   the equation with its result), the correct bubbles glow, taps are ignored for a couple of seconds, and
-   then play continues (a new question, or the round restarts with full hearts).
+   the equation with its result, the animals goal with its bubble), the correct bubbles glow, taps are
+   ignored for a couple of seconds, and then play continues (a new question with the bar kept, or, with
+   no hearts left, the same round restarts with full hearts and nothing recorded).
 3. **A correct answer may be celebrated.** After a right pop it is fine to show the word or number that
    was just popped; that is reinforcement, not a giveaway.
 4. Any new mode (letters, shapes, another language, anything) follows the same three points. Put the
@@ -30,14 +33,15 @@ it does not belong here.
   the animals mode, no dead ends, no game over, no ads, no network calls, works offline.
 - **No voice.** Instructions are on screen as short bold text in the owl's bubble, with color words in
   their color. Feedback is big pop-up words ("Round 3", "Oops!", "Try again!", "Look!").
-- **Never punish, always continue.** Wrong taps wiggle. Losing hearts restarts the round. Progress and
-  stickers are never taken away.
+- **Never punish, always continue.** Wrong taps wiggle. Losing all three hearts restarts the round.
+  Progress and stickers are never taken away, and nothing about hearts is ever shown on the home screen.
 - **Custom art only.** All characters and interface icons are generated with Higgsfield and cut out into
   small webp files in `art/` (208px). Emoji are used only as a fallback while an image loads. New art goes
   through the same pipeline and into the service worker file list.
-- **Three difficulties, same rounds.** Easy = the gentle original. Hard/expert add speed, hearts, bombs,
-  ordered goals, a timer, colour-shifting bubbles. A difficulty must never remove learning, only add
-  challenge.
+- **Three difficulties, same rounds, three hearts each.** Easy = the gentle original: a heart is lost only
+  when a question is lost (three wrong taps on it), and easy never records stars. Hard/expert add speed,
+  a heart per wrong tap, bombs, ordered goals, a timer, colour-shifting bubbles. A difficulty must never
+  remove learning, only add challenge.
 - **Each mode keeps its own stickers and stars** (save format `bps.v3`, migrate older formats, never
   wipe a child's progress).
 - **Music and sounds are generated with Web Audio.** No audio files. The sound button mutes everything.
