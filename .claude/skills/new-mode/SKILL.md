@@ -179,9 +179,10 @@ Things the wiring reference says that are worth saying twice:
   mechanisms breaks the next run.
 - If your bubbles carry short text (a letter, a time, a symbol), generalize the number
   drawing in `drawBubble` to a string label rather than copying it. If they carry a
-  drawing (a shape, a clock face), add a small canvas function and cache nothing per
-  frame; `test/hard.js` fails under 40 fps on expert round 10 with every mode's bubbles
-  on screen at once, and a mode that draws with `measureText` per frame will fail it.
+  drawing (a shape, a clock face), add a small canvas function that uses only paths and
+  allocates nothing per frame; `test/hard.js` measures the frame rate on expert round 10
+  and fails under 40 fps, and a bubble that calls `measureText` or builds objects every
+  frame drags every mode down on a cheap phone.
 - Distractors are the difficulty. A letters round whose wrong bubbles are random letters
   is a guessing game at any speed; wrong bubbles that are neighbours of the answer (the
   letters around it, the times ten minutes off, the shape with one more side) are the
