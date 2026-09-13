@@ -55,18 +55,18 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
     assert(await page.evaluate(()=>!document.querySelector('#speech .en')),'no english word while playing');
     assert(await page.evaluate(()=>document.querySelector('#speech .icons .q')?.textContent==='?'),'question mark, no picture hint');
     assert(['LEÓN','MONO','RANA','ELEFANTE'].includes(s.problem.word),'spanish animal word '+s.problem.word);
-    // wrong taps do nothing until the third: then the word is lost, the answer is revealed (a learning moment), a heart goes out and a new word follows
+    // every wrong tap costs a heart; the third loses the round: the answer is revealed (a learning moment), then the round restarts with a new word
     assert(s.hearts===3,'easy starts with 3 hearts, got '+s.hearts);
     const k0=s.problem.key;
-    for(let i=0;i<2;i++){ const w=await waitFor(x=>x.bubbles.find(b=>!b.isTarget&&!b.bomb&&visible(b)),'wrong bubble'); await tap(w.x,w.y); await sleep(150); s=await state(); assert(s.progress===0&&!s.reveal&&s.hearts===3,'wrong tap '+(i+1)+': no progress, no reveal, no heart'); }
+    for(let i=0;i<2;i++){ const w=await waitFor(x=>x.bubbles.find(b=>!b.isTarget&&!b.bomb&&visible(b)),'wrong bubble'); await tap(w.x,w.y); await sleep(150); s=await state(); assert(s.progress===0&&!s.reveal&&s.hearts===2-i,'wrong tap '+(i+1)+': no progress, no reveal, one heart down'); }
     await page.screenshot({path:path.join(outDir,'words-pic.png')});
     const w3=await waitFor(x=>x.bubbles.find(b=>!b.isTarget&&!b.bomb&&visible(b)),'wrong bubble'); await tap(w3.x,w3.y); await sleep(150); s=await state();
-    assert(s.reveal===true,'third wrong tap reveals'); assert(s.hearts===2,'the lost word costs a heart, hearts='+s.hearts); txt=await say(); assert(txt===s.problem.word,'reveal shows the word');
+    assert(s.reveal===true,'third wrong tap reveals'); assert(s.hearts===0,'the third miss empties the hearts, hearts='+s.hearts); txt=await say(); assert(txt===s.problem.word,'reveal shows the word');
     const en=await page.evaluate(()=>document.querySelector('#speech .en').textContent); assert(en===s.problem.en.toUpperCase(),'reveal shows the english word: '+en);
     assert(await page.evaluate(()=>!!document.querySelector('#speech .icons .gb img')),'reveal shows the picture');
     assert(s.bubbles.some(b=>b.isTarget&&b.glow),'right bubbles glow during the reveal');
     await page.screenshot({path:path.join(outDir,'words-reveal.png')});
-    await waitFor(x=>!x.reveal,'reveal over',5000); s=await state(); assert(s.problem.key!==k0,'new word after the reveal'); assert(s.progress===0,'no progress from the reveal');
+    await waitFor(x=>!x.reveal,'reveal over',5000); s=await state(); assert(s.problem.key!==k0,'new word after the reveal'); assert(s.progress===0,'no progress from the reveal'); assert(s.hearts===3,'round restarted with three hearts');
     let ch=await playRound(1,'pic'); assert(ch>=2,'word changes after correct pops: '+ch); s=await state(); assert(s.best.easy[1]===3,'r1 done');
     await sleep(900); await page.screenshot({path:path.join(outDir,'words-celebrate.png')}); await tapEl('[data-testid="home"]'); await sleep(200);
 

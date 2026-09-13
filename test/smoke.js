@@ -57,7 +57,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     noErrors();
 
     step = '4-wrong-tap';
-    // easy has three hearts too, but a slip of the finger costs nothing: no progress, no heart (only the third wrong tap on one goal does)
+    // easy has three lives too: a wrong tap costs a heart but never progress
     assert(st.hearts === 3, 'easy starts with 3 hearts, got ' + st.hearts);
     assert(await page.evaluate(() => document.querySelectorAll('#hearts .hp').length === 3 && getComputedStyle(document.querySelector('#row2')).display === 'flex'), 'three hearts visible in easy');
     let wrong = null;
@@ -68,8 +68,8 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
     await sleep(150);
     st = await state();
     assert(st.progress === before, `progress changed on wrong tap: ${before} -> ${st.progress}`);
-    assert(st.hearts === 3 && !st.reveal, `a first wrong tap in easy cost a heart: hearts=${st.hearts} reveal=${st.reveal}`);
-    assert(await page.evaluate(() => document.querySelectorAll('#hearts .hp.lost').length === 0), 'no heart drawn lost after one slip');
+    assert(st.hearts === 2 && !st.reveal, `a wrong tap in easy costs one heart: hearts=${st.hearts} reveal=${st.reveal}`);
+    assert(await page.evaluate(() => document.querySelectorAll('#hearts .hp.lost').length === 1), 'one heart drawn lost after a miss');
     noErrors();
 
     async function completeRound(expectedRound) {

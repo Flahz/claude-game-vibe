@@ -362,13 +362,12 @@ const WORDS_FREE = { free:true, words:true, kind:'any', set:WORDS[9].set, count:
 const wordOf = it => LANGS[lang][it.type][it.key].replace('·','');
 const MODES = ['safari','math','words'];
 /* difficulty: easy is the original game. hard/expert add bombs, ordered goals, speed, and (expert) a timer + colour-changing bubbles.
-   Every difficulty has three hearts. `grace` is how many wrong taps on one question the child gets before the question is lost:
-   in easy a slip of the finger is free and only the third wrong tap costs a heart (the owl then shows the answer);
-   in hard/expert every wrong tap costs one. */
+   Every difficulty has three lives: a wrong tap costs a heart, the third one loses the round (the owl shows the answer, then the
+   round starts over). `teach` (easy): a lost animals round also shows the goal and glows the right bubbles before the restart. */
 const DIFFS = {
-  easy:   { speed:1.00, size:1.00, extra:0, bombs:0,    hearts:3, grace:3, seqFrom:99, seq3From:99, timer:0,  shift:0,    ratio:0.45, minT:2, phrase:'Easy!' },
-  hard:   { speed:1.45, size:0.86, extra:3, bombs:0.18, hearts:3, grace:1, seqFrom:5,  seq3From:99, timer:0,  shift:0,    ratio:0.35, minT:2, phrase:'Hard! Watch out!' },
-  expert: { speed:1.85, size:0.76, extra:5, bombs:0.26, hearts:3, grace:1, seqFrom:3,  seq3From:7,  timer:22, shift:0.30, ratio:0.28, minT:1, phrase:'Expert! Be quick!' }
+  easy:   { speed:1.00, size:1.00, extra:0, bombs:0,    hearts:3, teach:true, seqFrom:99, seq3From:99, timer:0,  shift:0,    ratio:0.45, minT:2, phrase:'Easy!' },
+  hard:   { speed:1.45, size:0.86, extra:3, bombs:0.18, hearts:3, seqFrom:5,  seq3From:99, timer:0,  shift:0,    ratio:0.35, minT:2, phrase:'Hard! Watch out!' },
+  expert: { speed:1.85, size:0.76, extra:5, bombs:0.26, hearts:3, seqFrom:3,  seq3From:7,  timer:22, shift:0.30, ratio:0.28, minT:1, phrase:'Expert! Be quick!' }
 };
 const pick = a => a[(Math.random()*a.length)|0];
 const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
@@ -843,8 +842,8 @@ function completeRound(){
 }
 function nextRound(){ nextIn=0; if(screen!=='celebrate') return; if(round>=10) goHome(true); else startPlay(round+1); }
 function freeFill(){ confettiBurst(false); sfx.fanfare(); toast(pick(['Wow!','Super!','Pop pop pop!']), 1200); progress=0; updateBar(); }
-/* a failure costs a heart (in hard/expert any wrong tap, bomb or timeout; in easy a lost question, see onTap); with no hearts
-   left the round simply starts over (never a game over). Free play has no hearts. why==='look' means the reveal speaks, not a toast */
+/* a miss costs a heart (a wrong tap in any difficulty, a bomb or a timeout in hard/expert); with no hearts left the round simply
+   starts over (never a game over). Free play has no hearts. why==='look' means the reveal speaks, not a toast */
 function penalty(why){
   mistakes++;
   if(D.hearts<=0 || cur.free) return;
@@ -878,9 +877,9 @@ function loseRound(){
     toast('Try again!', 1400);
     seedBubbles();
   };
-  // math and words always show the failed question; animals only where a lost question is itself the lesson (easy). In hard/expert
+  // math and words always show the failed question; animals only in easy (D.teach), where the lost round is the lesson. In hard/expert
   // the goal was in front of the child all along and the round was lost to speed, bombs or the clock, so it restarts straight away
-  if(cur.math||cur.words||D.grace>1) revealAnswer(2.6, restart); else restart();
+  if(cur.math||cur.words||D.teach) revealAnswer(2.6, restart); else restart();
 }
 
 /* ---------- input ---------- */
@@ -893,7 +892,7 @@ function onTap(x,y){
     bubbles.splice(bubbles.indexOf(best),1); addBoom(best); sfx.boom(); guideOops(); penalty('bomb'); return;
   }
   if(best.isTarget){
-    bubbles.splice(bubbles.indexOf(best),1); addPop(best); wrongTries=0;   // a right pop forgives the slips before it (animals keep the same goal, so nextQuestion will not do it)
+    bubbles.splice(bubbles.indexOf(best),1); addPop(best); wrongTries=0;   // free play counts wrong tries per question; a right pop starts a fresh count
     if(progress<goal){
       progress++; updateBar(); sfx.pop(progress/goal); if(D.timer>0) timeLeft=Math.min(D.timer, timeLeft+4);
       if(progress>=goal){ if(cur.free) freeFill(); else { unlockNow(); doneIn=0.65; } }   // sticker is safe the moment the bar fills
@@ -904,13 +903,11 @@ function onTap(x,y){
     } else sfx.pop(1);
   } else {
     best.wig=0.7; sfx.wrong(); guideOops(); wrongTries++;
-    const noHearts=D.hearts<=0||cur.free, grace=noHearts?3:D.grace;   // wrong taps on one question before it counts as lost
-    if(wrongTries<grace){ mistakes++; toast('Oops!', 600); }   // a slip: the bubble wiggles, no heart (easy and free play only)
-    else if(grace>1){   // the question is lost: one heart goes out as the owl shows the answer, then a new question (animals: the same goal, strikes cleared)
-      if(!noHearts && hearts<=1) penalty('look');   // the last heart: loseRound() shows the answer once and restarts the round
-      else { penalty('look'); toast('Look!', 1000); revealAnswer(2.4, ()=>{ nextQuestion(); renderGoal(); }); }
+    if(D.hearts<=0||cur.free){   // free play has no hearts: three wrong tries on one question count as a failure, the owl shows the answer
+      if(wrongTries>=3){ penalty('look'); toast('Look!', 1000); revealAnswer(2.4, ()=>{ nextQuestion(); renderGoal(); }); }
+      else { mistakes++; toast('Oops!', 600); }
     }
-    else penalty('wrong');   // hard/expert: every wrong tap costs a heart; the answer is shown only when the round is lost
+    else penalty('wrong');   // a miss costs a heart in every difficulty; the third one loses the round and the owl shows the answer
   }
 }
 canvas.addEventListener('pointerdown', e=>{ e.preventDefault(); onTap(e.clientX, e.clientY); });

@@ -85,3 +85,10 @@ Acceptance criteria (the builder is held to these):
 The calm card at zero hearts (the reveal on a still screen, hearts refilling one by one, tap or auto-restart) is the
 runner-up every seat but the engineer wants; it is an S-to-M slice now that the per-question rule exists, if its test
 budget (hard.js step 4, the 6 s waits) is planned for.
+
+## Revised the same day, by the owner
+After the release the owner asked for the literal rule ("if you miss three times you're dead and lose a life"): in easy
+too, every wrong tap costs a heart and the third miss loses the round. Shipped as asked: the three-tap grace per question
+in easy is gone (free play, which has no hearts, keeps the three-tries reveal). A lost easy Animals round still shows the
+goal with the right bubbles glowing before the restart; hard and expert are unchanged; easy still records no stars. The
+parent's and teacher's objections to a heart per tap in easy stand in the record above as the risk to watch for.

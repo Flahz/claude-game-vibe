@@ -56,13 +56,13 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
     await sleep(900); await page.screenshot({path:path.join(outDir,'math-celebrate.png')}); await tapEl('[data-testid="home"]'); await sleep(200);
 
     step='3-add'; await page.evaluate(()=>window.__bps.startRound(3)); await sleep(300); s=await state(); assert(s.problem.kind==='add','add kind');
-    // three wrong taps on one question lose it: the answer is revealed and one of the three hearts goes out, then a new question comes
+    // every wrong tap costs a heart; the third loses the round: the answer is revealed, then the round restarts with three hearts and a new question
     assert(s.hearts===3,'easy starts with 3 hearts, got '+s.hearts);
     { const t0=s.problem.text, a0=s.problem.answer;
-      for(let i=0;i<3;i++){ const w=await waitFor(x=>x.bubbles.find(b=>!b.isTarget&&!b.bomb&&visible(b)),'wrong bubble'); await tap(w.x,w.y); await sleep(150); if(i<2){ s=await state(); assert(s.hearts===3&&!s.reveal,'wrong tap '+(i+1)+' is free'); } }
-      s=await state(); assert(s.reveal===true,'third wrong tap reveals'); assert(s.hearts===2,'the lost question costs a heart, hearts='+s.hearts); const rt=await page.evaluate(()=>document.querySelector('#speech .say').textContent);
+      for(let i=0;i<3;i++){ const w=await waitFor(x=>x.bubbles.find(b=>!b.isTarget&&!b.bomb&&visible(b)),'wrong bubble'); await tap(w.x,w.y); await sleep(150); if(i<2){ s=await state(); assert(s.hearts===2-i&&!s.reveal,'wrong tap '+(i+1)+' costs a heart, hearts='+s.hearts); } }
+      s=await state(); assert(s.reveal===true,'third wrong tap reveals'); assert(s.hearts===0,'the third miss empties the hearts, hearts='+s.hearts); const rt=await page.evaluate(()=>document.querySelector('#speech .say').textContent);
       assert(rt===t0.replace('?',String(a0)),'reveal shows the equation with its answer: '+rt); await page.screenshot({path:path.join(outDir,'math-reveal.png')});
-      await waitFor(x=>!x.reveal,'reveal over',5000); s=await state(); assert(s.progress===0,'no progress from the reveal'); }
+      await waitFor(x=>!x.reveal,'reveal over',5000); s=await state(); assert(s.progress===0,'no progress from the reveal'); assert(s.hearts===3&&s.round===3,'round restarted with three hearts'); }
     ch=await playRound(3,'math-add.png'); assert(ch>=2,'add changes '+ch); await tapEl('[data-testid="home"]'); await sleep(200);
     step='4-sub'; await page.evaluate(()=>window.__bps.startRound(5)); await sleep(300); s=await state(); assert(s.problem.kind==='sub','sub kind'); await playRound(5); await tapEl('[data-testid="home"]'); await sleep(200);
     step='5-miss'; await page.evaluate(()=>window.__bps.startRound(8)); await sleep(300); s=await state(); assert(s.problem.kind==='miss','miss kind'); await playRound(8,'math-missing.png'); await tapEl('[data-testid="home"]'); await sleep(200);

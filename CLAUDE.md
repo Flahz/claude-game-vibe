@@ -14,14 +14,13 @@ it does not belong here.
    no name tag on the bubble that matches the question, no highlighted "right" bubble, no hint that
    appears after a few seconds. The child has to think, remember, count, or guess.
 2. **Reveal the answer only after a failure, so the child can learn from it.** A failure is:
-   - losing a question: three wrong tries on the same question (easy, free play; in Animals "the same
-     question" is the goal since the last right pop). In easy this also costs one of the three hearts:
-     a heart goes when the owl shows you the answer, never for a single slip of the finger; or
-   - losing the round (all hearts gone: in hard or expert a wrong tap, a bomb or a timeout costs a heart).
+   - losing the round: every level in every difficulty has three lives, a wrong tap (in hard or expert also
+     a bomb or a timeout) costs a heart, and the third miss is dead; or
+   - in free play, which has no hearts, three wrong tries on the same question.
    At that moment the owl's bubble shows the full answer (the word with its picture and English meaning,
    the equation with its result, the animals goal with its bubble), the correct bubbles glow, taps are
-   ignored for a couple of seconds, and then play continues (a new question with the bar kept, or, with
-   no hearts left, the same round restarts with full hearts and nothing recorded).
+   ignored for a couple of seconds, and then play continues (the same round restarts with full hearts and
+   nothing recorded; in free play, a new question).
 3. **A correct answer may be celebrated.** After a right pop it is fine to show the word or number that
    was just popped; that is reinforcement, not a giveaway.
 4. Any new mode (letters, shapes, another language, anything) follows the same three points. Put the
@@ -38,10 +37,10 @@ it does not belong here.
 - **Custom art only.** All characters and interface icons are generated with Higgsfield and cut out into
   small webp files in `art/` (208px). Emoji are used only as a fallback while an image loads. New art goes
   through the same pipeline and into the service worker file list.
-- **Three difficulties, same rounds, three hearts each.** Easy = the gentle original: a heart is lost only
-  when a question is lost (three wrong taps on it), and easy never records stars. Hard/expert add speed,
-  a heart per wrong tap, bombs, ordered goals, a timer, colour-shifting bubbles. A difficulty must never
-  remove learning, only add challenge.
+- **Three difficulties, same rounds, three lives each.** Easy = the gentle original plus the three hearts
+  (a wrong tap costs one, the third restarts the round); easy never records stars. Hard/expert add speed,
+  bombs, ordered goals, a timer, colour-shifting bubbles. A difficulty must never remove learning, only add
+  challenge.
 - **Each mode keeps its own stickers and stars** (save format `bps.v3`, migrate older formats, never
   wipe a child's progress).
 - **Music and sounds are generated with Web Audio.** No audio files. The sound button mutes everything.

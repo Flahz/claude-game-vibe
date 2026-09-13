@@ -14,17 +14,17 @@ Three games, picked with the three buttons under the title:
 
 Each mode keeps its own sticker book and stars.
 
-**The learning rule.** The game never shows the answer while the child is still trying: no hints, no translations, no name tags on the bubbles. The answer appears only after a failure, so a mistake becomes a lesson: when a question is lost (three wrong tries on it, in easy and free play) or when the hearts run out, the owl's bubble shows the full answer (the word with its picture and English meaning, the equation with its result, or the animals goal with its bubble), the right bubbles glow for a couple of seconds, and then play goes on. This applies to every mode.
+**The learning rule.** The game never shows the answer while the child is still trying: no hints, no translations, no name tags on the bubbles. The answer appears only after a failure, so a mistake becomes a lesson: when the three hearts run out (or, in free play, after three wrong tries on one question), the owl's bubble shows the full answer (the word with its picture and English meaning, the equation with its result, or the animals goal with its bubble), the right bubbles glow for a couple of seconds, and then play goes on. This applies to every mode.
 
 Three difficulties, picked with the three buttons under Play:
 
 | | Mode | What changes |
 | --- | --- | --- |
-| 🐣 | Easy | The gentle original, with three hearts: a wrong tap only wiggles, and a heart goes out only when a question is lost (the third wrong tap on the same question, or in Animals since the last right pop), at the very moment the owl shows the answer. No timers, no bombs, no stars recorded. |
+| 🐣 | Easy | The gentle original, with three lives: a wrong tap wiggles the bubble and costs a heart; the third miss shows the answer and restarts the round. No timers, no bombs, no stars recorded. |
 | 🔥 | Hard | Faster, smaller and more bubbles. Three hearts: a wrong tap or a bomb costs one. Bomb bubbles to avoid. From round 5 the owl asks for two things in turn (a green bubble, then a pink one). |
 | ⚡ | Expert | Faster still. A timer bar that refills a little with every good pop; when it runs out you lose a heart. Some bubbles change colour every second, so they become the target only for a moment. Ordered goals from round 3, three-step goals from round 7. |
 
-Every level, in every difficulty, is played with three lives. Losing all three hearts shows the answer once and just restarts the round ("Try again!"); there is never a game over, and nothing about hearts is kept. Every round in hard and expert earns one to three stars (no mistakes = three), shown on the sticker book, and each difficulty keeps its own progress while the stickers are shared.
+Every level, in every difficulty, is played with three lives: miss three times and you are dead, which just means the owl shows the answer once and the round starts again ("Try again!"). There is never a game over, and nothing about hearts is kept. Every round in hard and expert earns one to three stars (no mistakes = three), shown on the sticker book, and each difficulty keeps its own progress while the stickers are shared.
 
 All the art is custom, generated with Higgsfield and cut out into small webp files in `art/`: the ten animals, the owl guide, the bomb, and every interface icon (play arrow, house, speaker, stars, hearts, pointing hand, trophy, chick, flame, lightning; the speech-bubble icon of the words game is drawn with a small script). No emoji are used except as a fallback while an image is still loading.
 
@@ -73,7 +73,7 @@ ngrok http 8080                  # terminal 2, copy the https URL
 | `.nojekyll` | Tells GitHub Pages to publish the files as they are. |
 | `serve.sh` | One‑command local server + ngrok tunnel + QR code. |
 | `test/smoke.js` | Playwright playthrough test (easy mode) used during development. |
-| `test/lives.js` | Playwright test for the three hearts in easy, all modes: slips cost nothing, the third wrong tap on a question costs a heart and reveals the answer, a right pop forgives earlier slips in Animals, losing the last heart reveals once and restarts the round, nothing given away during play. |
+| `test/lives.js` | Playwright test for the three lives in easy, all modes: every wrong tap costs a heart, a right pop does not give one back, the third miss reveals the answer exactly once and restarts the round with nothing recorded, nothing given away during play. |
 | `test/hard.js` | Playwright test for hard and expert mode: hearts, bombs, restart, stars, ordered goals, timer, colour shifts. |
 | `test/math.js` | Playwright test for math mode: every round kind, answers checked, wrong taps, separate progress, hard mode with hearts and bombs. |
 | `test/words.js` | Playwright test for words mode: language picker, picture and color rounds, reverse rounds, no answer on screen while playing, the reveal after three wrong tries and after a lost round, separate progress, expert. |
@@ -102,6 +102,6 @@ python3 -m http.server 8080
 NODE_PATH=/path/to/node_modules node test/smoke.js http://127.0.0.1:8080 /tmp/out "Pixel 5"
 ```
 
-`test/smoke.js` needs Playwright. It plays two rounds, checks a wrong tap costs neither progress nor a heart, reloads to check the stickers and mute setting persisted, and fails on any page error or external request. `test/hard.js` (same arguments minus the device) switches to hard, loses hearts to a wrong tap and a bomb, checks the round restarts, finishes round 1 with one star, plays an ordered round, then plays expert round 7 with the timer and colour-shifting bubbles, and measures the frame rate on expert round 10. `test/lives.js` plays easy in all three modes and checks the hearts: slips, lost questions, the reveal, the restart.
+`test/smoke.js` needs Playwright. It plays two rounds, checks a wrong tap costs a heart but no progress, reloads to check the stickers and mute setting persisted, and fails on any page error or external request. `test/hard.js` (same arguments minus the device) switches to hard, loses hearts to a wrong tap and a bomb, checks the round restarts, finishes round 1 with one star, plays an ordered round, then plays expert round 7 with the timer and colour-shifting bubbles, and measures the frame rate on expert round 10. `test/lives.js` plays easy in all three modes and checks the hearts: a heart per miss, the reveal on the third, the restart.
 
 The test hook `window.__bps` exposes `state()`, `startGame()`, `startRound(n)`, `setDifficulty('easy'|'hard'|'expert')`, `setMode('safari'|'math'|'words')`, `setLanguage('fr'|'es'|'it'|'de')` and `resetProgress()`.

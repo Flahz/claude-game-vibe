@@ -1,7 +1,7 @@
 // Usage: NODE_PATH=/opt/node22/lib/node_modules node lives.js <baseUrl> <outDir>
-// Three hearts on every level. In easy a heart goes out when a question is lost (the third wrong tap on it), the owl showing the
-// answer at that moment; the first two wrong taps are free. Losing the third heart shows the answer once, then the same round
-// restarts with full hearts and nothing recorded. Hard keeps a heart per wrong tap. Nothing on screen gives the answer away while playing.
+// Three lives on every level. In easy too, every wrong tap costs a heart and a right pop gives none back; the third miss shows
+// the answer once (the owl's bubble, the right bubbles glowing), then the same round restarts with full hearts and nothing recorded.
+// Nothing on screen gives the answer away while playing.
 const { chromium, devices } = require('playwright');
 const fs=require('fs'), path=require('path');
 const [baseUrl, outDir] = process.argv.slice(2);
@@ -70,65 +70,54 @@ const assert=(c,m)=>{ if(!c) throw new Error(`[${step}] ${m}`); };
     let s=await state(); assert(s.screen==='home'&&s.difficulty==='easy'&&s.mode==='math','easy math on home, got '+JSON.stringify({sc:s.screen,d:s.difficulty,m:s.mode}));
     assert(await page.evaluate(()=>getComputedStyle(document.querySelector('#row2')).display==='none'),'no hearts on the home screen'); noErrors();
 
-    // ---- easy math: a slip is free, the third wrong tap on one question costs a heart and shows the answer; the bar is kept
-    step='2-math'; s=await startRound(3); await assertHearts(3,'start'); assert(s.wrongTries===0,'no strikes at start'); await noGiveaway(s);
-    s=await tapRight(); assert(s.progress===1,'one right pop'); assert(s.wrongTries===0&&s.hearts===3,'right pop keeps hearts');
+    // ---- easy math: every miss costs a heart, the bar is kept; the third miss loses the round: one reveal, then the same round from zero
+    step='2-math'; s=await startRound(3); await assertHearts(3,'start'); await noGiveaway(s);
+    s=await tapRight(); assert(s.progress===1,'one right pop'); assert(s.hearts===3,'right pop keeps hearts');
     const mt0=s.problem.text, ma0=s.problem.answer;
-    for(let i=1;i<=2;i++){ s=await tapWrong(); assert(s.wrongTries===i,`strike ${i} counted, got ${s.wrongTries}`); assert(!s.reveal,'no reveal after wrong tap '+i); await assertHearts(3,'after wrong tap '+i);
-      assert(s.progress===1&&s.problem.text===mt0,'same question, progress kept'); await noGiveaway(s); }
+    for(let i=1;i<=2;i++){ s=await tapWrong(); assert(!s.reveal,'no reveal after miss '+i); await assertHearts(3-i,'after miss '+i);
+      assert(s.progress===1&&s.problem.text===mt0,'same question, bar kept'); await noGiveaway(s); }
     await page.screenshot({path:path.join(outDir,'lives-math-strikes.png')});
-    s=await tapWrong(); assert(s.reveal===true,'third wrong tap reveals'); await assertHearts(2,'third wrong tap');
+    s=await tapWrong(); assert(s.reveal===true,'the third miss reveals'); await assertHearts(0,'third miss');
     let txt=await say(); assert(txt===mt0.replace('?',String(ma0)),'reveal shows the equation with its answer: '+txt);
-    s=await glowSoon(); assert(s.progress===1,'progress kept through the reveal');
-    await sleep(400); await page.screenshot({path:path.join(outDir,'lives-math-reveal.png')});
-    // a fresh question follows (easy round 3 draws from so few numbers that the same equation can come up twice, so the cleared strikes are the signal)
-    s=await waitFor(x=>!x.reveal?x:null,'reveal over',5000); assert(s.problem&&Number.isInteger(s.problem.answer),'a question after the reveal'); assert(s.progress===1&&s.hearts===2&&s.wrongTries===0,'bar kept, one heart down, strikes cleared: '+JSON.stringify({p:s.progress,h:s.hearts,w:s.wrongTries}));
-    await noGiveaway(s); noErrors(); await goHome();
+    await glowSoon(); await sleep(400); await page.screenshot({path:path.join(outDir,'lives-math-reveal.png')});
+    s=await waitFor(x=>!x.reveal&&x.hearts===3?x:null,'round restarted',5000); assert(s.progress===0&&s.round===3&&s.screen==='play'&&s.wrongTries===0,'same round from zero: '+JSON.stringify({p:s.progress,r:s.round,sc:s.screen,w:s.wrongTries}));
+    assert(s.problem&&Number.isInteger(s.problem.answer),'a question after the restart'); await noGiveaway(s); noErrors(); await goHome();
     assert(await page.evaluate(()=>document.querySelectorAll('#book .slot .st img').length===0),'no stars shown in easy');
 
-    // ---- easy animals: the question is the goal since the last right pop; a right pop forgives earlier slips
+    // ---- easy animals: a miss costs a heart, a right pop does not give one back; the lost round shows the goal with the right bubbles glowing
     step='3-animals'; await page.evaluate(()=>window.__bps.setMode('safari')); s=await startRound(1); await assertHearts(3,'start'); await noGiveaway(s);
     const goalTxt=await say(); assert(/^Pop \d+ /.test(goalTxt),'goal text: '+goalTxt);
-    for(let i=1;i<=2;i++){ s=await tapWrong(); assert(s.wrongTries===i&&s.hearts===3&&!s.reveal,`strike ${i}: ${JSON.stringify({w:s.wrongTries,h:s.hearts,r:s.reveal})}`); }
-    s=await tapRight(); assert(s.progress===1,'right pop'); assert(s.wrongTries===0,'a right pop clears the strikes, got '+s.wrongTries); await assertHearts(3,'after right pop');
-    for(let i=1;i<=2;i++){ s=await tapWrong(); assert(s.wrongTries===i&&!s.reveal,`strike ${i} after the pop`); await assertHearts(3,'strike '+i+' after the pop'); await noGiveaway(s); }
-    s=await tapWrong(); assert(s.reveal===true,'third wrong since the last right pop reveals'); await assertHearts(2,'third strike');
+    s=await tapWrong(); assert(!s.reveal,'no reveal after a miss'); await assertHearts(2,'first miss');
+    s=await tapRight(); assert(s.progress===1,'right pop'); await assertHearts(2,'a right pop gives no heart back');
+    s=await tapWrong(); assert(!s.reveal,'no reveal after the second miss'); await assertHearts(1,'second miss'); await noGiveaway(s);
+    s=await tapWrong(); assert(s.reveal===true,'the third miss reveals'); await assertHearts(0,'third miss');
     s=await glowSoon(); assert(s.bubbles.every(b=>b.isTarget||!b.glow),'only targets glow');
-    txt=await say(); assert(txt===goalTxt,'the owl still shows the goal during the reveal: '+txt);
+    txt=await say(); assert(txt===goalTxt,'the owl shows the goal during the reveal: '+txt);
     assert(await page.evaluate(()=>!!document.querySelector('#speech .icons .gb.big')),'the goal bubble is shown');
     await sleep(400); await page.screenshot({path:path.join(outDir,'lives-animals-reveal.png')});
-    s=await waitFor(x=>!x.reveal?x:null,'reveal over',5000); assert(s.progress===1&&s.hearts===2&&s.wrongTries===0&&s.round===1&&s.screen==='play','play goes on with the bar kept: '+JSON.stringify({p:s.progress,h:s.hearts,w:s.wrongTries}));
-    assert(s.bubbles.every(b=>!b.glow),'glow cleared after the reveal'); txt=await say(); assert(txt===goalTxt,'goal back after the reveal'); noErrors(); await goHome();
+    s=await waitFor(x=>!x.reveal&&x.hearts===3?x:null,'round restarted',5000); assert(s.progress===0&&s.round===1&&s.screen==='play','same round from zero: '+JSON.stringify({p:s.progress,r:s.round,sc:s.screen}));
+    assert(s.bubbles.every(b=>!b.glow),'glow cleared after the restart'); txt=await say(); assert(txt===goalTxt,'goal back after the restart'); noErrors(); await goHome();
 
-    // ---- easy words: lose the three hearts; the last one shows the answer exactly once, then the same round restarts with nothing recorded
+    // ---- easy words: nothing given away while playing; the third miss shows the answer exactly once, then the same round restarts with nothing recorded
     step='4-words'; await page.evaluate(()=>{ window.__bps.setMode('words'); window.__bps.setLanguage('fr'); }); s=await startRound(1); await assertHearts(3,'start');
     assert(s.problem&&s.problem.kind==='pic','picture round '+JSON.stringify(s.problem)); const best0=JSON.stringify(s.best); await noGiveaway(s);
-    for(let q=0;q<3;q++){
-      s=await state(); const k0=s.problem.key, w0=s.problem.word; assert(s.hearts===3-q,`question ${q+1} starts with ${3-q} hearts, got ${s.hearts}`);
-      for(let i=1;i<=2;i++){ s=await tapWrong(); assert(s.wrongTries===i&&!s.reveal&&s.hearts===3-q,`q${q+1} strike ${i}: ${JSON.stringify({w:s.wrongTries,h:s.hearts,r:s.reveal})}`); assert(s.problem.key===k0,'same word'); await noGiveaway(s); }
-      if(q<2){
-        s=await tapWrong(); assert(s.reveal===true,'third strike reveals'); await assertHearts(2-q,'q'+(q+1)+' lost'); txt=await say(); assert(txt===w0,'reveal shows the word: '+txt);
-        assert(await page.evaluate(()=>!!document.querySelector('#speech .en')),'reveal shows the english word'); await glowSoon();
-        if(q===0){ await sleep(300); await page.screenshot({path:path.join(outDir,'lives-words-reveal.png')}); }
-        s=await waitFor(x=>!x.reveal?x:null,'reveal over',5000); assert(s.problem.key!==k0,'new word after a lost question'); assert(s.round===1&&s.screen==='play','still playing'); await noGiveaway(s);
-      } else {
-        // the last heart: exactly one reveal of 2.6 s, then every bubble pops and the round starts again with three hearts
-        const s0=await state(); const b=pickWrong(s0); assert(b,'a wrong bubble for the last strike'); await tap(b.x,b.y);
-        let reveals=0, was=false, glowed=false, sawZero=false, fin=null; const t0=Date.now();
-        while(Date.now()-t0<5000){ const x=await state(); if(x.reveal&&!was){ reveals++; if(reveals===1){ const h=await hud(); assert(h.lost===3,'all hearts drawn lost during the reveal: '+JSON.stringify(h)); txt=await say(); assert(txt===w0,'the last reveal shows the failed word: '+txt); } }
-          if(x.reveal){ assert(x.bubbles.every(b=>b.isTarget||!b.glow),'only targets glow'); if(x.bubbles.some(b=>b.isTarget&&b.glow)||!x.bubbles.some(b=>b.isTarget)) glowed=true; }
-          was=x.reveal; if(x.hearts===0) sawZero=true; if(reveals>0&&!x.reveal&&x.hearts===3){ fin=x; break; } await sleep(50); }
-        assert(reveals===1,'exactly one reveal on the last heart, got '+reveals); assert(sawZero,'hearts reached 0'); assert(glowed,'targets glow during the last reveal');
-        assert(fin,'round restarted within 5 s'); assert(fin.progress===0&&fin.round===1&&fin.screen==='play'&&fin.wrongTries===0,'same round from zero: '+JSON.stringify({p:fin.progress,r:fin.round,sc:fin.screen,w:fin.wrongTries}));
-        await assertHearts(3,'after the restart'); assert(JSON.stringify(fin.best)===best0,'nothing recorded for a lost round'); assert(fin.problem.key!==k0||true,'a question is set');
-        await sleep(600); await page.screenshot({path:path.join(outDir,'lives-words-restart.png')}); s=await state(); await noGiveaway(s);
-        assert(s.hearts===3&&s.reveal===false,'hearts never stick at zero');
-      }
-    }
+    const k0=s.problem.key, w0=s.problem.word;
+    for(let i=1;i<=2;i++){ s=await tapWrong(); assert(!s.reveal,'no reveal after miss '+i); await assertHearts(3-i,'miss '+i); assert(s.problem.key===k0,'same word'); await noGiveaway(s); }
+    { const s0=await state(); const b=pickWrong(s0); assert(b,'a wrong bubble for the last miss'); await tap(b.x,b.y);
+      let reveals=0, was=false, glowed=false, sawZero=false, fin=null; const t0=Date.now();
+      while(Date.now()-t0<5000){ const x=await state(); if(x.reveal&&!was){ reveals++; if(reveals===1){ const h=await hud(); assert(h.lost===3,'all hearts drawn lost during the reveal: '+JSON.stringify(h)); txt=await say(); assert(txt===w0,'the reveal shows the failed word: '+txt);
+            assert(await page.evaluate(()=>!!document.querySelector('#speech .en')),'reveal shows the english word'); await sleep(300); await page.screenshot({path:path.join(outDir,'lives-words-reveal.png')}); } }
+        if(x.reveal){ assert(x.bubbles.every(b=>b.isTarget||!b.glow),'only targets glow'); if(x.bubbles.some(b=>b.isTarget&&b.glow)||!x.bubbles.some(b=>b.isTarget)) glowed=true; }
+        was=x.reveal; if(x.hearts===0) sawZero=true; if(reveals>0&&!x.reveal&&x.hearts===3){ fin=x; break; } await sleep(50); }
+      assert(reveals===1,'exactly one reveal on the last heart, got '+reveals); assert(sawZero,'hearts reached 0'); assert(glowed,'targets glow during the reveal');
+      assert(fin,'round restarted within 5 s'); assert(fin.progress===0&&fin.round===1&&fin.screen==='play'&&fin.wrongTries===0,'same round from zero: '+JSON.stringify({p:fin.progress,r:fin.round,sc:fin.screen,w:fin.wrongTries}));
+      await assertHearts(3,'after the restart'); assert(JSON.stringify(fin.best)===best0,'nothing recorded for a lost round'); assert(fin.problem.key!==k0,'a new word after the restart');
+      await sleep(600); await page.screenshot({path:path.join(outDir,'lives-words-restart.png')}); s=await state(); await noGiveaway(s);
+      assert(s.hearts===3&&s.reveal===false,'hearts never stick at zero'); }
     noErrors(); await goHome(); s=await state(); assert(JSON.stringify(s.best)===best0,'sticker book untouched');
     assert(await page.evaluate(()=>document.querySelectorAll('#book .slot .st img').length===0),'no stars shown in easy');
 
-    // ---- hard is unchanged: three hearts, a single wrong tap costs one
+    // ---- hard: the same three hearts, a single wrong tap costs one
     step='5-hard'; await page.evaluate(()=>{ window.__bps.setDifficulty('hard'); window.__bps.setMode('safari'); }); s=await startRound(1); await assertHearts(3,'hard start');
     s=await tapWrong(); assert(s.hearts===2&&!s.reveal,'one wrong tap costs a heart in hard: '+JSON.stringify({h:s.hearts,r:s.reveal})); await assertHearts(2,'hard after a wrong tap');
     noErrors(); await goHome(); await page.evaluate(()=>window.__bps.setDifficulty('easy'));
